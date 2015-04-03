@@ -1,0 +1,247 @@
+
+
+
+;                                                           
+; Lecture 16
+; Lists of Lists - Files
+; 
+
+
+(require 2htdp/batch-io)
+
+
+;; A List-of-numbers is either:
+;;   - empty, or
+;;   - (cons Number List-of-numbers)
+
+#;
+(define (lon-func a-lon ...)
+  (cond [(empty? a-lon) ...]
+        [(cons? a-lon) (... (first a-lon) ...
+                            (lon-func (rest a-lon) ...) ...)]))
+
+
+;; A List-of-strings (or, LOS) is either:
+;;   - empty or
+;;   - (cons String LOS)
+;; interp. a list of votes for favorite animals
+
+; examples
+(define VOTES1 (cons "dillo" (cons "boa" (cons "elephant" empty))))
+(define VOTES2 (cons "lion" (cons "penguin" (cons "penguin" empty))))
+(define VOTES3 (cons "hippo" (cons "seal" (cons "lion" (cons "zebra" empty)))))
+
+#; ; template
+(define (los-func a-los ...)
+  (cond [(empty? a-los) ...]
+        [(cons? a-los) (... (first a-los) ...
+                            (los-func (rest a-los) ...))]))
+
+
+
+
+;; A List-of-list-of-strings (or, LOLOS) is either:
+;;   - empty, or
+;;   - (cons LOS LOLOS)
+;; interp. a list of daily voting records for favorite animals
+
+; example
+(define D-VOTES (cons VOTES1 (cons VOTES2 (cons VOTES3 empty))))
+
+#; ; template
+(define (lolos-func a-lolos ...)
+  (cond [(empty? a-lolos) ...]
+        [(cons? a-lolos) (... (los-func (first a-lolos)) ...
+                              (lolos-func (rest a-lolos) ...))]))
+
+
+
+
+
+
+
+
+
+
+
+
+;                                                       
+;                                                       
+;   ;;;;;                      ;  ;                     
+;   ;                          ;                        
+;   ;      ;   ;  ; ;;    ;;  ;;; ;   ;;;   ; ;;    ;;; 
+;   ;      ;   ;  ;;  ;  ;  ;  ;  ;  ;   ;  ;;  ;  ;   ;
+;   ;;;;   ;   ;  ;   ;  ;     ;  ;  ;   ;  ;   ;  ;    
+;   ;      ;   ;  ;   ;  ;     ;  ;  ;   ;  ;   ;   ;;; 
+;   ;      ;   ;  ;   ;  ;     ;  ;  ;   ;  ;   ;      ;
+;   ;      ;  ;;  ;   ;  ;  ;  ;  ;  ;   ;  ;   ;  ;   ;
+;   ;       ;; ;  ;   ;   ;;   ;; ;   ;;;   ;   ;   ;;; 
+;                                                       
+;                                                       
+;                                                       
+
+
+
+
+
+
+;; total-votes : LOLOS -> Number
+;; compute the total number of votes over all days
+
+(check-expect (total-votes empty) 0)
+(check-expect (total-votes D-VOTES) 10)
+(check-expect (total-votes (cons (list "tiger" "penguin") D-VOTES))  12)
+
+(define (total-votes a-lolos)
+  (cond [(empty? a-lolos) 0]
+        [(cons? a-lolos) (+ (votes-in-day (first a-lolos))
+                            (total-votes (rest a-lolos)))]))
+
+
+
+;; votes-in-day : LOS -> Number
+;; compute the number of votes in a given daily list of votes
+
+(check-expect (votes-in-day empty) 0)
+(check-expect (votes-in-day VOTES3) 4)
+(check-expect (votes-in-day (cons "boa" VOTES3)) 5)
+
+(define (votes-in-day a-los)
+  (cond [(empty? a-los) 0]
+        [(cons? a-los) (+ 1 (votes-in-day (rest a-los)))]))
+
+
+
+
+
+
+;; total-votes-for : String LOLOS -> Number
+;; produce the total number of votes for the given animal
+
+(check-expect (total-votes-for "boa" empty) 0)
+(check-expect (total-votes-for "boa" D-VOTES) 1)
+(check-expect (total-votes-for "boa" (cons (cons "tiger" (cons "boa" (cons "boa" empty)))
+                                           D-VOTES))
+              3)
+
+(define (total-votes-for s a-lolos)
+  (cond [(empty? a-lolos) 0]
+        [(cons? a-lolos) (+ (daily-votes-for s (first a-lolos))
+                            (total-votes-for s (rest a-lolos)))]))
+
+
+
+;; daily-votes-for : String LOS -> Number
+;; produce the number of votes for the given animal in the 
+;; given daily list of votes
+
+(check-expect (daily-votes-for "boa" empty) 0)
+(check-expect (daily-votes-for "boa" VOTES1) 1)
+(check-expect (daily-votes-for "boa" (cons "tiger" VOTES1)) 1)
+(check-expect (daily-votes-for "boa" (cons "boa" VOTES1)) 2)
+
+
+(define (daily-votes-for s a-los)
+  (cond [(empty? a-los) 0]
+        [(cons? a-los) (if (string=? s (first a-los))
+                           (+ 1 (daily-votes-for s (rest a-los)))
+                           (daily-votes-for s (rest a-los)))]))
+
+
+
+
+
+
+
+;                                                              
+;                                                              
+;     ;;;                   ;                ;                 
+;    ;   ;                  ;                ;                 
+;   ;     ;  ; ;  ;;;    ;; ;  ;   ;   ;;;  ;;;  ;;;           
+;   ;        ;;  ;   ;  ;  ;;  ;   ;  ;   ;  ;  ;   ;          
+;   ;   ;;;  ;       ;  ;   ;  ;   ;      ;  ;  ;   ;          
+;   ;     ;  ;    ;;;;  ;   ;  ;   ;   ;;;;  ;  ;;;;;          
+;   ;     ;  ;   ;   ;  ;   ;  ;   ;  ;   ;  ;  ;              
+;    ;   ;   ;   ;  ;;  ;  ;;  ;  ;;  ;  ;;  ;  ;   ;          
+;     ;;;    ;    ;; ;   ;; ;   ;; ;   ;; ;  ;;  ;;;   ;  ;  ; 
+;                                                              
+;                                                              
+;                                                              
+
+(define ANIMALS
+  (list "elephant" "tiger" "lion" "gorilla" "rhino" "llama" "manatee"
+        "bear" "penguin" "zebra" "boa" "panda" "dillo" "seal" "otter" "giraffe"
+        "flamingo" "hippo"))
+
+
+
+
+;; total-votes-for/all : LOS LOLOS -> List-of-numbers
+;; produce a list of the number of votes for each of the animals in
+;; the given list of all-votes
+
+(check-expect (total-votes-for/all (list "dillo") (read-words/line "zoo-favs-large.txt"))
+              (list 2054))
+(check-expect (total-votes-for/all (list "boa" "dillo" "penguin" "panda") (read-words/line "zoo-favs-large.txt"))
+              (list 1908 2054 4275 3441))
+(check-expect (total-votes-for/all (append (list "boa" "panda") VOTES1)  (read-words/line "zoo-favs-large.txt"))
+              (list 1908 3441 2054 1908 3167))
+
+(define (total-votes-for/all animals all-votes)
+  (cond [(empty? animals) empty]
+        [(cons? animals) (cons (total-votes-for (first animals) all-votes)
+                               (total-votes-for/all (rest animals) all-votes))]))
+
+
+
+;; animals-with-votes : LOS LOLOS Number -> LOS
+;; produce a list of those animals in the set of votes who have exactly n total votes
+(check-expect (animals-with-votes ANIMALS D-VOTES 2) 
+              (list "lion" "penguin"))
+(check-expect (animals-with-votes (cons "parrots" ANIMALS) D-VOTES 2) 
+              (list "lion" "penguin"))
+(check-expect (animals-with-votes ANIMALS empty 2) 
+              empty)
+(check-expect (animals-with-votes empty D-VOTES 2) 
+              empty)
+(check-expect (animals-with-votes ANIMALS D-VOTES 5) 
+              empty)
+
+(define (animals-with-votes animals votes n)
+  (cond [(empty? animals) empty]
+        [(cons? animals) (if (= n (total-votes-for (first animals) votes))
+                             (cons (first animals) 
+                                   (animals-with-votes (rest animals) votes n))
+                             (animals-with-votes (rest animals) votes n))]))
+
+
+
+
+
+
+;                                                                          
+;                                                                          
+;   ;;;;;           ;             ;;                         ;;;  ;        
+;   ;    ;          ;            ;                          ;     ;        
+;   ;     ;   ;;;  ;;;  ;;;     ;;; ; ;  ;;;   ; ;;  ;;    ;;; ;  ;   ;;;  
+;   ;     ;  ;   ;  ;  ;   ;     ;  ;;  ;   ;  ;;  ;;  ;    ;  ;  ;  ;   ; 
+;   ;     ;      ;  ;      ;     ;  ;   ;   ;  ;   ;   ;    ;  ;  ;  ;   ; 
+;   ;     ;   ;;;;  ;   ;;;;     ;  ;   ;   ;  ;   ;   ;    ;  ;  ;  ;;;;; 
+;   ;     ;  ;   ;  ;  ;   ;     ;  ;   ;   ;  ;   ;   ;    ;  ;  ;  ;     
+;   ;    ;   ;  ;;  ;  ;  ;;     ;  ;   ;   ;  ;   ;   ;    ;  ;  ;  ;   ; 
+;   ;;;;;     ;; ;  ;;  ;; ;     ;  ;    ;;;   ;   ;   ;    ;  ;  ;   ;;;  
+;                                                                          
+;                                                                          
+;                                                                          
+
+
+; (define FILE-VOTES (read-words/line "zoo-favs-large.txt"))
+; (total-votes-for/all ANIMALS FILE-VOTES)
+; (animals-with-votes ANIMALS FILE-VOTES ...)
+
+
+
+
+
+
+
