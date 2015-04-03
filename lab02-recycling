@@ -1,0 +1,21 @@
+; Nick Vernon & Orbelin Palacios
+
+
+;; recycling-pay : Number -> Number
+;; given number of cans handled, determine pay
+
+
+;(define (recycling-pay x) 0)  ; stub
+
+(check-expect (recycling-pay 0) 10)
+(check-expect (recycling-pay 5) 30)
+(check-expect (recycling-pay 2) 18)
+
+#;(define (recycling-pay x)    ; template
+  (... x ...))
+
+(define (recycling-pay x)
+  (+ 10 (* 4 x)))
+
+(recycling-pay 1)
+(recycling-pay 3)
