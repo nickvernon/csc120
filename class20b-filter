@@ -1,0 +1,119 @@
+;; Nick Vernon
+;; LAB 8 - DESIGNING ABSTRACTIONS
+;; PART B - filter
+
+(require 2htdp/image)
+
+
+;                                                           
+; TASK 1.
+; 
+; Consider the following pair of functions. Define an 
+; abstract function based on them and redefine the original 
+; functions as one liners. Call the abstract function `my-filter`. 
+; You do not need to write a signature, purpose or examples for 
+; `my-filter` yet.
+; 
+; You will need to switch your Language Level in DrRacket 
+; to "Intermediate Student" in order to complete this 
+; exercise.
+; 
+
+
+
+
+; pos-only : (Listof Number) -> (Listof Number)
+; produce only positive numbers in given list
+(check-expect (pos-only empty) empty)
+(check-expect (pos-only (list 1 -2 3 -4)) (list 1 3))
+
+(define (pos-only lon)
+  (my-filter positive? lon))
+
+; neg-only : (Listof Number) -> (Listof Number)
+; produce only negative numbers in given list
+(check-expect (neg-only empty) empty)
+(check-expect (neg-only (list 1 -2 3 -4)) (list -2 -4))
+
+(define (neg-only lon)
+  (my-filter negative? lon))
+
+
+;; my-filter : (X -> Y) (Listof X) -> (Listof X)
+;; produce a list of only those numbers from the given list for which
+;; the predicate (function produces a boolean) p produces true
+
+(define (my-filter p lon)
+  (cond [(empty? lon) empty]
+        [(cons? lon)
+         (if (p (first lon))
+             (cons (first lon) (my-filter p (rest lon)))
+             (my-filter p (rest lon)))])) 
+
+
+;                                                           
+; TASK 2.
+; 
+; Use your filter function to design a function called `wide-only`
+; that consumes a list of images and produces a list containing 
+; only those images that are wider than they are tall.
+; 
+; A helper function is already provided for you.
+; 
+
+           
+;; wide-only : (Listof Image) -> (Listof Image)
+;; produce a list containing only those images in the given list for which wide? produces true
+
+(check-expect (wide-only empty) empty)
+(check-expect (wide-only (list (rectangle 40 20 "outline" "black")
+                               (rectangle 20 40 "outline" "black")))
+              (list (rectangle 40 20 "outline" "black")))
+
+(define (wide-only loi)
+  (my-filter wide? loi))
+
+
+
+;; wide? : Image -> Boolean
+;; Produce true if image-width is > image-height.
+(check-expect (wide? (rectangle 10 20 "solid" "blue")) false)
+(check-expect (wide? (rectangle 20 20 "solid" "blue")) false)
+(check-expect (wide? (rectangle 20 10 "solid" "blue")) true)
+
+(define (wide? img)
+  (> (image-width img)
+     (image-height img)))
+
+
+
+;                                                           
+; TASK 3.
+; 
+; The my-filter function is an abstraction of the following
+; functions:
+; 
+; ; pos-only : (Listof Number) -> (Listof Number)
+; ; neg-only : (Listof Number) -> (Listof Number)
+; ; wide-only : (Listof Image) -> (Listof Image)
+; 
+; Now, write a general signature for filter2 that is
+; consistent with its use for defining all three of these
+; functions.
+; 
+
+
+
+
+
+
+
+
+;                                                           
+; ISL has a built in version of the `my-filter` function called,
+; simply, `filter`. We will use that built-in function from
+; now on.
+; 
+
+
+
