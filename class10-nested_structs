@@ -1,0 +1,274 @@
+
+;; IN-CLASS EXERCISES (2/6/2015) - NESTED STRUCTURES
+
+
+;                                                           
+; 
+; (***** Scroll down to find TASKs. *****)
+;       Complete as many as you can.
+; 
+; 
+; .  .
+; 
+
+
+
+;;==========================================================
+;;==========================================================
+;;==========================================================
+;;==========================================================
+;;==========================================================
+;; DATA DEFINITIONS:
+
+
+;; A Posn is (make-posn Number Number)
+;; ...
+
+#;  ; template
+(define (posn-func a-posn)
+  (... (posn-x a-posn)
+       (posn-y a-posn) ...))
+
+
+
+(define-struct ant (weight loc))
+;; An Ant is (make-ant Number Posn)
+;; interp. an ant of particular weight in ounces an a location in
+;;         the zoo, relative to their ant hill
+
+(define ANT1 (make-ant 0.001 (make-posn 4 5)))
+(define ANT2 (make-ant 0.007 (make-posn 0 0)))
+
+#; ; template
+(define (ant-func an-ant)
+  (... (ant-weight an-ant)     
+       (posn-func (ant-loc an-ant)) ...)) 
+
+
+
+
+
+;;==========================================================
+;;==========================================================
+;;==========================================================
+;;==========================================================
+;;==========================================================
+;; FUNCTIONS
+
+
+
+
+;; ant-at-home? : Ant -> Boolean
+;; produces true if the given ant's position is (0, 0)
+(check-expect (ant-at-home? ANT1) false)
+(check-expect (ant-at-home? ANT2) true)
+
+(define (ant-at-home? an-ant) 
+  (posn-at-origin? (ant-loc an-ant)))
+
+
+
+;; posn-at-origin? : Posn -> Boolean
+;; produces true if given posn is the origin (0, 0)
+(check-expect (posn-at-origin? (make-posn 0 0)) true)
+(check-expect (posn-at-origin? (make-posn 1 5)) false)
+
+(define (posn-at-origin? a-posn)
+  (and (= 0 (posn-x a-posn))
+       (= 0 (posn-y a-posn))))
+
+
+;                                                           
+; TASK:
+; 
+; Develop a function that adds the corresponding components
+; of two Posns together.
+; 
+
+
+;; posn-add : Posn Posn -> Posn
+;; produce a Posn with the sum of the x and y values of the given posn
+
+(check-expect (posn-add (make-posn 4 5) (make-posn 1 2))
+              (make-posn 5 7))
+(check-expect (posn-add (make-posn 3 4) (make-posn -2 0))
+              (make-posn 1 4))
+
+(define (posn-add p1 p2)   ; stub
+  p1)
+
+
+
+
+;                                                           
+; TASK:
+; 
+; Define `feed-ant` which feeds an ant 0.001 lbs of food.
+; 
+
+
+;; feed-ant : Ant -> Ant
+
+
+
+
+
+;                                                           
+;  TASK: 
+;  
+;  Define `move-ant` which takes an ant and an amount to
+;  move in the x direction and an amount to move in the
+;  y direction and produces the moved ant.
+; (Hint: the template suggests a posn helper function -
+;        do you happen to have one?)
+; 
+
+
+;; move-ant : Ant Number Number -> Ant
+
+
+
+
+
+
+
+
+
+;;==========================================================
+;;==========================================================
+;;==========================================================
+;;==========================================================
+;;==========================================================
+
+;; ***** EXTRA *****
+
+;                                                           
+;  .
+;  
+;  We would like to add two more animals to our zoo: tigers
+;  and rabbits. Tigers have a name and weight. Rabbits
+;  have an age and color. Additionally, each of these two
+;  animals acts as sponsor for a particular commercial
+;  product. For example, sometimes our tiger performs in
+;  Frosted Flakes ads, and our rabbit performs in Trix
+;  commercials. We want to keep track of what product these
+;  animals are currently sponsoring. A Product is described 
+;  by the name and type of the product and the name of its 
+;  manufacturer.
+;  
+;  Since the data definition for tigers and rabbits depends
+;  on products, we define products first...
+;  
+
+
+
+(define-struct product (name type brand))
+;; A Product is (make-product String String String)
+;; interp. represents a commercial product
+
+(define TRIX (make-product "Trix" "cereal" "General Mills"))
+(define FLAKES (make-product "Frosted Flakes" "cereal" "Kellogs"))
+(define AA-PACK (make-product "AA 16 Pack" "battery" "Energizer"))
+(define SUPER-GAS (make-product "Exxon Supreme 93" "gas" "Exxon"))
+
+#;   ; template
+(define (product-func a-prod ...)
+   ( ... (product-name a-prod) ...
+     ... (product-type a-prod) ...
+     ... (product-brand a-prod) ...
+    ))
+
+
+
+;                                                           
+;  TASK: 
+;  
+;  Provide a complete data definition for tigers, based on
+;  the following structure definition. SHOW ME YOUR
+;  DATA DEFINITION WHEN YOU ARE DONE WITH IT.
+
+
+
+(define-struct tiger (name weight sells))
+;; Tiger is (make-tiger String Number Product)
+
+;; ...
+
+
+
+
+
+
+
+;                                                           
+;  Now some functions: 
+;  
+;  TASK: 
+;  
+;  In today's volatile economy many famous product lines 
+;  are being bought out by competing companies. Write a 
+;  function, "change-brand",  which takes a tiger and the 
+;  name of a company and produces a tiger that sells the 
+;  same product but for the new company brand name. 
+;  As part of the ensuing stress, the weight of the tiger 
+;  also decreases by 25 pounds in the process.
+;  
+;  Here's an example:
+;  
+;  (change-brand (make-tiger "Tony the Tiger" 250 FLAKES)
+;                "Berry Mills")
+;  -->
+;  (make-tiger "Tony the Tiger" 225
+;              (make-product "Frosted Flakes"
+;                            "cereal" 
+;                            "Berry Mills"))
+
+
+; change-brand : Tiger String -> Tiger
+; produce a tiger whose loyalty has switched to the given company
+
+
+
+;  NOTE:
+;  handling the nested structure often requires defining 
+;  a new helper function -- in this case we need a function 
+;  that changes the brand of a particular product when a 
+;  company buys it, e.g. 
+;                   ;; buy-out : Product String -> Product
+
+
+
+
+
+
+
+
+
+
+
+;                                                           
+;  TASK:
+; 
+;  Now we write a function to capture what happens when 
+;  tigers are fed, which is that their weight increases 
+;  by 10 pounds.
+;  
+
+
+; feed-tiger : Tiger -> Tiger
+; produces a tiger that is 10 pounds heavier due to being fed
+
+
+
+
+;  NOTE: 
+;  we don't need a helper function if we're not   
+;  interested in decomposing the nested data
+
+
+
+
+
+
+
+
