@@ -1,0 +1,170 @@
+;; Nick Vernon & Orbelin Palacios
+;; Lab 3
+
+
+(require 2htdp/image)
+
+
+;; Body Mass Index (BMI)
+
+
+;; a. [Computing BMI Values]
+; compute-bmi: Number Number -> BMIValue
+; given a user's height (in.) and weight (lbs.) produce BMI value
+
+(check-within (compute-bmi 150 70) 21.5 .1)
+(check-within (compute-bmi 170 80) 18.7 .1)
+(check-within (compute-bmi 130 60) 25.4 .1)
+
+#;(define (compute-bmi w h)  ; template
+     (... w h ...))
+
+;(define (compute-bmi w h) 0) ; stub
+     
+(define (compute-bmi w h)
+     (/ (* w 703) (* h h)))
+
+(compute-bmi 170 80)
+(compute-bmi 130 60)
+
+
+;; b. [Data Definition]
+
+;; a BMIValue is one of:
+;; -0
+;; -a number in (0,18.5)      
+;; -a number in [18.5, 25)   
+;; -a number in [25,30)       
+;; -a number greater than 30 
+;; interp. the BMI of body fat, with 0 representing an invalid measurement
+
+;examples
+(define skinny 18)
+(define chubby 27)
+(define fat 40)
+
+#;(define (BMIValue-func a-BMIValue)  ; template
+     (cond
+       [ (= a-BMIValue 0) ...]
+       [ (< 0 a-BMIValue 18.5) ...]
+       [ (and (<= 18.5 a-BMIValue) (< a-BMIValue 25)) ...]
+       [ (and (<= 25 a-BMIValue) (< a-BMIValue 30)) ...]
+       [ (> 30 a-BMIValue) ...]
+       ))
+
+; c. [Interpreting BMI Values]
+
+;; a BMICategory is one of:
+;; -"invalid"
+;; -"underweight"
+;; -"normal"
+;; -"overweight"
+;; -"obese"
+;; interp. the category of BMI
+
+;;examples
+(define thin "underweight")
+(define fit "normal")
+(define big "overweight")
+
+(define (BMICategory-func a-BMICategory)    ; template
+  (cond
+    [(string=? a-BMICategory "invalid") ...]
+    [(string=? a-BMICategory "underweight") ...]
+    [(string=? a-BMICategory "normal") ...]
+    [(string=? a-BMICategory "overweight") ...]
+    [(string=? a-BMICategory "obese") ...]))
+
+;; interpret-bmi : BMIValue -> BMICategory
+;; produce a category for a given BMI value
+  
+(check-expect (BMICategory 0) "invalid")    
+(check-expect (BMICategory 18) "underweight")
+(check-expect (BMICategory 22) "normal")
+(check-expect (BMICategory 27) "overweight")
+(check-expect (BMICategory 40) "obese")
+
+#;(define (BMICategory BMIValue) "")   ; stub
+#;(define (BMICategory BMIValue)       ; template
+  (... BMIValue ...))
+
+(define (BMICategory BMIValue)
+  (cond
+       [ (= BMIValue 0) "invalid"]
+       [ (< 0 BMIValue 18.5) "underweight"]
+       [ (and (<= 18.5 BMIValue) (< BMIValue 25)) "normal"]
+       [ (and (<= 25 BMIValue) (< BMIValue 30)) "overweight"]
+       [ (> BMIValue 30) "obese"]
+       ))
+
+; d.[Exercise Advice]
+
+;; needs-exercise? : BMIValue -> Boolean
+;; given a BMIValue for a subject, produces true if subject needs exercise
+
+
+(check-expect (needs-exercise? 0) false)
+(check-expect (needs-exercise? 15) false)
+(check-expect (needs-exercise? 22) false)
+(check-expect (needs-exercise? 28) true)
+(check-expect (needs-exercise? 40) true)
+
+#;(define (needs-exercise? BMIValue) true)  ; stub
+#;(define (needs-exercise? BMIValue)        ; template
+    (... BMIValue ...))
+(define (needs-exercise? BMIValue)
+  (cond
+       [ (= BMIValue 0) false]
+       [ (< 0 BMIValue 18.5) false]
+       [ (and (<= 18.5 BMIValue) (< BMIValue 25)) false]
+       [ else true ]
+       ))
+
+; e. [Putting It Together]
+
+;; weight-advice : Number Number -> Image
+;; given a person's height and weight, produce an image that
+;; reflects their BMI value
+
+(check-expect (weight-advice 0 1) .)
+(check-expect (weight-advice 120 70) .)
+(check-expect (weight-advice 150 70) .)
+(check-expect (weight-advice 200 70) .)
+(check-expect (weight-advice 200 60) .)
+              
+#;(define (weight-advice w h)     ;stub
+    (circle 15 "solid" "blue"))
+
+#;(define (weight-advice w h)      ;template
+     (... w h ...))
+
+                                                     
+    
+(define (weight-advice w h)
+  (cond
+     [ (= (compute-bmi w h) 0) (place-image (text "Invalid" 25 "black") 200 150 (empty-scene 400 300))]
+     [ (< 0 (compute-bmi w h) 18.5) (place-image (beside .(above (text (substring (string-append "BMI Value: " (number->string (exact->inexact (compute-bmi w h)))) 0 16) 25 "black")
+                                                        (above (text "Underweight." 25 "black")
+                                                               (text "Needs to eat more!" 25 "black")))) 200 150 (empty-scene 400 300))]
+     [ (and (<= 18.5 (compute-bmi w h)) (< (compute-bmi w h) 25)) (place-image (beside .(above (text (substring (string-append "BMI Value: " (number->string (exact->inexact (compute-bmi w h)))) 0 16) 25 "black")
+                                                        (above (text "Normal." 25 "black")
+                                                               (text "Healthy weight." 25 "black")))) 275 200 (empty-scene 550 400))]
+     [ (and (<= 25 (compute-bmi w h)) (< (compute-bmi w h) 30)) (place-image (beside .(above (text (substring (string-append "BMI Value: " (number->string (exact->inexact (compute-bmi w h)))) 0 16) 25 "black")
+                                                        (above (text "Overweight." 25 "black")
+                                                               (text "Needs to exercise!" 25 "black")))) 200 200 (empty-scene 400 400))]
+     [ (> (compute-bmi w h) 30) (place-image (beside .(above (text (substring (string-append "BMI Value: " (number->string (exact->inexact (compute-bmi w h)))) 0 16) 25 "black")
+                                                        (above (text "Obese." 25 "black")
+                                                               (text "Needs to exercise!!!" 25 "black")))) 200 200 (empty-scene 400 400))]
+       ))
+
+     
+
+
+
+
+
+(weight-advice 150 70)
+
+
+
+
