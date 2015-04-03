@@ -1,0 +1,139 @@
+;; Nick Vernon
+;; IN-CLASS EXERCISES (3/18/2015) -
+;; LAMBDA
+
+(require 2htdp/image)
+
+; FORM/NOTATION:
+; 
+; (λ (paramater name(s)...) (...body...))
+; ;Example
+; (λ (a-cd) (not (zero? (cd-copies a-cd))))
+; 
+; ;;; EXAMPLE1:
+; ;; titles-in-stock: [List-of CD] -> [List-of String]
+; ;; consumes a [List-of CD] and produces the *titles only
+; ;; of all those cds with at least 1 copy in stock
+; (check-expect (titles-in-stick CDs)
+;               (list "greatest hits" "beach boys live"
+;                     "marriage of figaro"))
+; ;BEFORE
+; (define (titles-in-stock alocd)
+;   (local [
+;           ; in-stock? : CD -> Boolean
+;           (define (in-stock? a-cd)
+;             (not (zero? (cd-copies a-cd))))
+;           ]
+;   (map cd-title (filter in-stock? alocd))))
+; ;NOW
+; (define (titles-in-stock alocd)
+;   (map cd-title
+;        (filter (λ (a-cd) (not (zero? (cd-copies a-cd))))
+;                alocd)))
+; 
+; ;;; EXAMPLE2: FUNCTION-PRODUCING-FUNCTION
+; (define A-LIST
+;   (list "apple" "banana" "cherry" "blueberry" "apple" "banana"))
+; ;(filter (λ (a) (string=? a "apple")) A-LIST)
+; ;(filter (λ (a) (string=? a "banana")) A-LIST)
+; ;(filter (λ (a) (string=? a "cherry")) A-LIST)
+; 
+; ; make-is-string: String -> (String -> Boolean)
+; ; produces a FUNCTION that checks if a string
+; ; given to it matches the given string s
+; 
+; (define (f s)
+;   (λ (a) (string=? a s)))
+; 
+; (filter (f "apple") A-LIST)
+; (filter (f "banana") A-LIST)
+; (filter (f "cherry") A-LIST)
+; 
+
+;                                                           
+; *** Make sure your language level is set to:
+; "Intermediate student with lambda".
+; 
+
+;                                                           
+; TASK 1.
+; 
+; Write down a lambda expression for each of the following:
+; 
+; a. consumes a number and decides whether it is less than 10;
+; 
+; b. consumes two numbers, multiplies them, and turns the 
+;    result into a string;
+; 
+; c. consumes an Posn p and a rectangular Image and adds a 
+;    red 3-pixel dot to the image at p;
+; 
+; 
+
+;;; a.
+(check-expect (a 8) true)
+(check-expect (a 12) false)
+
+(define (a a-num)
+  (< a-num 10))
+
+;(λ (a-num) (< a-num 10))
+
+;;; b.
+(check-expect (b 2 2) "4")
+
+(define (b x y)
+  (number->string (* x y)))
+
+;(λ (b x y) (number->string (* x y)))
+
+;;; c. 
+
+#;(λ (p ing) (place-image (circle 3 "solid" "red")
+                        (posn-x p) (posn-y p)
+                        img))
+
+
+
+
+;                                                           
+; TASK 2.
+; 
+; Use `map` to define the function "convert-euro", which converts 
+; a list of U.S. dollar amounts into a list of euro amounts based
+; on an exchange rate of 1.22 euro for each dollar.
+; 
+; USE a lambda expression to formulate the first parameter to
+; 'map'.
+; 
+
+
+(check-expect (convert-euro empty) empty)
+(check-expect (convert-euro (list 2 1.5 2.2)) (list 2.44 1.83 2.684))
+
+; convert-euro : List-of-dollars -> List-of-euros
+
+(define (convert-euro lod)
+  (map (λ (dol) (* dol 1.22)) lod))
+
+
+
+;                                                           
+; TASK 3.
+; 
+; Use `filter` to define a function, "selection", which consumes 
+; two lists of names and selects all those from the second
+; one that are also on the first. 
+; 
+; USE a lambda expression to formulate the first parameter to
+; 'filter'. The predefined 'member' function may be useful.
+; 
+
+
+(check-expect (selection (list "nick" "orbelin" "mike") (list "nick" "john" "joe")) (list "nick"))
+
+(define (selection lon1 lon2)
+  (filter (λ (name1) (member? name1 lon2))
+          lon1))
+
+
