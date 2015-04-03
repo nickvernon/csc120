@@ -1,0 +1,124 @@
+;; Orbelin Palacios & Nick Vernon
+;; Sets as functions
+
+
+; 
+; REPRESENTING SETS
+; 
+; (This is based on Exercise 243 in the online textbook, HtDP/2e:
+;   http://www.ccs.neu.edu/home/matthias/HtDP2e/part_three.html#(counter._(exercise._ex~3ainfinite-set))
+;  It may help to read the section preceding the exercise (Section 19.4) for
+;  insights.)
+; 
+
+; 
+; Because functions are first-class values in ISL+, we may 
+; think of them as another form of data and use them for 
+; data representation.
+; 
+; Let's consider how to represent sets (in the general,
+; mathematical sense). In previous math courses, you may 
+; have learned that functions (in the mathematical sense) 
+; can be defined/represented as sets. For this exercise, we
+; will go the other way and show how sets can be represented
+; as functions. The moral of the story will be that while
+; set theory is commonly employed/thought of as a foundational 
+; system for mathematics, it is just as possible to use a 
+; theory based on functions (the lambda calculus) as a 
+; foundation for all of (formalizable) mathematics.
+; 
+
+; 
+; TASK:
+; Define a data representation for finite and infinite sets 
+; so that you can represent the sets of all odd numbers, 
+; all even numbers, all numbers divisible by 10, etc. 
+; 
+; Hint: Mathematicians sometimes interpret sets as functions 
+; that consume a potential element e and produce true if the 
+; e belongs to the set and false if it doesn’t. The basic idea 
+; here is to represent a set as a predicate on values, that 
+; is, a function that maps a value (of any type) to Boolean.
+; 
+
+
+
+;; A Set is a function, (X -> Boolean)
+;; interp. S is a set of some elements where if
+;;         (S e1) = true, then e1 is considered to be in the set
+;; and if (S e2) = false, then e2 is not in the set
+
+
+
+; 
+; TASK:
+; 
+; Provide a definition for the empty set.
+; 
+
+
+(define MT-SET (lambda (x) false))
+
+(define EVENS (lambda (x) (and (number? x) (even? x))))
+
+
+;; element-of? : Set X -> Boolean
+
+(check-expect (element-of? EVENS 4) true)
+(check-expect (element-of? EVENS "hello") false)
+
+(define (element-of? S e)
+  (S e))
+
+;; add-element : X Set -> Set
+;; produces a set that is the given set with the one more element added to it
+
+(check-expect (element-of? (add-element 1 EVENS) 1) true) 
+(check-expect (element-of? (add-element -25 EVENS) 13) false)
+(check-expect (element-of? (add-element -25 EVENS) -25) true)
+(check-expect (element-of? (add-element 10 MT-SET) 9) false)
+
+(define (add-element e S)
+  (λ (x) (or (equal? x e)
+             (element-of? S x))))
+   
+;; union : Set Set -> Set
+;; produces a set that combines the elements of two other sets
+
+(check-expect (
+
+
+; 
+; DEFINE the functions:
+; 
+;  element-of? --- which determines whether an element belongs to a set
+;  add-element --- which adds an element to a set
+;  union --- which combines the elements of two sets
+;  intersect --- which collects all elements common to two sets
+;  cart-prod --- which produces a set that is the cartesian product of two sets 
+; 
+; The signatures:
+; 
+;  element-of? : Set Any -> Boolean
+;  add-element : Any Set -> Set
+;  union : Set Set -> Set
+;  intersect : Set Set -> Set
+;  cart-prod : Set Set -> Set
+; 
+; Note: because functions cannot be compared for equality,
+;       it will be a little difficult to write check-expects
+;       for some of the functions that you write below.
+;       Nonetheless, you should write out concrete examples,
+;       in some form, as comments and test your the interactions
+;       between your functions - e.g. if you have implemented
+;       element-of? (which should be easy to write check-expects
+;       for), then you can use it in writing the tests for
+;       add-element:   (check-expect (element-of? (add-element ... ...) ...)   ...)
+; 
+; 
+
+
+
+
+
+
