@@ -1,0 +1,29 @@
+(require (planet nah22/racketui))
+
+;; add : Number Number -> Number
+;; produces sum of two numbers
+(check-expect (add 3 5) 8)
+
+(define (add n m)
+  (+ n m))
+
+; (web-launch
+;   "WEB-APP-TITLE"
+;   (function "INFORMATIONAL-TEXT-FOR-USER"
+;     (YOUR-FUNCTION-NAME  
+;       ["INPUT-LABEL"   INPUT-TYPE]
+;       ["INPUT-LABEL"   INPUT-TYPE]
+;       . . .
+;       ->
+;       ["OUTPUT-LABEL"   OUTPUT-TYPE])))
+
+
+(web-launch
+ "Amazing Addition App"
+ (function "Enter two numbers and I'll tell you the sum"
+    (add
+      ["The first addend" number]
+      ["The second addend" number]
+      ->
+      ["The sum" Number]
+      )))
