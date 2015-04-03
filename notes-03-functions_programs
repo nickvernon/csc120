@@ -1,0 +1,290 @@
+
+;                                                           
+;  Lecture 3
+;  Definitions, Functions, Programs
+
+
+(require 2htdp/image)
+(require 2htdp/universe)
+
+
+;                                                           
+; THIS LECTURE
+; ------------
+; 
+; Review:
+;  Concepts
+;   - Data
+;   - Functions
+;   - Programs
+;  
+;  Definitions
+;   - Named constants
+;   - Function definitions
+;   
+;  Function evalution (stepping through)
+;  'If' expressions (for making decisions)
+; 
+;  
+; =========================================================
+; 
+; DATA
+; 
+; We represent information in a program as data. There
+; are several primitive (built-in) forms of data:
+;  - numbers, like  7  3.14  100000000000001
+;  - strings, like "Bilbo Baggins"
+;  - booleans, true and false
+;  - images, like .
+;  
+; Each type of primitive data comes with some predefined
+; operations. Operations can be combined to form expressions
+; to carry out a given computation.
+; 
+; 
+; A FUNCTION is a way to define (a portion of) a
+; 
+; computation which _____________________________ (Q1)
+; 
+; 
+; A PROGRAM is a description in a particular formal
+; language of a process that manipulates data to
+; achieve some useful result.
+; 
+; Programs are made up of definitions and expressions
+;   - Most programs are made up of smaller pieces 
+;     (functions) combined together in an organized
+;     manner.
+;     
+;   - Definitions are of two types...
+; 
+
+
+
+
+;                                                           
+; NAMED CONSTANTS
+; 
+; - Simply giving a name to a constant value
+; 
+;   (define   _name_   _expression_ )
+; 
+;   - provides meaningful names to useful/special values
+;   - reduces typing and errors when these special values
+;     need to be changed
+;   - makes programs easier to understand
+;   - constant names can be used in any expression, 
+;     including the body of function definitions
+;   - sometimes called 'VARIABLE DEFINITIONS' although
+;     their values cannot be changed **
+;   
+
+
+; temperature (in deg F) when water freezes:
+(define FREEZING 32)
+            ; defining a name for a particular data value
+
+
+; an empty scene:
+(define MT (empty-scene 100 100))   
+            ; example of giving a name 
+; to the result of an expression
+
+
+;                                                           
+;   - Comments remind us what the values represent
+;   - By convention, use uppercase letters for global
+;     constant names.
+;   
+
+  
+
+;                                                           
+; FUNCTION DEFINITIONS
+; 
+;   ( define ( _functionName_  _parameters_ ... )
+;       _body-expression_ )
+; 
+; - To apply (use) a function:
+; 
+;   ( _functionName_  _expression_  ... )
+;   
+; - To evaluate a function application:
+;   > First evaluate (simplify) all the argument 
+;     expressions (operands).
+;   > Then substitute the values of the arguments for
+;     the parameter names in the body of the function
+;     and simplify.
+;     
+; 
+
+
+#;
+(beside . .)
+
+
+#;
+(flip-horizontal .)
+
+
+#;
+(beside . (flip-horizontal .))
+
+
+#;
+(beside . (flip-horizontal .))
+
+
+;                                                           
+; - Functions are a way to capture the pattern of a 
+;   rule/process/expression that we want to apply 
+;   repeatedly.
+;   
+
+
+#;
+(define (mirror ; a-pic
+)
+  (beside ; a-pic
+ (flip-horizontal ; a-pic
+)))
+
+
+#;(mirror .)
+
+; 
+; ==> (beside . (flip-horizontal .))
+;                      ------------------------
+;                  
+; ==> (beside . .)
+;      ----------------------
+;     
+; 
+; ==> .
+; 
+
+
+
+
+; 
+; IF EXPRESSIONs always look like:
+; 
+;   (if <question>
+;       <true-answer>
+;       <false-answer>)
+;   
+; question is evaluated first
+; 
+;  if question produces true
+;     entire if expression is replaced by true answer expression 
+;  if question produces false
+;     entire if expression is replaced by false answer expression 
+;     
+;  and evaluation continues
+;  
+; Use stepper to step this example:
+; 
+; (and tell students to practice with hand-stepping, that
+;  is writing each reduction step down on paper. They can
+;  use the stepper to check their work.) 
+
+
+
+(define I1 (rectangle 10 20 "solid" "red"))
+
+#;(define (tall-or-wide i)
+  (if (< (image-width i)
+         (image-height i))
+      "tall"
+      "wide"))
+
+#;(tall-or-wide I1)
+
+
+; The reduction steps for the above example are:
+; 
+; (tall-or-wide I1)
+; 
+; (tall-or-wide .)
+; 
+; (if (< (image-width .)      NOTE THAT i is replaced with
+;        (image-height .))    . in the same step in which the
+;     "tall"                  call to tall-or-wide is replaced
+;     "wide")                 with the body of the function
+;                            
+; (if (< 10    
+;        (image-height .))  
+;     "tall"               
+;     "wide")
+; 
+; (if (< 10    
+;        20)  
+;     "tall"               
+;     "wide")
+; 
+; (if true  
+;     "tall"               
+;     "wide")
+; 
+; "tall"
+; 
+;     
+
+
+
+
+; Notes:
+;   (Q1) ... may depend on input value(s) that vary (can be
+;       different)
+; 
+;   ** ... cannot be changed in this course.
+; 
+
+
+
+
+; 
+; NEXT, we are going to learn one of the most important 
+; elements of the course: the core of the _Design Recipe_.
+; 
+; Functions are going to be one of our main building blocks.
+; In fact, all the primitive operations in DrRacket are 
+; actually functions that the people who made DrRacket 
+; designed for you to use. Functions allow us to make bigger 
+; pieces out of smaller ones.
+; 
+; We have many goals for the design of functions:
+; 
+;  We want to be able to design them for any purpose.
+;  We want to be confident they do what we want.
+;  We want to be confident we understand how they work.
+;  We want to be confident that they work properly.
+;  We want to be confident we can write new functions 
+;    we need. 
+;  We want to design complex functions as well as simple ones.
+;  We want to be able to take existing functions and change
+;    them when need be.
+; 
+; To achieve all this we are going to use a SYSTEMATIC 
+; approach to DESIGNING functions. We are going to learn 
+; a step by step process that will let us design both 
+; simple functions and complex functions.
+; 
+; 
+; 
+; As we introduce the material we ask for two forms of 
+; patience:
+; 
+;  - If this is all new to you then this may seem a bit
+;    overwhelming. Don't worry.  It's like a first tennis
+;    lesson - at first the ball goes into the net, or over
+;    net.  But you will soon be able to do this by rote.
+;    
+;  - If programming is not new to you, this will seem like
+;    overkill.  You will say that you could write these
+;    functions more quickly without our recipe. You are
+;    right. But be patient, in 4 weeks you will be able
+;    to design functions you almost certainly cannot design
+;    now. (See instructor after class if you think otherwise.)
+;    
+
