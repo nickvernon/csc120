@@ -1,0 +1,40 @@
+;; Orbelin Palacios & Nick Vernon
+;; Lab 2
+
+;; braces : Number -> String
+;; given a number, surround the number with n angle braces
+
+;(define (braces s) "") ; stub
+
+(check-expect (braces 2) "<<2>>")        ; define example
+(check-expect (braces 5) "<<<<<5>>>>>")
+(check-expect (braces 0) "0")
+
+;(define (braces s) ; template
+;  (... s ...))
+  
+(define (braces s)
+  (string-append (replicate s "<") (number->string s) (replicate s ">")))
+
+(braces 5)
+(braces 0)
+
+;; add-braces : Number -> String
+;; given two numbers, suround the numbers in n angle braces, then add them together
+
+; (define (add-braces s n) "")
+
+(check-expect (add-braces 5 5) "<<<<<<<<<<10>>>>>>>>>>")
+(check-expect (add-braces 1 2) "<<<3>>>")
+(check-expect (add-braces 4 0) "<<<<4>>>>")
+
+#;(define (add-braces s n)
+  (... s n ...))
+
+(define (add-braces s n)
+  (string-append (replicate (+ s n) "<") (number->string (+ s n))
+                  (replicate (+ s n) ">")))
+
+(add-braces 4 0)
+(add-braces 5 5)
+
