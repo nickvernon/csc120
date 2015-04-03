@@ -1,0 +1,274 @@
+
+;                                                           
+;  Lecture 2
+;  Arithmetic,  Algebra,  Computing   
+
+
+(require 2htdp/image)
+(require 2htdp/universe)
+
+;                                                           
+; PLANNING A TRIP TO THE MOON...
+; 
+; Things on the moon weigh 1/6th their earth weight. 
+; 
+; Let's make a table...
+; 
+; 
+; Earth Weight         Moon Weight
+;    60                   10
+;   120                   20
+;   240                   40
+;   300                   50
+;    w                    w/6
+;    
+; The last example gives us a general formula.
+; 
+; 
+
+
+
+; 
+; FUNCTIONS
+; 
+; A FUNCTION computes a value that depends on some input(s).
+; 
+; (boring) Functions in math are written like:
+; 
+; f(w) = w / 6
+; 
+; 
+
+
+
+;                                                           
+; Function Definitions in BSL                               
+; 
+
+
+(define (f w) 
+  (/ w 6))
+
+; 
+; In general, a FUNCTION DEFINITION looks like:             
+; 
+; (define (FunctionName  InputName)
+;   BodyExpression)
+; 
+; 
+; Names don't have to be boring either (f, g, x, y, w ...):
+; 
+; 
+
+
+(define (wgt-on-moon earth-wgt)
+  (/ earth-wgt 6))
+
+
+
+; 
+; FUNCTION APPLICATION
+; 
+; An expression like (wgt-on-moon 120) is called a 
+; FUNCTION APPLICATION.
+; 
+; First reduce operands to values. These values are called
+; the arguments to the function.
+; 
+; Evaluating application of a function proceeds by copying
+; its body, substituting the arguments (operand values)
+; for parameter (input) names, then simplifying (evaluating) 
+; the expression.
+; 
+
+
+;(wgt-on-moon 120)
+;  ==>  (/ 120 6)    
+;  ==>  20
+
+
+
+
+;                                                           
+; Falling Rocks
+; 
+; .
+; 
+; A rock dropped from a height on the moon falls at a 
+; rate of 3 inches per second.
+; 
+; Time (seconds)            Distance fallen (in inches)
+;      0                             0
+;      1                             3
+;      2                             6
+;      3                             9
+;      4                            12
+;      5                            15
+;      t                            3 * t
+; 
+;      
+; (define (rock-at t)
+;   (* 3 t))
+; 
+; --- another boring function...
+; 
+; 
+; Instead of a function that computes some number,
+; let's produce a picture!
+; 
+;      
+
+
+(define (rock-at t) 
+  (place-image (ellipse 20 10 "solid" "brown")   
+             15 (* 3 t) (empty-scene 30 500)))
+
+; (animate rock-at)
+
+
+;                                                           
+; Yes/No (true/false) Functions
+; 
+; Suppose space suit design only allows astronauts
+; of weight between 100 and 250 pounds.
+; 
+; (fit-to-fly? 150)  ==>   true
+; (fit-to-fly? 100)  ==>   true
+; (fit-to-fly? 50)   ==>   false
+; (fit-to-fly? 300)  ==>   false
+; 
+; (Note: '?' is pronounced 'huh')
+; 
+; fit-to-fly? : Consumes a number as input and produces
+; a Boolean output (true/false)
+; 
+
+
+(define (fit-to-fly? wgt)
+  (<= 100 wgt 250))
+  
+;(and (<= 100 wgt)
+;      (>= 250 wgt)))
+
+
+
+;; -----
+
+(define suit-weight 300)
+
+; produces weight of person on moon with space suit
+(define (wgt-on-moon/suit person-wgt)
+  (wgt-on-moon (+ person-wgt suit-weight)))
+
+
+;                                                           
+; Space Suit (Composing Functions)
+; 
+; 
+; Write a program that consumes a person's Earth weight 
+; and produces the weight of that person on the moon, 
+; wearing a space suit. (Standard space suits weigh 300 
+; lbs on Earth.)
+; 
+; 
+; 
+; (Best way to do this is in two steps:
+; First, write a function that computes a person's 
+;   (Earth) weight with space suit.
+; Then, combine two existing functions to write one 
+;   that satisfies the problem above.)
+
+
+
+
+
+;                                                           
+; Traffic Lights
+; 
+; 
+
+
+#;
+(above (circle 40 "solid" "red")
+       (circle 40 "solid" "yellow")
+       (circle 40 "solid" "green"))
+              
+
+; 
+; Notice the redundancy in the expression above.
+; Its going to be hard to make big programs if we have to 
+; keep repeating ourselves this way.
+; 
+; Fortunately we don't. Functions are a mechanism that we 
+; can use to reduce redundancy in expressions.
+; 
+; 
+; Consider the traffic light expression above. In it, we can
+; identify one VARYING VALUE, namely the color of the circles.
+; 
+;                          varying        
+;                           value         
+;                             |
+;                             |
+; (above (circle 40 "solid" "red")
+;        (circle 40 "solid" "yellow")
+;        (circle 40 "solid" "green"))
+; 
+; 
+; The rest of the expressions are all the same.  So here's what
+; we can do:
+;   - think of a name for the common behavior, such as bulb
+;   - think of a name for the varying quantity, such as color
+;   
+; Then write a FUNCTION DEFINITION like this:
+; 
+
+
+
+;;           /-------- FUNCTION NAME
+;;          /      
+;;         /     /---- PARAMETER (stands for changing value)
+#;
+(define (bulb color)
+  ...)         ; BODY
+
+
+
+;; and now this simpler expression makes the traffic light image
+#;
+(above (bulb "red")
+       (bulb "yellow")
+       (bulb "green"))
+
+
+
+;                                                           
+; LECTURE SUMMARY
+; 
+; * A function generalizes similar expressions (i.e. captures a 
+;   pattern or formula)
+;   - Another way to look at functions is as a mechanism
+;     to produce an output given some input
+; 
+;     
+; * The syntax of a FUNCTION DEFINITION:
+; 
+; (define ( FunctionName  InputName(s) )
+;   BodyExpression)
+; 
+; 
+; * Syntax (notation) for FUNCTION APPLICATION is uniform
+;   (just like built-in operators):
+; 
+; 
+; ( FunctionName  ArgumentValue(s) )
+; 
+; 
+; * Evaluation of function application happens by
+;   SUBSTITUTION:
+;   - Copy the function body, replace parameter names
+;     with argument values, and simplify.
+; 
+;     
+
+
