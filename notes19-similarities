@@ -1,0 +1,597 @@
+;; Nick Vernon
+
+;                                                           
+;  Lecture 19
+;  Similarities Everywhere!
+;  
+;  
+;            .
+;  
+;   
+
+
+
+;                                                           
+; "Abstraction"
+; - (simplistic definition)
+;   Making and using more generalized (more abstract) 
+;   functions
+;   
+; Goal: Eliminate Redundancy, Repetition, and Similarity
+; 
+; Why?
+;  - later...
+; 
+;  
+; ********************* VERY IMPORTANT **********************
+; This material looks deceptively simple. You will be tempted 
+; to think "that's easy, I don't have to spend time on it or
+; think about it". Please don't make that mistake!
+; ********************* VERY IMPORTANT **********************
+; 
+
+
+(require 2htdp/image)
+(require 2htdp/universe)
+
+
+
+;; =============================================================
+;; =============================================================
+
+;                                                           
+; Back to the beginning...
+; 
+; - First we had expressions, and they were very powerful
+; 
+
+
+(/ 180 6)    ; weight of 180-lb person on moon
+(/ 120 6)    ; weight of 120-lb person on moon
+(/ 250 6)    ; weight of 250-lb person on moon
+
+(* pi (sqr 10)) ;area of circle w/ radius 10 
+(* pi (sqr 14)) ;area of circle w/ radius 14
+
+
+
+;                                                           
+; But such expressions are very repetitive - e.g. to compute 
+; the area of different circles there is a lot of duplication. 
+; In this case the expressions have one point of variability. 
+; 
+; 
+; So we introduced FUNCTIONS, which compute different values
+; depending on the values of their PARAMETERS
+; (the values themselves are called ARGUMENTS).
+; 
+
+
+
+;;             /--- 'r' is a PARAMETER of the function 'area'
+(define (area r)
+  (* pi (sqr r)))
+
+(area 10) ; 10 is argument to *this* call to area
+(area 14) ; 14 is argument to *this* call to area
+          ; ... and we can call 'area' with any number we want
+
+
+; 
+; Parameters give us VARIABILITY.
+; The parameter stands for the varying value.
+; Area is now more general-purpose than the specific expressions
+; we started with.
+; 
+; We have written a lot of very nice functions that way.
+; 
+
+
+
+
+
+;; =============================================================
+;; =============================================================
+
+
+;                                                           
+; But sometimes two or more functions are quite redundant.
+; A little like the early expressions.
+; 
+
+
+;; got-milk? : List-of-strings -> Boolean
+;; determine if the given list contains the string "milk"
+
+(check-expect (got-milk? empty) false)
+(check-expect (got-milk? (list "flour" "sugar")) false)
+(check-expect (got-milk? (list "milk" "flour" "sugar")) true)
+(check-expect (got-milk? (list "eggs" "milk" "flour" "sugar")) true)
+#;
+(define (got-milk? a-los)
+  (cond
+    [(empty? a-los) false]
+    [(cons? a-los)
+     (or (string=? "milk" (first a-los))
+         (got-milk? (rest a-los)))]))
+
+
+;; got-eggs? : List-of-strings -> Boolean
+;; determine if the given list contains the string "eggs"
+
+(check-expect (got-eggs? empty) false)
+(check-expect (got-eggs? (list "flour" "sugar")) false)
+(check-expect (got-eggs? (list "milk" "flour" "sugar")) false)
+(check-expect (got-eggs? (list "eggs" "flour" "sugar")) true)
+(check-expect (got-eggs? (list "milk" "eggs" "flour" "sugar")) true)
+#;
+(define (got-eggs? a-los)
+  (cond
+    [(empty? a-los) false]
+    [(cons? a-los)
+     (or (string=? "eggs" (first a-los))
+         (got-eggs? (rest a-los)))]))
+
+
+
+;; look carefully...
+
+; 
+; (define (got-milk? a-los)
+;   (cond
+;     [(empty? a-los) false]
+;     [(cons? a-los)
+;      (or (string=? ; "milk"
+;  (first a-los))
+;          (got-milk? (rest a-los)))]))
+; 
+; (define (got-eggs? a-los)
+;   (cond
+;     [(empty? a-los) false]
+;     [(cons? a-los)
+;      (or (string=? ; "eggs"
+;  (first a-los))
+;          (got-eggs? (rest a-los)))]))
+
+
+
+
+;                                                           
+; 
+; The two functions above differ only in their name and 
+; what they are looking for ("milk" or "eggs").
+; 
+; When we isolate the differences, we see that the two 
+; functions only differ in one place. So we can work 
+; systematically to make a new function with a single 
+; additional PARAMETER to vary the behavior of a new 
+; function accordingly.
+; 
+; This is called FUNCTIONAL ABSTRACTION. We get a function 
+; that is more ABSTRACT, or more general purpose.
+; 
+; We can make the new function do more CONCRETE or more 
+; specific things by calling it with particular arguments.
+; 
+; We can define the old function as "ONE-LINERS" using the 
+; new function. "one-liner" doesn't mean it has to be written 
+; on one line, it just means the redefined old functions are 
+; usually quite short. Sometimes so short that we do write them 
+; on one line.
+; 
+
+
+;; We will revisit the purpose, signature and testing of this function later.
+
+(define (contains? s a-los)      ; BSL+'s version is called 'member?'
+  (cond
+    [(empty? a-los) false]
+    [(cons? a-los)
+     (or (string=? s (first a-los))
+         (contains? s (rest a-los)))]))
+
+
+
+;; got-milk? : List-of-strings -> Boolean
+;; determine if the given list contains the string "milk"
+(check-expect (got-milk? (list "bread" "milk")) true)
+(define (got-milk? a-los) (contains? "milk" a-los))
+
+;; got-eggs? : List-of-strings -> Boolean
+;; determine if the given list contains the string "eggs"
+(check-expect (got-eggs? (list "bread" "eggs")) true)
+(define (got-eggs? a-los) (contains? "eggs" a-los))
+
+
+;                                                           
+; When we do functional abstraction on functions that con-
+; sume lists, we USUALLY make the list argument come last. 
+;   
+
+
+
+
+
+
+;; =============================================================
+;; =============================================================
+
+; 
+; EXERCISE 184: 
+; a. Create test suites for the following two functions. 
+; b. Then abstract over them. 
+; c. Define above two functions in terms of the abstraction
+;    as one-liners and use the existing test suites to confirm 
+;    that the revised definitions work properly. 
+; d. Finally, design a function that subtracts 2 from each 
+;    number on a given list.
+
+
+; ; add1* : List-of-nums -> List-of-nums 
+; ; add 1 to each number on a-lon
+; (define (add1* a-lon)
+;   (cond
+;     [(empty? a-lon) false]
+;     [else
+;      (cons (add1 (first a-lon))
+;            (add1* (rest a-lon)))]))
+; 
+; ; plus5 : List-of-nums -> List-of-nums 
+; ; add 5 to each number on a-lon
+; (define (plus5 a-lon)
+;   (cond
+;     [(empty? a-lon) false]
+;     [else
+;      (cons (+ (first a-lon) 5)
+;            (plus5 (rest a-lon)))]))
+; 
+
+
+
+;; =============================================================
+;; =============================================================
+
+(define-struct book (title author year))
+(define-struct video (title director year length))
+(define-struct checkout (item name days))
+
+
+;                                                           
+; Now, how about this:
+; 
+
+
+
+
+;;***************************************
+;; count-items : List-of-strings -> Number
+;; produce the number of strings in the given list
+
+(check-expect (count-items empty)  0)
+(check-expect (count-items (list "flour" "sugar")) 2)
+#;
+(define (count-items a-los)
+  (cond
+    [(empty? a-los) 0]
+    [(cons? a-los)
+     (+ 1 (count-items (rest a-los)))]))
+
+; count-grades : List-of-grades -> Number
+; produces the number of grades in the list
+(check-expect (count-grades empty) 0)
+(check-expect (count-grades (list 95 empty 85)) 3)
+#;
+(define (count-grades a-log)
+   (cond
+      [(empty? a-log) 0]
+      [(cons? a-log) 
+       (+ 1 (count-grades (rest a-log)))]))
+
+;; count-collection: List-of-checkouts -> Number
+;; produces the number of items in an list of library checkout records
+(check-expect (count-collection empty) 0)
+(check-expect (count-collection
+               (list (make-checkout (make-book "Hobbit" "JRT" 1937) "Nadeem" 27)
+                     (make-checkout (make-video "MMM Movie" "RB" 1975 95) "Katy" -3)))
+              2)
+#;
+(define (count-collection a-loi)
+  (cond
+    [(empty? a-loi) 0]
+    [(cons? a-loi) 
+     (+ 1 (count-collection (rest a-loi)))]))
+
+
+
+;;; SIDE-BY-SIDE
+; (define (count-items a-los)
+;   (cond
+;     [(empty? a-los) 0]
+;     [(cons? a-los)
+;      (+ 1 (count-items (rest a-los)))]))
+; (define (count-grades a-log)
+;    (cond
+;       [(empty? a-log) 0]
+;       [(cons? a-log) 
+;        (+ 1 (count-grades (rest a-log)))]))
+
+; (define (count-collection a-loi)
+;   (cond
+;     [(empty? a-loi) 0]
+;     [(cons? a-loi) 
+;      (+ 1 (count-collection (rest a-loi)))]))
+
+
+
+;; LET'S ABSTRACT:
+
+;; We will revisit the purpose, signature and testing of this function later.
+#;
+(define (count-elements a-list)       ; BSL's version is called 'length'
+  (cond
+    [(empty? a-list) 0]
+    [(cons? a-list)
+     (+ 1 (count-elements (rest a-list)))]))
+    
+
+;; ONE-LINERS:
+
+(define (count-items a-los) (count-elements a-los))
+(define (count-grades a-log) (count-elements a-log))
+(define (count-collection a-loi) (count-elements a-loi))
+
+
+
+;                                                           
+; So, what is the signature of count-elements?
+; 
+; We can use count-elements (or the built-in "length") as:
+; 
+; (count-elements (list 1 2 3))
+;    - suggests   ; List-of-numbers -> Number
+;    
+; (count-elements (list "a" "b"))
+;    - suggests   ; List-of-strings -> Number
+;    
+; Our one-liners above also suggest possibilities
+;                 ; List-of-grades -> Number
+;                 ; List-of-checkouts -> Number
+; 
+; How do we write a single, most general signature
+; for count-elements ?
+; 
+; Let's look at similarities from a different 
+; perspective...
+; 
+
+
+;; =============================================================
+;; =============================================================
+
+
+;                                                           
+; So far we have looked at some situations where similarities
+; occur in functions and how to PARAMETERIZE in order to
+; abstract, or generalize, our function definitions.
+; 
+; Now, let's look at data defintions themselves...
+; 
+
+
+; A List-of-numbers is one of:
+;  - empty
+;  - (cons Number List-of-numbers)
+
+; A List-of-strings is one of:
+;  - empty
+;  - (cons String List-of-strings)
+
+; A List-of-colors is one of:
+;  - empty
+;  - (cons Color List-of-colors)
+
+; A List-of-grades is one of:
+;  - empty
+;  - (cons Grade List-of-grades)
+
+;                                                           
+; OK, enough... So, where is the similarity? How do we
+; abstract?
+; 
+; .
+; .
+; .
+; 
+; ===> Introduce a *parameter*...
+; 
+
+
+; A (Listof X) is one of:
+;  - empty
+;  - (cons X  (Listof X))
+
+;                                                           
+; Here, X is a TYPE VARIABLE (a special kind of parameter) 
+; which stands for some *type* (not a *value*). By convention,
+; type variables are a single upper case letter.
+; 
+; 
+; The data definition above is called PARAMETRIC, and 
+; "Listof" is a PARAMETRIC TYPE - a type that has a 
+; parameter.
+; 
+; "A parametric data definition abstracts from a reference 
+;  to a particular collection of data in the same manner as 
+;  a function abstracts from a particular value."
+; 
+; So, now we have a single definition for (Listof X) and
+; we can talk about:
+; 
+;   (Listof Number)
+;   (Listof String)
+;   (Listof Color)
+;   (Listof Grade)
+;   ...
+; 
+; We no longer have to do separate data definitions for 
+; List-of- types.  
+; 
+; 
+
+
+;; =============================================================
+;; =============================================================
+
+;                                                           
+; Now, back to count-elements:
+; 
+; We generalized:
+; 
+; ; count-items : List-of-strings -> Number
+; ; count-grades : List-of-grades -> Number
+; ; count-collection : List-of-items -> Number
+; 
+; which all work on a list of some specific type. 
+; count-elements works on a list of *any* type, so:
+; 
+; ; count-elements : (Listof X)  ->  Number
+; 
+; Where once again, X is a TYPE VARIABLE (a special 
+; kind of parameter) which stands for some type. 
+; By convention type variables are a single upper case letter.
+; 
+; 
+; So, the complete function definition:
+; 
+
+
+
+;; count-elements : (Listof X) -> Number
+;; produces the number of elements in a list
+
+(check-expect (count-elements empty) 0)
+(check-expect (count-elements (list 1 2 3)) 3)
+(check-expect (count-elements (list "abc" "def" "hi" "bye")) 4)
+
+(define (count-elements a-list)
+  (cond
+    [(empty? a-list) 0]
+    [(cons? a-list)
+     (+ 1 (count-elements (rest a-list)))]))
+    
+
+;; =============================================================
+;; =============================================================
+
+;; HELPER FUNCTIONS FOR THE EXAMPLES BELOW...
+
+; negative : Color -> Color
+; produces the negative of a color
+(check-expect (negative (make-color 100 35 0)) 
+              (make-color 155 220 255))
+
+(define (negative a-color)
+  (make-color (- 255 (color-red a-color))
+              (- 255 (color-green a-color))
+              (- 255 (color-blue a-color))))
+
+; close-to-red? : Color -> Boolean
+; determines if a color is mostly red
+(check-expect (close-to-red? (make-color 200 4 5)) true)
+(check-expect (close-to-red? (make-color 5 4 200)) false)
+
+(define (close-to-red? a-color)
+  (and (> (color-red a-color) (color-green a-color))
+       (> (color-red a-color) (color-blue a-color))))
+
+; swap-red/blue ; Color -> Color
+; produces a color with red and blue components swapped, 
+; if given color is close to red
+(check-expect (swap-red/blue (make-color 200 4 5))
+              (make-color 5 4 200))
+(check-expect (swap-red/blue (make-color 2 40 50))
+              (make-color 2 40 50))
+
+(define (swap-red/blue a-color)
+  (if (close-to-red? a-color)
+      (make-color (color-blue a-color) (color-green a-color)
+                  (color-red a-color))
+      a-color))
+
+
+;; =============================================================
+;; =============================================================
+
+; 
+; Now, for something more fun...    
+; 
+
+
+
+; negate-colors: (Listof Color) -> (Listof Color)
+; produce a list of colors that are the negative of colors in the given list
+(check-expect (negate-colors (list (make-color 0 0 0)
+                                   (make-color 100 150 200)))
+              (list (make-color 255 255 255)
+                    (make-color 155 105 55)))
+
+(define (negate-colors a-loc)
+  (cond
+    [(empty? a-loc) empty]
+    [(cons? a-loc)
+     (cons (negative (first a-loc))
+           (negate-colors (rest a-loc)))]))
+
+
+; red->blue : (Listof Color) -> (Listof Color)
+; changes all dominant-red colors in the given list to blue
+(check-expect (red->blue (list (make-color 200 4 5)
+                               (make-color 100 150 200)))
+              (list (make-color 5 4 200)
+                    (make-color 100 150 200)))
+
+(define (red->blue a-loc)
+  (cond
+    [(empty? a-loc) empty]
+    [(cons? a-loc)
+     (cons (swap-red/blue (first a-loc))
+           (red->blue (rest a-loc)))]))
+                              
+;; SIDE-BY-SIDE
+
+; (define (negate-colors a-loc)
+;   (cond
+;     [(empty? a-loc) empty]
+;     [(cons? a-loc)
+;      (cons (negative (first a-loc))
+;            (negate-colors (rest a-loc)))]))
+; (define (red->blue a-loc)
+;   (cond
+;     [(empty? a-loc) empty]
+;     [(cons? a-loc)
+;      (cons (swap-red/blue (first a-loc))
+;            (red->blue (rest a-loc)))]))
+
+
+;; SIMILAR?
+;; How do we abstract?... 
+
+#;   ; have to switch to "Intermediate Student" language level for this to work...
+(define (map2 F a-loc)
+  (cond
+    [(empty? a-loc) empty]
+    [(cons? a-loc)
+     (cons (F (first a-loc))
+           (map2 F (rest a-loc)))]))
+
+
+
+;                                                           
+; To be continued...
+; 
+
+
+
+
+
+
