@@ -1,0 +1,476 @@
+(require 2htdp/image)
+(require 2htdp/universe)
+
+;                                                           
+;  Lecture 6
+;  Data Definitions: Enumerations, Itemizations
+
+
+; 
+; We have now seen our first example of a Data Definition, 
+; and worked through an example of how to design a function 
+; based on it. 
+; 
+; ;; Data definition:
+; 
+; ; A ScovilleRating is a number:
+; ;  - between 0 and 100,        
+; ;  - between 2500 and 8000,    
+; ;  - between 10000 and 23000, or
+; ;  - any other positive number  
+; ; interp. the Scoville rating of a pepper
+; 
+; (define RIPE-BELL 55)
+; (define BLAND-JALAPENO 2600)
+; (define HOT-SERRANO 22000)
+; 
+; (define (scoville-rating-func a-rating)
+;   (cond
+;     [ (<= a-rating 100)  ... ]
+;     [ (<= 2500 a-rating 8000)  ... ]
+;     [ (<= 10000 a-rating 23000)  ... ]
+;     [ else  ... ]))
+; 
+; 
+; 
+; ;; Function:
+; 
+; ; pepper-type : ScovilleRating -> String
+; ; given the Scoville rating, produce the name of a
+; ; pepper with that characteristic rating
+; 
+; (check-expect (pepper-type RIPE-BELL) "bell")
+; (check-expect (pepper-type BLAND-JALAPENO) "jalapeno")
+; (check-expect (pepper-type HOT-SERRANO) "serrano")
+; (check-expect (pepper-type 9020) "unknown")
+; 
+; ;(define (pepper-type a-rating)   ;  stub
+; ;  "bell")
+; 
+; ; <use template from ScovilleRating>
+; 
+; (define (pepper-type a-rating)
+;   (cond [ (<= a-rating 100) "bell" ]
+;         [ (<= 2500 a-rating 8000) "jalapeno" ]
+;         [ (<= 10000 a-rating 23000) "serrano" ]
+;         [ else "unknown" ] ))
+; 
+
+
+
+
+
+; 
+; NEXT PROBLEM:
+; 
+;  Suppose we want to design a traffic light animation.
+;  In the midst of that there will be a function called
+;  next-color, that works something like this:
+; 
+;  (next-color "red") should produce "green"
+; 
+; If we started to design this function, what would the
+; signature be?
+; 
+;  String -> String   ???
+;    
+; That would 'work', you could design a working function that
+; way. But if you write that, then I'm allowed to call
+; next-color with "foo", and that doesn't make any sense.
+; 
+; One important thing data definitions do is allow
+; us to be more specific about the data our functions consume
+; (and produce). That will enable us to write a signature for
+; this function that allows us to pass it "red" (and "yellow"
+; and "green") but not "foo" or any other string.
+;              
+
+
+
+;                                                           
+; (An ENUMERATION specifies distinct, individual elements 
+;     from an existing class of data.)
+; 
+
+
+
+;; Data Definition:
+
+;; TrafficLight is one of:                ; types comment
+;;  - "red"                               ;
+;;  - "yellow"                            ;
+;;  - "green"                             ;
+;; interp. the color of a traffic light   ; interpretation
+
+; examples are redundant for enumerations
+
+(define (traffic-light-func a-tl)         ; template
+  (cond 
+    [(string=? a-tl "red") (...)]
+    [(string=? a-tl "yellow") (...)]
+    [(string=? a-tl "green") (...)]))
+
+
+
+
+;         
+; Note: an alternative representation might have been to
+; use 0 to represent a red light, 1 to represent a yellow 
+; light and 2 to represent a green light. In that case, 
+; the interpretation would be something like:
+; 
+;   ; interp. 0 is red, 1 is yellow, 2 is green
+; 
+; For this data definition the examples are kind of 
+; redundant, but we are listing them here for completeness. 
+; Later this week and next we will start to see examples
+; that are more informative and critical to our problem-
+; solving process.
+; 
+; 
+; 
+; TEMPLATES FOR ENUMERATIONS
+; 
+; The template for an enumeration contains a cond expression
+; with one clause for each case.
+;  - The condition of each clause should distinguish that 
+;    case from all others (usually using equality operators: 
+;                          =, string=?, mouse=?, etc.)
+;    
+; 
+
+
+
+; 
+; Now complete the design of the next-color function.
+; 
+;   - what should the examples be?
+;       data definition helps a lot with this     
+;   - use the template from the data definition
+;   
+;   - emphasize the benefits of being much more
+;     specific about what type of data the function consumes
+;       -> what examples
+;       -> what template
+;       -> what we don't have to worry about
+;          (note, we don't have to worry about getting
+;           another string as an argument, because we are
+;           allowed to count on our signature not being
+;           violated)
+;     
+; ; In design, having too *much* choice is often more of a
+; ; problem than having too little choice.
+;  
+;    
+; Data definitions serve to systematically STRUCTURE the
+; design and LIMIT the design space.
+; 
+
+
+
+; next-color : TrafficLight -> TrafficLight
+; produce the next color of a traffic light after tl
+(check-expect (next-color "red")    "green")
+(check-expect (next-color "yellow") "red")
+(check-expect (next-color "green")  "yellow")
+
+;(define (next-color tl)   ; stub
+;  "red")
+
+; <use template from TrafficLight>
+
+(define (next-color a-tl)
+  (cond
+    [(string=? a-tl "red") "green"]
+    [(string=? a-tl "yellow") "red"]
+    [(string=? a-tl "green") "yellow"]))
+
+
+
+;; Exercises:
+;; need-to-stop? : TLColor -> Boolean
+
+
+; Some enumerations contain a large number of elements.
+; A canonical example is KeyEvent, which is provided as
+; part of big-bang. KeyEvent includes all the letters 
+; of the alphabet as well as other keys you can press 
+; on the keyboard. It is not necessary to write out all
+; the cases for such a data definition. Instead write 
+; one or two, as well as a comment saying what the others
+; are, where they are defined etc.
+; 
+; Defer writing templates for such large enumerations 
+; until a template is needed for a specific function.
+; At that point include the specific cases that function
+; cares about. Be sure to include an else clause in the 
+; template to handle the other cases. As an example, 
+; some functions operating on KeyEvent may only care 
+; about the space key and just ignore all other keys, 
+; the following would be an appropriate template for 
+; such functions.
+; 
+; 
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; 
+; NEXT PROBLEM:
+; 
+; Letter grades on an assignment can be A, B or C. The instructor
+; would like a function called bump-up than consumes a grade and
+; gives the next highest grade (A cannot be bumped-up).
+; 
+; Design a data definition for representing letter grades and then
+; design the bump-up function.
+; 
+
+
+; LetterGrade is one of: 
+;  - "A"
+;  - "B"
+;  - "C"
+; interp. a grade in a course
+
+; <examples are redundant for enumerations>
+
+#|     ;; <--- way to comment out a large block of lines
+(define (letter-grade-func a-lg)
+  (cond 
+    [(string=? "A" a-lg) (...)]
+    [(string=? "B" a-lg) (...)]
+    [(string=? "C" a-lg) (...)]))
+|#                       ;; <--- comment block ends here
+
+
+; bump-up : LetterGrade -> LetterGrade
+; produce next highest grade from lg
+(check-expect (bump-up "A") "A")
+(check-expect (bump-up "B") "A")
+(check-expect (bump-up "C") "B")
+
+;(define (bump-up a-lg)  ; stub
+;  "A")
+
+; <use template from LetterGrade>
+
+(define (bump-up a-lg)
+  (cond 
+    [(string=? "A" a-lg) "A"]
+    [(string=? "B" a-lg) "A"]
+    [(string=? "C" a-lg) "B"]))
+
+
+; 
+; 
+; 
+; TEMPLATES FOR ENUMERATIONS
+; 
+; The template for an enumeration contains a cond expression
+; with one clause for each case.
+;  - The condition of each clause should distinguish that 
+;    case from all others (usually using equality operators: 
+;                          =, string=?, mouse=?, etc.)
+;    
+; 
+; Note:
+;  - with enumerations, examples are redundant 
+;  
+;  - order the clauses of the type comment and the cases of
+;    the template the same way; make it be a natural order
+;    
+;  - when the data definition is forcing us to have cases we
+;    use cond, not if. When cases arise for another reason
+;    we can use cond or if
+;    
+;    
+; 
+; Note that using the data definition means every function that
+; operates on LetterGrade will have the same backbone. They will
+; all look the same. This makes it much easier, when there are 
+; many such functions, to quickly read one and understand what 
+; it does and how. 
+; 
+; Consider what happens if all at once we decide to change
+; LetterGrade so that it also includes "D". If we have designed
+; systematically then all we have to do is:
+;   - update the types comment
+;   - update the template (add one cond case)
+;   - go to every function for which the signature includes
+;     LetterGrade and
+;      - add at least one example
+;      - add a cond clause as a template, and then code
+;        that clause
+;        
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+; 
+; ALTERNATE VERSION OF THE PREVIOUS PROBLEM:
+; 
+; Grades on an assignment can be a number between 0 and 100,
+; inclusive, or one of the strings "missing" or "excused". 
+; Missed assignments count as 0. Excused assignments are not
+; included in the course average.
+; 
+; 
+; Design a data definition for representing grades according
+; to the preceding description, and then design one of the 
+; following functions:
+; 
+; - bump-up/10 : consumes a grade and raises it by 10 points,
+;                if possible, to a maximum of 100
+;                
+; - is-passing? : determine if a grade is above 60 or excused
+; 
+; - include-in-avg? : determine whether to include given
+;              grade in calculating an average for the course
+; 
+; 
+; 
+
+
+
+;                                                           
+; The Data Definition:
+; 
+; (An ITEMIZATION generalizes intervals and enumerations,
+;  and is used when information consists of 2 or more
+;  subcategories, at least one of which is not a distinct
+;  data item.)
+; 
+
+
+; Grade is one of:
+;   - a number in [0, 100], 
+;   - "missing", or
+;   - "excused"
+; interp. an assignment grade in a course
+
+(define G1  95)
+(define G2  78)
+(define G3  "missing")
+
+#|
+(define (grade-func a-grade)
+  (cond 
+    [(number? a-grade) ... a-grade ...]
+    [(string=? a-grade "missing")  ...]
+    [(string=? a-grade "excused")  ...]))
+|#  
+
+;;; FUNCTIONS
+
+; bump-up/10 : Grade -> Grade
+; produces a grade raised by 10 points, if possible
+
+(check-expect (bump-up/10 G1) 100)
+(check-expect (bump-up/10 G2) 88)
+(check-expect (bump-up/10 G3) G3)
+
+(define (bump-up/10 a-grade)
+  (cond 
+    [(number? a-grade) (min (+ a-grade 10) 100)]
+    [(string=? a-grade "missing")  a-grade]
+    [(string=? a-grade "excused")  a-grade]))
+
+
+; is-passing? : Grade -> Boolean
+; determines if a grade is above 60 or excused
+
+(check-expect (is-passing? G1) true)
+(check-expect (is-passing? 55) false)
+(check-expect (is-passing? G3) false)
+(check-expect (is-passing? "excused") true)
+
+(define (is-passing? a-grade)
+  (cond 
+    [(number? a-grade) (<= 60 a-grade)]
+    [(string=? a-grade "missing")  false]
+    [(string=? a-grade "excused")  true]))
+
+
+; include-in-avg? : Grade -> Boolean
+; determine whether to include a grade
+; in calculating an average for the course
+
+(check-expect (include-in-avg? G1) true)
+(check-expect (include-in-avg? 55) true)
+(check-expect (include-in-avg? "missing") true)
+(check-expect (include-in-avg? "excused") false)
+
+(define (include-in-avg? a-grade)
+  (cond 
+    [(number? a-grade) true]
+    [(string=? a-grade "missing") true]
+    [(string=? a-grade "excused") false]))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;                                                           
+;  REVIEW
+;  
+;  - An INTERVAL distinguishes different subclasses of 
+;    numbers.
+;    
+;  - An ENUMERATION specifies distinct, individual elements 
+;    from an existing class of data.
+;    
+;  - An ITEMIZATION (generalizes the two above) allows the
+;    combination of any existing classes of data (already
+;    defined) with each other and with individual pieces of
+;    data
+;      - We will sometimes also use the term MIXED DATA
+;        for itemizations
+;        
+;      - Key generalization (from intervals/enumerations):
+;        An itemization puts together different classes
+;        of data under a single, new name.
+;  
+;  - The TEMPLATE for an itemization consists of a
+;    conditional expression with as many clauses as there
+;    are cases  in the data definition.
+;    
+;    - The 'question' of each conditional clause should
+;      isolate the corresponding case of the data 
+;      definition, using comparison, equality operators,
+;      and predicates, as appropriate.
+;      
+;  
+;  Recall:
+;  PREDICATES
+;  - We use the term predicate for functions that 
+;    return true/false.
+;  
+;  - Predicates are used to distinguish the classes 
+;    of data that we know so far:
+;      - string?   image?   boolean?   number?
+;      
+;  - Various other predicates are available too..
+;      - negative?   positive?  odd?   even?
+;      - and of course you can write your own if needed
+;        
+;        
+
+
+
+
