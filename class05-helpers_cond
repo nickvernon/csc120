@@ -1,0 +1,267 @@
+
+;; IN-CLASS EXERCISES (1/23/2015) - CONDITIONALS; HELPER FUNCTIONS
+
+(require 2htdp/image)
+
+(define CLOUDY .)
+(define RAINY .)
+(define HAZY .)
+(define SUNNY .)
+
+(define ICON-SIZE (image-width SUNNY))
+
+;                                                                     
+; Let's work on a function named `weather-report` that takes a 
+; temperature (in degrees Fahrenheit) and a weather condition
+; ("sun", "rain", "haze", or "clouds") and produces an image of 
+; the temperature value colored either green (below 80◦), 
+; yellow (at least 80◦ but less than 100◦) or red (at least 100◦),
+; and placed on a black background with an icon corresponding to
+; the weather condition.
+; 
+; For example,
+;   (weather-report 78.3 "clouds")
+; .
+;   (weather-report 89.5 "haze")
+; .
+;   (weather-report 102.7 "sun")
+; .
+; 
+; 
+; To work on a function like this, it is often helpful to 
+; break the task down into a few small "helper" functions
+; that achieve some specific aspect of the entire task.
+;       
+; In the tasks below, you will be guided through a process
+; of developing a few helper functions that will be useful for
+; the final program. As you become more experienced, you should
+; be able to break a problem down in this way yourself.
+; 
+; Let's get started. Below is the beginning of the a 
+; 'weather-report' function. I've followed the Design Recipe
+; up to the function examples step. Currently the stub produces
+; an empty image. At this point, I'm now "wishing" that I had
+; a few functions that would make the task of filling in the 
+; template easier to complete this function. In particular, there
+; are three aspects of this program that need to be handled:
+; the color of the text, the weather icon, and the background.
+; 
+; LEAVE THIS CODE ALONE UNTIL YOU GET TO TASK 4 BELOW. It will
+; continue to fail its tests until them, but that's ok.
+; 
+; Continue with the tasks listed below...
+;          
+;       
+
+
+;; weather-report : Number String -> Image
+;; produces a weather report image given current temperature and conditions
+
+(check-expect (weather-report 78.3 "clouds")
+              (overlay (beside CLOUDY (text "78.3" 24 "green"))
+                       (empty-scene 104 58 "black")))
+(check-expect (weather-report 89.5 "haze")
+              (overlay (beside HAZY (text "89.5" 24 "yellow"))
+                       (empty-scene 104 58 "black")))
+(check-expect (weather-report 102.7 "sun")
+              (overlay (beside SUNNY (text "102.7" 24 "red"))
+                       (empty-scene 117 58 "black")))
+
+(define (weather-report t wc)    ; stub
+  (empty-scene 0 0))
+
+
+
+;                                                                     
+; TASK 1:
+; 
+; Develop a helper function (follow the Design Recipe entirely) to
+; produce a text image of the temperature value in the correct color.)
+; 
+; For example, 
+;     (temp->text 89.5) should produce (text "89.5" 24 "yellow").
+; 
+; Note: To convert a number to a string, use number->string. 
+;       However, if you try it on a number like 98.6, you may 
+;       get a fraction rather than a decimal. If you want it 
+;       in decimal form, first make it inexact, 
+;       using `exact->inexact`.
+
+
+
+;; temp->text : Number -> Image
+;; ... fill in ...
+
+(define (temp->text t)       ; stub
+  (text "hi" 24 "blue")) 
+
+
+
+
+
+;                                                                     
+; TASK 2:
+; 
+; Develop a function to choose the appropriate icon given
+; a string describing the weather condition ("clouds", "haze", 
+; "rain", or "sun").
+; 
+
+
+;; choose-icon : String -> Image
+;; ... fill in ...
+
+(define (choose-icon wc)   ; stub
+  SUNNY)
+
+
+
+
+
+
+;                                                                     
+; TASK 3:
+; 
+; Develop a function that takes an image and overlays it
+; on a black background rectangle 10 pixels wider
+; and taller than the image.
+; 
+; For example, 
+;    (add-background .)
+;     should produce
+;    (overlay .
+;             (empty-scene 104 58 "black"))
+; 
+
+
+;; add-background : Image -> Image
+;; ... fill in ...
+
+(define (add-background an-img)
+  an-img)
+
+
+
+
+
+
+
+;                                                                     
+; TASK 4:
+; 
+; Now, go back to the `weather-report` function at the very top
+; and use the 3 functions you've developed to help complete 
+; its implementation so it works properly. 
+; You should note that the result of one 
+; function application will be used as the input to 
+; another function. This way of combining functions we
+; refer to as "composition", and we say that we are
+; "composing" functions.
+; 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;; ===================================================================
+
+
+;                                                                     
+; TASK: (complete for homework for next class)
+; 
+; The following code produces bar graphs for three pieces of data.
+; Try it out in the interactions area with different number values.
+; Also study the body of the function definition. Whoever wrote it
+; was not using good coding style!!!
+; 
+;  1. Fix up the spacing and indentation to make it
+;     more readable. Can you understand how it works?
+;     
+;  2. Even with nice spacing and indentation, it's still hard to
+;     figure out what this function is doing. Develop a cleaner
+;     version of this program using helper functions and/or
+;     constant definitions. Your final version should have the same 
+;     behavior as the original code (don't embellish it, just clean
+;     it up). Be sure to follow the design recipe for your helper
+;     functions.
+;   
+;  3. See if you can now modify the function so that it sizes its
+;     background to fit bars of any length (instead of just up to 20)
+; 
+;  4. Upload your file with this completed exercise to the classwork
+;     submit form on the website before next class, and be prepared
+;     to share with the rest of the class how you went about this 
+;     exercise. Specifically, how did you decide when to create a 
+;     helper function or constant? What else did you do to clean up 
+;     the code?
+;  
+
+
+;; bar-graph : Number Number Number -> Image
+;; consumes three numbers and produces a bar graph of results
+;; NOTE: background image is sized for values up to 20
+(check-expect (bar-graph 5 10 4)  .)
+(check-expect (bar-graph 15 3 20) .)
+
+(define (bar-graph num-a num-b num-c)
+  (place-image/align 
+                   (rectangle 15 (* 3 
+               num-a) "solid" "red")  10 10 "left" "top" (place-image/align
+    (rectangle 15 (* 3 num-b) "solid" "blue")
+    35 10 "left" "top"
+               (place-image/align (rectangle 15 (* 3 num-c) "solid" "green")
+         60 10 "left" "top"
+     (empty-scene 85 
+80)))))
+
+
+
+
+
+
+
+;; ===================================================================
+;; ===================================================================
+;; ===================================================================
+;;
+;; EXTRA PRACTICE
+;;
+
+
+;                                                                     
+; TASK:
+; 
+; Design a function that calculates late fees on a movie rental. 
+; The function consumes the number of days the movie has been rented.
+; Up to 3 days is a regular rental, no fee. For the next week the fee
+; goes up $3 each day. Starting on the 10th day the fee becomes $20 
+; and never changes.
+; 
+
+
+
+
+;                                                                     
+; TASK:
+; 
+; Develop a function make-shape that takes in three strings: a shape
+; (either "circle" or "triangle"), a size (either "small", "medium",
+; or "large"), and a color name (any color that DrRacket recognizes), 
+; and produces an appropriate image.
+; 
+; Note: Make sure that a “medium circle” and a “medium triangle”
+; are about the same size.
+; 
+
+
+
+
