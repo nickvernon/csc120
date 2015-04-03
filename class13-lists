@@ -1,0 +1,212 @@
+
+;; IN-CLASS EXERCISES (2/16/2015) -
+;; LISTS OF NUMBERS
+
+
+;                                                           
+; 
+; Given below is the complete data definition of a list of 
+; numbers using structures that we defined ourselves. The
+; video mentions the following equivalents for these:
+; 
+;  "from scratch"     |  BSL built-in
+;      names          |     names
+; -------------------------------------------------------
+; 
+; EMPTY              ===   empty     ; named constant
+; empty-list?        ===   empty?    ; predicate
+; 
+; make-bigger-list   ===   cons      ; constructor
+; bigger-list-first  ===   first     ; selectors
+; bigger-list-rest   ===   rest      ; ...
+; bigger-list?       ===   cons?     ; predicate
+;        
+; 
+; 
+; TASK:
+; 
+; Delete the 'define-struct' expressions below, as well
+; as the definition of 'EMPTY' and then rewrite the types
+; comment, examples, and template to use the built-in 
+; list functions of BSL.
+; 
+
+
+
+;; A List-of-numbers is either:
+;;   - empty, or
+;;   - (cons Number List-of-numbers)    ; self-referential!
+;; interp. a list of weights of fish in our aquarium is either
+;;         empty or adds a weight (in lbs.) to an existing list of weights
+
+(define MT-LON empty)
+(define LON-1 (cons 10 empty))
+(define LON-2 (cons 5 (cons 10 empty)))
+(define LON-3 (cons 7 LON-2))
+
+#;   ; template
+(define (lon-func a-lon)
+  (cond
+    [(empty? a-lon) (...)]
+    [(cons? a-lon) (... (first a-lon)
+                               (lon-func (rest a-lon)) ...)]))
+
+
+;                                                           
+; TASK:
+; 
+; Now, rework the aq-weight function using the revised
+; data definiton and template for List-of-numbers.
+; 
+
+
+
+;; aq-weight : List-of-numbers -> Number
+;; produces the sum of all weights in the given list
+
+#;(define (aq-weight a-lon)   ; stub
+  0)
+
+(check-expect (aq-weight empty)
+              0)
+(check-expect (aq-weight LON-1) 10)
+(check-expect (aq-weight LON-2) 15)
+(check-expect (aq-weight LON-3) 22)
+
+(define (aq-weight a-lon)
+  (cond
+    [(empty? a-lon)  0]
+    [(cons? a-lon) (+ (first a-lon) 
+                             (aq-weight   
+                              (rest a-lon)))]))
+  
+
+;                                                           
+; TASK:
+; 
+; Develop another function:
+; 
+; [Do NOT use an (if ... ... ..) expression for this.]
+; 
+
+
+;; any-heavy-fish? : List-of-numbers -> Boolean
+;; determine whether any fish in the given list is 10 lbs or more
+
+#;(define (any-heavy-fish? a-lon)   ; stub
+  false)
+
+(check-expect (any-heavy-fish? empty) false)
+(check-expect (any-heavy-fish? LON-1) true)
+(check-expect (any-heavy-fish? LON-2) true)
+(check-expect (any-heavy-fish? LON-3) true)
+(check-expect (any-heavy-fish? (cons 5 empty))
+              false)
+(check-expect (any-heavy-fish? (cons 5 (cons 5 empty)))
+              false)
+(check-expect (any-heavy-fish? (cons 12 (cons 5 empty)))
+              true)
+(check-expect (any-heavy-fish? (cons 3 (cons 15 empty)))
+              true)
+
+(define (any-heavy-fish? a-lon)
+  (cond
+    [(empty? a-lon) false]
+    [(cons? a-lon) (or (>= (first a-lon) 10) (any-heavy-fish? (rest a-lon)))]))
+
+
+
+;                                                           
+; THINK CAREFULLY about examples/test cases (check-expects) 
+; for this function. The fact that it returns a Boolean
+; suggests you want at least two examples -- one resulting
+; in true and one in false. The fact that it takes a 
+; List-of-numbers (which is one of two things) suggests
+; you need an example for 'empty' and an example of a non-
+; empty list. 
+; 
+; After writing out an 'empty' example, you should write at
+; least two non-empty examples - one producing a true result
+; and one producing false. I would also suggest writing an
+; example that produces 'true' by virtue of what the *first*
+; number in the list is; and one example that produces
+; 'true' by virtue of the *rest* of the list satisfying the
+; condition...
+; 
+
+
+
+
+
+
+;                                                           
+; -- IF YOU FINISH THE ABOVE AND THERE IS TIME LEFT OVER --
+; 
+; TASK:
+; 
+; Write out a complete data definition (types comment,
+; interpretation, examples, and template) for 
+;                                         List-of-strings
+;                                         
+
+
+;; A List-of-strings is either:
+;;   - empty, or
+;;   - (cons String List-of-strings)    ; self-referential!
+;; interp. a list of names of fish in our aquarium is either
+;;         empty or adds a name (as a string) to an existing list of names
+
+(define MT-LOS empty)
+(define LOS-1 (cons "" empty))
+(define LOS-2 (cons "" (cons "" empty)))
+(define LOS-3 (cons "" LOS-2))
+
+#;   ; template
+(define (los-func a-los)
+  (cond
+    [(empty? a-los) ("")]
+    [(cons? a-los) (... (first a-los)
+                               (los-func (rest a-los)) ...)]))
+
+
+
+
+
+
+;  Now, work on the following function -- I've put in 
+;  examples for you to work out "by hand" before working 
+;  on the function body...
+
+
+;; count-items : List-of-strings -> Number
+;; produce the number of strings in the given list
+
+;(check-expect (count-items empty)
+;              ...)
+;(check-expect (count-items (cons "flour" (cons "sugar" empty)))
+;              ...)
+;(check-expect (count-items (cons "milk" (cons "flour" (cons "sugar" empty))))
+;              ...)
+;(check-expect (count-items (cons "eggs" (cons "milk" (cons "flour" (cons "sugar" empty)))))
+;              ...)
+
+;(define (count-items a-los)
+
+  ;  Copy the template here and fill in the dots to complete the body of 
+;  the function. In the cons case, use the concrete examples above to 
+;  help you understand how to produce the expected result. Note that I've
+;  chosen examples where the list in the third is just the list in the 
+;  second with one more element cons'ed on, and the list in the fourth 
+;  similarly is the list in the third with one more element cons'ed on.
+;  In the recursive call of the template, if you're not sure how to fill
+;  in the dots, look at the concrete examples -- consider what the "rest"
+;  of the list is, and what the result of applying the function recursively
+;  to the rest of the list gives you, and how do you combine that with the
+;  element that is first on the list. Also, reading the purpose statement,
+;  replacing "the given list" with "the rest of the given list", should
+;  help you understand what the result of the recursive function application
+;  produces. 
+;  (Hint for this function: remember that you don't necessarily always need
+;        every expression that the template gives you.)
+
+
