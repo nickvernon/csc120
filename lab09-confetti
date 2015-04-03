@@ -1,0 +1,218 @@
+;; Orbelin Palacios & Nick Vernon
+;; CONFETTI
+;; A fun animation
+;; (Adapted from exercises by Olin Shivers, Northeastern University)
+
+(require 2htdp/universe)
+(require 2htdp/image)
+
+;  The exercises below ask you to design some functions using abstract
+;  "loop" functions like map and filter, and then puts them together 
+;  to get a fun little animation.
+;  
+;  First, we'll set up some definitions for what our "world" is for the
+;  animation:
+;  
+
+
+;; ****************************
+;; A World is a  [Listof Rect]
+
+;; A Rect is (make-rect Posn Posn String)
+;; interp. the first posn is the rect's current position, the second
+;;   is its velocity (speed in x and y) and the string is its color
+(define-struct rect (pnt vel color))
+
+;; Gravitational Acceleration
+(define g-accel 2)
+
+;; Width and Height of each rectangle
+(define RW 10)
+(define RH 10)
+
+;; Width and Height of the Scene
+(define SW 400)
+(define SH 400)
+
+;  In other words, our world is a list of Rect (blocks). Each one knows 
+;  where it is (pnt), its velocity vector (vel) and its color.
+
+
+
+
+;  Here's a helper function that's useful with posns:
+
+
+;; add-posn : Posn Posn -> Posn
+;; add the two components of the two posns
+(check-expect (add-posn (make-posn 3 4) (make-posn 1 2)) 
+              (make-posn 4 6))
+
+(define (add-posn a-posn b-posn)
+  (make-posn (+ (posn-x a-posn) (posn-x b-posn))
+             (+ (posn-y a-posn) (posn-y b-posn))))
+
+
+
+;  EXERCISE 0
+;  Define a small example of a [Listof Rect]. You can use it for test cases 
+;  in the functions below.
+
+
+;; A List-of-rects (or, LOR) is either:
+;;   - empty
+;;   - (cons rect LOR)
+;; interp. a list of rectangles
+
+(define LOR-1 (list (make-rect (make-posn 200 200) (make-posn 2 3) "purple")
+                    (make-rect (make-posn 10 50) (make-posn 4 5) "yellow")
+                    (make-rect (make-posn 100 300) (make-posn 12 3) "red")
+                    (make-rect (make-posn 30 100) (make-posn 2 3) "blue")))
+
+(define LOR-2 (list (make-rect (make-posn 540 200) (make-posn 2 3) "red")
+                    (make-rect (make-posn 10 50) (make-posn 4 5) "blue")
+                    (make-rect (make-posn 100 600) (make-posn 12 3) "green")
+                    (make-rect (make-posn 30 100) (make-posn 2 3) "darkblue")))
+
+
+
+;  EXERCISE 1
+;  Design the function gravity: [Listof Rect] -> [Listof Rect]   that adds 
+;  (remember Y is upside down on the screen) the g-accel constant to the y 
+;  component of the velocity of each element of the World. 
+;  *** Use map. ***
+; 
+
+
+; gravity: [Listof Rect] -> [Listof Rect]
+
+(check-expect (gravity empty) empty)
+(check-expect (gravity LOR-1) (list 
+                               (make-rect (make-posn 200 200) (make-posn 2 5) "purple")
+                               (make-rect (make-posn 10 50) (make-posn 4 7) "yellow")
+                               (make-rect (make-posn 100 300) (make-posn 12 5) "red")
+                               (make-rect (make-posn 30 100) (make-posn 2 5) "blue")))
+
+(define (gravity a-lor) 
+  (map (λ (a-rect) (make-rect (rect-pnt a-rect)
+                                (add-posn (make-posn 0 g-accel)
+                                          (rect-vel a-rect))
+                                (rect-color a-rect)))
+       a-lor))
+
+
+;  EXERCISE 2
+;  Design the function move : [Listof Rect] -> [Listof Rect]   that moves 
+;  each Rect one step in the direction it is headed. 
+;  *** Use map. ***
+; 
+;  Hint: (Xnew, Ynew) = (Xold + Xvel, Yold + Yvel)
+;  
+
+
+; move : [Listof Rect] -> [Listof Rect]
+
+(check-expect (move empty) empty)
+(check-expect (move LOR-1) (list 
+                               (make-rect (make-posn 202 203) (make-posn 2 3) "purple")
+                               (make-rect (make-posn 14 55) (make-posn 4 5) "yellow")
+                               (make-rect (make-posn 112 303) (make-posn 12 3) "red")
+                               (make-rect (make-posn 32 103) (make-posn 2 3) "blue")))
+
+(define (move a-lor)
+  (map (λ (a-rect) (make-rect (add-posn (rect-vel a-rect) (rect-pnt a-rect))
+                              (rect-vel a-rect)
+                              (rect-color a-rect)))
+       a-lor))
+
+
+;  EXERCISE 3
+;  Design the function only-on-screen : [Listof Rect] -> [Listof Rect]  that 
+;  removes the Rects that are not on the screen from the world. Use the
+;  constants SW and SH above.
+;  *** Use filter. ***
+; 
+
+
+; only-on-screen : [Listof Rect] -> [Listof Rect]
+
+(check-expect (only-on-screen empty) empty)
+(check-expect (only-on-screen LOR-2) (list (make-rect (make-posn 10 50) (make-posn 4 5) "blue")
+                                           (make-rect (make-posn 30 100) (make-posn 2 3) "darkblue")))
+
+(define (only-on-screen a-lor)
+  (filter (λ (a-rect) (and (and (< (posn-x (rect-pnt a-rect)) SW)
+                                (> (posn-y (rect-pnt a-rect)) 0))
+                           (and (< (posn-y (rect-pnt a-rect)) SH)
+                                (> (posn-x (rect-pnt a-rect)) 0))))
+          a-lor))
+
+
+
+;  EXERCISE 4
+;  Design the function draw : [Listof Rect] -> Scene   that draws all the 
+;  Rects into an empty-scene, size (SW x SH). Each Rect should be drawn as
+;  a solid rectangle of width RW and height RH; the color of the rectangle
+;  should be taken from the color in the Rect structure.
+;  *** Use foldl. ***
+;  
+;  Hint: Fill in the general contract of foldl with specific "types" 
+;  (Rect and Scene), then design a local function to match.
+; 
+
+
+; draw : [Listof Rect] -> Scene
+
+(check-expect (draw LOR-1) (place-image (rectangle RW RH "solid" "purple") 200 200
+                             (place-image (rectangle RW RH "solid" "yellow") 10 50
+                              (place-image (rectangle RW RH "solid" "red") 100 300
+                               (place-image (rectangle RW RH "solid" "blue") 30 100
+                                (empty-scene SW SH))))))
+
+(define (draw a-lor)
+  (foldl (λ (a-rect an-img) (place-image (rectangle RW RH "solid" (rect-color a-rect))
+                                         (posn-x (rect-pnt a-rect))
+                                         (posn-y (rect-pnt a-rect))
+                                         an-img))
+         (rectangle SW SH "solid" "lightblue")
+         a-lor))
+
+                
+;  Finally: Now, as a final step, uncomment the code below to finish off the 
+;  World simulation. Drag your mouse on the screen to see what happens!!
+; 
+
+
+
+;; new-rect : Number Number -> Rect
+;; Create a new Rect at the given point with random
+;;  speed and color
+(define (new-rect x y)
+  (make-rect (make-posn x y)
+             (make-posn (- (random 14) 7) (- (random 10)))
+             (cond [(= (random 5) 0) "red"]
+                   [(= (random 5) 0) "blue"]
+                   [(= (random 5) 0) "green"]
+                   [(= (random 5) 0) "yellow"]
+                   [(= (random 5) 0) "purple"]
+                   [else "orange"])))
+
+;; tick : World -> World
+;; Make updates to the world... gravity, movement, and filter
+(define (tick lob)
+  (only-on-screen (move (gravity lob))))
+
+;; mouse : World Number Number MouseEvent -> World
+;; On drag, create random Rects
+(define (mouse lob x y me)
+  (cond [(mouse=? me "drag") (cons (new-rect x y) lob)]
+        [else lob]))
+
+(big-bang empty
+          (on-tick tick .03)
+          (on-mouse mouse)
+          (on-draw draw))
+
+;  Try tweaking the code above to understand how it works. Enjoy! 
+
+
