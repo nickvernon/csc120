@@ -1,0 +1,318 @@
+; Orbelin Palacios & Nick Vernon
+; Lab 3 - Pizza Store
+
+
+
+
+
+;                                                                                  
+;                                                                                  
+;                                                                                  
+;                                                                                  
+;   ;;;;               ;;;     ;               ;                                   
+;    ;  ;             ;                              ;                             
+;    ;   ;   ;;;;   ;;;;;;   ;;;    ;; ;;    ;;;    ;;;;;    ;;;;   ;; ;;    ;;;;; 
+;    ;   ;  ;    ;    ;        ;     ;;  ;     ;     ;      ;    ;   ;;  ;  ;    ; 
+;    ;   ;  ;;;;;;    ;        ;     ;   ;     ;     ;      ;    ;   ;   ;   ;;;;  
+;    ;   ;  ;         ;        ;     ;   ;     ;     ;      ;    ;   ;   ;       ; 
+;    ;  ;   ;         ;        ;     ;   ;     ;     ;   ;  ;    ;   ;   ;  ;    ; 
+;   ;;;;     ;;;;;  ;;;;;;   ;;;;;  ;;; ;;;  ;;;;;    ;;;    ;;;;   ;;; ;;; ;;;;;  
+;                                                                                  
+;                                                                                  
+;                                                                                  
+;                                                                                  
+
+
+; A PizzaSize is one of the following:
+;  - "small"
+;  - "medium"
+;  - "large"
+; interp. represents the possible sizes for a pizza
+
+
+#; (define (pizza-size-func a-size)
+     (cond
+       [(string=? a-size "small") (...)]
+       [(string=? a-size "medium") (...)]
+       [(string=? a-size "large") (...)]
+       ))
+
+; A StandardTopping is a number greater than or equal to 0
+; interp. represents the number of standard toppings on a pizza
+
+
+#; (define (standard-topping-func a-st)
+     (cond
+       [(number? a-st) (... a-st ...)]
+       ))
+
+; A PremiumTopping is a number greater than or equal to 0
+; interp. represents the number of premium toppings on a pizza
+
+
+#; (define (premium-topping-func a-pt)
+     (cond
+       [(number? a-pt) (... a-pt ...)]
+       ))
+
+; A CouponCode is one of the following:
+;  -"none"
+;  -"half-off"
+;  -"big-eater"
+;  -"supersize"
+;  -"solo"
+
+#; (define (coupon-code-func a-cc)
+     (cond
+       [(and (string? a-cc)(string=? a-cc "none")) (...)]
+       [(and (string? a-cc)(string=? a-cc "half-off")) (...)]
+       [(and (string? a-cc)(string=? a-cc "big-eater")) (...)]
+       [(and (string? a-cc)(string=? a-cc "supersize")) (...)]
+       [(and (string? a-cc)(string=? a-cc "solo")) (...)]
+       ))
+
+
+; A PizzaPrice is one of the following:
+;  - "$6"
+;  - "$8"
+;  - "$9.50"
+
+#; (define (pizza-price-func a-pp)
+     (cond
+       [(and (string? a-pp)(string=? a-pp "$6")) (... a-pp ...)]
+       [(and (string? a-pp)(string=? a-pp "$8")) (... a-pp ...)]
+       [(and (string? a-pp)(string=? a-pp "$9.50")) (... a-pp ...)]
+       ))
+
+
+
+;                                                                          
+;                                                                          
+;                                                                          
+;                                                                          
+;   ;;;;;;                                     ;                           
+;    ;   ;                           ;                                     
+;    ; ;    ;;  ;;  ;; ;;    ;;; ;  ;;;;;    ;;;     ;;;;   ;; ;;    ;;;;; 
+;    ;;;     ;   ;   ;;  ;  ;   ;;   ;         ;    ;    ;   ;;  ;  ;    ; 
+;    ; ;     ;   ;   ;   ;  ;        ;         ;    ;    ;   ;   ;   ;;;;  
+;    ;       ;   ;   ;   ;  ;        ;         ;    ;    ;   ;   ;       ; 
+;    ;       ;  ;;   ;   ;  ;    ;   ;   ;     ;    ;    ;   ;   ;  ;    ; 
+;   ;;;       ;; ;; ;;; ;;;  ;;;;     ;;;    ;;;;;   ;;;;   ;;; ;;; ;;;;;  
+;                                                                          
+;                                                                          
+;                                                                          
+;                                                                          
+
+
+; pizza-price : a-size a-st a-pt a-cc -> a-pp
+; produces a price for a pizza given the size, number of standard toppings,
+; number of premium toppings, and coupon code for the pizza
+
+
+(check-expect (pizza-price "small" 0 0 "none") "$6")
+(check-expect (pizza-price "medium" 2 0 "half-off") "$5")
+(check-expect (pizza-price "large" 10 10 "big-eater") "$18")
+(check-expect (pizza-price "large" 0 1 "supersize") "$7.50")
+(check-expect (pizza-price "small" 0 2 "solo") "$8")
+
+
+#;(define (pizza-price a-size a-st a-pt a-cc) "")  ; stub
+#;(define (pizza-price a-size a-st a-pt a-cc)      ; template
+    (... a-size a-st a-pt a-cc ...))
+
+(define (pizza-price a-size a-st a-pt a-cc)
+    (apply-coupon a-size a-st a-pt a-cc))
+
+
+
+
+
+
+
+
+;                                                                                                                                  
+;                                                                                                                                  
+;                                                                                                                                  
+;                                                                                                                                  
+;   ;;; ;;;           ;;                                    ;;;;;;                                     ;                           
+;    ;   ;             ;                                     ;   ;                           ;                                     
+;    ;   ;   ;;;;      ;    ;; ;;    ;;;;   ;; ;;;           ; ;    ;;  ;;  ;; ;;    ;;; ;  ;;;;;    ;;;     ;;;;   ;; ;;    ;;;;; 
+;    ;;;;;  ;    ;     ;     ;;  ;  ;    ;   ;;              ;;;     ;   ;   ;;  ;  ;   ;;   ;         ;    ;    ;   ;;  ;  ;    ; 
+;    ;   ;  ;;;;;;     ;     ;   ;  ;;;;;;   ;               ; ;     ;   ;   ;   ;  ;        ;         ;    ;    ;   ;   ;   ;;;;  
+;    ;   ;  ;          ;     ;   ;  ;        ;               ;       ;   ;   ;   ;  ;        ;         ;    ;    ;   ;   ;       ; 
+;    ;   ;  ;          ;     ;   ;  ;        ;               ;       ;  ;;   ;   ;  ;    ;   ;   ;     ;    ;    ;   ;   ;  ;    ; 
+;   ;;; ;;;  ;;;;;   ;;;;;   ;;;;    ;;;;;  ;;;;;           ;;;       ;; ;; ;;; ;;;  ;;;;     ;;;    ;;;;;   ;;;;   ;;; ;;; ;;;;;  
+;                            ;                                                                                                     
+;                           ;;;                                                                                                    
+;                                                                                                                                  
+;                                                                                                                                  
+
+
+
+; size-price : PizzaSize -> PizzaPrice
+; produces a price for a pizza with a given size
+
+(check-expect (size-price "small") "$6")
+(check-expect (size-price "medium") "$8")
+(check-expect (size-price "large") "$9.50")
+
+#; (define (size-price a-size) "")    ; stub
+;   < use template from pizza-size-func >
+
+(define (size-price a-size)
+     (cond
+       [(string=? a-size "small") "$6"]
+       [(string=? a-size "medium") "$8"]
+       [(string=? a-size "large") "$9.50"]
+       ))
+
+; add-std-top : PizzaSize StandardTopping -> Number
+; produces a price for a pizza with a given size and number of
+; standard toppings
+
+(check-expect (add-std-top "small" 0) "$6")
+(check-expect (add-std-top "medium" 2) "$10")
+(check-expect (add-std-top "large" 3) "$12.50")
+
+#; (define (add-std-top a-size a-st) "")   ; stub
+#; (define (add-std-top a-size a-st)
+     (... a-size a-st ...))
+     
+(define (add-std-top a-size a-st)
+     (cond
+       [(string=? a-size "small") (string-append "$" (number->string(+ (string->number(substring (size-price a-size) 1 (string-length (size-price a-size)))) a-st)))]
+       [(string=? a-size "medium") (string-append "$" (number->string(+ (string->number(substring (size-price a-size) 1 (string-length (size-price a-size)))) a-st)))]
+       [(string=? a-size "large") (string-append "$" (number->string(exact->inexact(+ (string->number(substring (size-price a-size) 1 (string-length (size-price a-size)))) a-st))) "0")]
+       ))
+
+; add-prem-top : PizzaSize PremiumTopping -> Number
+; produces a price for a pizza with a given size and number of premium toppings
+
+(check-expect (add-prem-top "small" 0) "$6")
+(check-expect (add-prem-top "small" 9) "$19.50")
+(check-expect (add-prem-top "medium" 1) "$9.50")
+(check-expect (add-prem-top "medium" 2) "$11")
+(check-expect (add-prem-top "large" 2) "$12.50")
+(check-expect (add-prem-top "large" 3) "$14")
+
+#;(define (add-prem-top a-size a-pt) "")   ; stub
+#; (define (add-prem-top a-size a-pt)      ; template
+     (... a-size a-pt ...))
+
+(define (add-prem-top a-size a-pt)
+  (cond
+    [(and (string=? a-size "small")(odd? a-pt)) (string-append "$" (number->string(exact->inexact(+ (string->number(substring (size-price a-size) 1 (string-length (size-price a-size)))) (* a-pt 1.5)))) "0")]
+    [(and (string=? a-size "small")(even? a-pt)) (string-append "$" (substring (number->string(exact->inexact(+ (string->number(substring (size-price a-size) 1 (string-length (size-price a-size)))) (* a-pt 1.5)))) 0 (- (string-length (number->string(exact->inexact(+ (string->number(substring (size-price a-size) 1 (string-length (size-price a-size)))) (* a-pt 1.5))))) 2)))]
+    [(and (string=? a-size "medium")(odd? a-pt)) (string-append "$" (number->string(exact->inexact(+ (string->number(substring (size-price a-size) 1 (string-length (size-price a-size)))) (* a-pt 1.5)))) "0")]
+    [(and (string=? a-size "medium")(even? a-pt)) (string-append "$" (substring (number->string(exact->inexact(+ (string->number(substring (size-price a-size) 1 (string-length (size-price a-size)))) (* a-pt 1.5)))) 0 (- (string-length (number->string(exact->inexact(+ (string->number(substring (size-price a-size) 1 (string-length (size-price a-size)))) (* a-pt 1.5))))) 2)))]
+    [(and (string=? a-size "large") (odd? a-pt))(string-append "$" (substring (number->string(exact->inexact(+ (string->number(substring (size-price a-size) 1 (string-length (size-price a-size)))) (* a-pt 1.5)))) 0 (- (string-length (number->string(exact->inexact(+ (string->number(substring (size-price a-size) 1 (string-length (size-price a-size)))) (* a-pt 1.5))))) 2)))]
+    [(and (string=? a-size "large") (even? a-pt))(string-append "$" (number->string(exact->inexact(+ (string->number(substring (size-price a-size) 1 (string-length (size-price a-size)))) (* a-pt 1.5)))) "0")]
+    ))
+
+; find-subtotal : PizzaSize StandardTopping PremiumTopping -> Number
+; produces a subtotal for a pizza with a given size, number of standard toppings, and a 
+; number of premium toppings
+
+(check-expect (find-subtotal "small" 0 0) "$6")
+(check-expect (find-subtotal "small" 0 2) "$9")
+(check-expect (find-subtotal "small" 3 0) "$9")
+(check-expect (find-subtotal "small" 3 7) "$19.50")
+(check-expect (find-subtotal "medium" 0 0) "$8")
+(check-expect (find-subtotal "medium" 0 3) "$12.50")
+(check-expect (find-subtotal "medium" 2 0) "$10")
+(check-expect (find-subtotal "medium" 2 1) "$11.50")
+(check-expect (find-subtotal "large" 0 0) "$9.50")
+(check-expect (find-subtotal "large" 1 0) "$10.50")
+(check-expect (find-subtotal "large" 0 2) "$12.50")
+(check-expect (find-subtotal "large" 3 1) "$14")
+
+
+#;(define (find-subtotal a-size a-st a-pt) "")   ; stub
+#;(define (find-subtotal a-size a-st a-pt)       ; template
+    (... a-size a-st a-pt ...))
+
+(define (find-subtotal a-size a-st a-pt)
+  (cond 
+    [(and (string=? a-size "small")(odd? a-pt))(string-append "$" (number->string(exact->inexact(+ (string->number (substring (size-price a-size) 1)) (- (string->number(substring (add-std-top a-size a-st) 1)) 6) (- (string->number (substring (add-prem-top a-size a-pt) 1)) 6)))) "0")]
+    [(and (string=? a-size "small")(even? a-pt))(string-append "$" (number->string(+ (string->number (substring (size-price a-size) 1)) (- (string->number(substring (add-std-top a-size a-st) 1)) 6) (- (string->number (substring (add-prem-top a-size a-pt) 1)) 6))))]
+    [(and (string=? a-size "medium")(odd? a-pt))(string-append "$" (number->string(exact->inexact(+ (string->number (substring (size-price a-size) 1)) (- (string->number(substring (add-std-top a-size a-st) 1)) 8) (- (string->number (substring (add-prem-top a-size a-pt) 1)) 8)))) "0")]
+    [(and (string=? a-size "medium")(even? a-pt))(string-append "$" (number->string(+ (string->number (substring (size-price a-size) 1)) (- (string->number(substring (add-std-top a-size a-st) 1)) 8) (- (string->number (substring (add-prem-top a-size a-pt) 1)) 8))))]
+    [(and (string=? a-size "large")(odd? a-pt))(string-append "$" (number->string(+ (string->number (substring (size-price a-size) 1)) (- (string->number(substring (add-std-top a-size a-st) 1)) 9.5) (- (string->number (substring (add-prem-top a-size a-pt) 1)) 9.5))))]
+    [(and (string=? a-size "large")(even? a-pt))(string-append "$" (number->string(exact->inexact(+ (string->number (substring (size-price a-size) 1)) (- (string->number(substring (add-std-top a-size a-st) 1)) 9.5) (- (string->number (substring (add-prem-top a-size a-pt) 1)) 9.5)))) "0")]
+    ))
+
+
+; apply-coupon: PizzaSize StandardTopping PremiumTopping CouponCode -> Number
+; produces a price for a pizza with a given size, number of standard toppings, a
+; number of premium toppings, and a coupon code
+
+(check-expect (apply-coupon "small" 0 0 "none") "$6")
+(check-expect (apply-coupon "medium" 0 0 "none") "$8")
+(check-expect (apply-coupon "large" 0 0 "none") "$9.50")
+(check-expect (apply-coupon "small" 0 0 "half-off") "$3")
+(check-expect (apply-coupon "small" 3 0 "big-eater") "$18")
+(check-expect (apply-coupon "small" 0 2 "solo") "$8")
+(check-expect (apply-coupon "small" 1 2 "solo") "$10")
+(check-expect (apply-coupon "small" 0 3 "solo") "$10.50")
+(check-expect (apply-coupon "small" 3 7 "supersize") "$19.50")
+(check-expect (apply-coupon "medium" 0 3 "half-off") "$6.25")
+(check-expect (apply-coupon "medium" 3 10 "big-eater") "$18")
+(check-expect (apply-coupon "medium" 0 2 "solo") "$11")
+(check-expect (apply-coupon "medium" 3 7 "supersize") "$19.50")
+(check-expect (apply-coupon "large" 5 0 "half-off") "$7.25")
+(check-expect (apply-coupon "large" 300 100 "big-eater") "$18")
+(check-expect (apply-coupon "large" 0 2 "solo") "$12.50")
+(check-expect (apply-coupon "large" 3 7 "supersize") "$19.50")
+(check-expect (apply-coupon "large" 2 1 "half-off") "$6.50")
+
+
+#;(define (apply-coupon a-size a-st a-pt a-cc) "")   ; stub
+#;(define (apply-coupon a-size a-st a-pt a-cc)       ; template
+    (... a-size a-st a-pt a-cc ...))  
+
+(define (apply-coupon a-size a-st a-pt a-cc)
+  (cond
+    [(string=? a-cc "none") (find-subtotal a-size a-st a-pt)]
+    [(and (string=? a-cc "half-off") (odd? a-pt)(or (string=? a-size "small") (string=? a-size "medium")))(string-append "$" (number->string(exact->inexact(/ (string->number (substring (find-subtotal a-size a-st a-pt) 1)) 2))))]
+    [(and (string=? a-cc "half-off") (odd? a-pt)(even? a-st))(string-append "$" (number->string(exact->inexact(/ (string->number (substring (find-subtotal a-size a-st a-pt) 1)) 2))) "0")]
+    [(and (string=? a-cc "half-off") (odd? a-pt)(odd? a-st))(string-append "$" (substring (number->string(exact->inexact(/ (string->number(substring(find-subtotal a-size a-st a-pt) 1)) 2)) ) 0 (- (string-length (number->string(exact->inexact(/ (string->number(substring(find-subtotal a-size a-st a-pt) 1)) 2)) )) 2)))]
+    [(and (string=? a-cc "half-off") (even? a-pt)(even? a-st)(or (string=? a-size "small")(string=? a-size "medium"))(= (remainder a-pt 4) 0))(string-append "$" (substring (number->string(exact->inexact(/ (string->number (substring (find-subtotal a-size a-st a-pt) 1)) 2))) 0 (- (string-length (number->string(exact->inexact(/ (string->number (substring (find-subtotal a-size a-st a-pt) 1)) 2)))) 2)))]
+    [(and (string=? a-cc "half-off") (even? a-pt)(odd? a-st)(or (string=? a-size "small")(string=? a-size "medium"))(= (remainder a-pt 4) 0)) (string-append "$" (number->string(exact->inexact(/ (string->number (substring (find-subtotal a-size a-st a-pt) 1)) 2))) "0")]
+    [(and (string=? a-cc "half-off") (even? a-pt)(even? a-st)(or (string=? a-size "small")(string=? a-size "medium"))) (string-append "$" (number->string(exact->inexact(/ (string->number (substring (find-subtotal a-size a-st a-pt) 1)) 2))) "0")]
+    [(and (string=? a-cc "half-off") (even? a-pt)(odd? a-st)(or (string=? a-size "small")(string=? a-size "medium"))) (string-append "$" (substring (number->string(exact->inexact(/ (string->number(substring (find-subtotal a-size a-st a-pt) 1)) 2))) 0 (- (string-length (number->string(exact->inexact(/ (string->number(substring (find-subtotal a-size a-st a-pt) 1)) 2)))) 2)))]
+    [(and (string=? a-cc "half-off") (even? a-pt))(string-append "$" (number->string(exact->inexact(/ (string->number (substring (find-subtotal a-size a-st a-pt) 1)) 2))))]
+    [(string=? a-cc "big-eater") "$18"]
+    [(and (string=? a-cc "solo")(string=? a-size "small")(= a-pt 2)(= a-st 0)) "$8"]
+    [(and (string=? a-cc "solo")(or (string=? a-size "medium")(string=? a-size "large")(or (< a-pt 2)(> a-pt 2))(or (< a-st 0) (> a-st 0)))) (find-subtotal a-size a-st a-pt)]
+    [(string=? a-cc "supersize") (find-subtotal "small" a-st a-pt)]
+    [(string? a-cc) (find-subtotal a-size a-st a-pt)]
+    ))
+
+(check-expect (apply-coupon "small" 2 1 "half-off") "$4.75")
+(check-expect (apply-coupon "small" 2 2 "half-off") "$5.50")   
+(check-expect (apply-coupon "small" 2 4 "half-off") "$7")     
+(check-expect (apply-coupon "small" 1 4 "half-off") "$6.50")  
+(check-expect (apply-coupon "small" 1 2 "half-off") "$5") 
+(check-expect (apply-coupon "small" 1 1 "half-off") "$4.25")
+
+(check-expect (apply-coupon "medium" 2 1 "half-off") "$5.75")
+(check-expect (apply-coupon "medium" 2 2 "half-off") "$6.50")   
+(check-expect (apply-coupon "medium" 2 4 "half-off") "$8")
+(check-expect (apply-coupon "medium" 1 4 "half-off") "$7.50")  
+(check-expect (apply-coupon "medium" 1 2 "half-off") "$6")  
+(check-expect (apply-coupon "medium" 1 1 "half-off") "$5.25")
+
+(check-expect (apply-coupon "large" 2 1 "half-off") "$6.50")
+(check-expect (apply-coupon "large" 4 1 "half-off") "$7.50")
+(check-expect (apply-coupon "large" 2 2 "half-off") "$7.25")   
+(check-expect (apply-coupon "large" 2 4 "half-off") "$8.75")
+(check-expect (apply-coupon "large" 1 4 "half-off") "$8.25")  
+(check-expect (apply-coupon "large" 1 2 "half-off") "$6.75")  
+(check-expect (apply-coupon "large" 1 1 "half-off") "$6")
+(check-expect (apply-coupon "large" 3 1 "half-off") "$7")
+
+(check-expect (apply-coupon "small" 0 0 "bogo") "$6")
+(check-expect (apply-coupon "medium" 0 0 "bogo") "$8")
+(check-expect (apply-coupon "large" 0 0 "bogo") "$9.50")
+
+(pizza-price "large" 2 1 "none")
