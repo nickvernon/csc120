@@ -1,0 +1,151 @@
+;; Nick Vernon
+;; IN-CLASS EXERCISES (3/16/2014) -
+;; LOCAL DEFINITIONS
+
+
+
+;                                                           
+; TASK 1.
+; 
+; Design a function, `between` that takes two numbers (say 
+;  "low" and "high") and returns a list of all numbers from 
+;  low to high-1 (that's 'high minus one'). 
+;  Use `build-list`. 
+; 
+;  Hint: The first argument to build-list is the length 
+;  of the list that you want to build. The second argument 
+;  is a function that takes an argument i and returns 
+;  the item that you want to be at position i in the list 
+;  (starting from 0).
+; 
+;  Hint: You have to use a 'local' definition.
+; 
+
+
+; between : Number Number -> Listof Number
+; produces a list of numbers between low and high minus one
+
+(check-expect (between 0 5) (list 0 1 2 3 4))
+(check-expect (between 10 17) (list 10 11 12 13 14 15 16))
+(check-expect (between 7 10) (list 7 8 9))
+
+(define (between lo hi)
+  (local [
+          ;; f : Number -> Number
+          (define (f i)
+            (+ lo i))
+          ]
+  (build-list (- hi lo) f)))
+
+
+
+;                                                            
+; TASK 2.
+; 
+; Using your function `between`, design the function "evens" 
+; that takes two numbers, and returns a list of all the
+; even numbers in that range. Use `filter`.
+; 
+
+
+;; evens: Number Number -> (Listof Number)
+;; produce a list of the even numbers between lo and hi-1
+
+(check-expect (evens 2 10) (list 2 4 6 8))
+(check-expect (evens 101 115) (list 102 104 106 108 110 112 114))
+
+(define (evens lo hi)
+  (filter even? ; (Number -> Boolean)
+  (between lo hi)))
+
+
+
+
+;                                                            
+; Here is an abbreviated data definition for CDs:
+; 
+
+
+(define-struct cd (title artist price copies category))
+;; a CD is a (make-cd string string number number string)
+
+(define CDs (list (make-cd "greatest hits" "abba" 12.95 42 "rock")
+                  (make-cd "beach boys live" "beach boys" 10.00 120 "rock")
+                  (make-cd "yanni at the acropolis" "yanni" 5.00 0 "new age")
+                  (make-cd "marriage of figaro" "mozart" 20.00 50 "classical")))
+
+
+
+;                                                            
+; TASK 3.
+; 
+; Fill in the function below using the *map* and *filter*
+; abstract functions. 
+; 
+
+
+;; titles-in-stock:  [List-of CD] -> [List-of String]
+;; consumes a [List-of CD] and produces the *titles* only
+;; of all those cds with at least 1 copy in stock
+(check-expect (titles-in-stock CDs) 
+              (list "greatest hits" "beach boys live" "marriage of figaro"))
+
+(define (titles-in-stock a-locd)
+  (map  cd-title ; CD -> String
+        (filter in-stock? ; CD -> Boolean
+          a-locd )))
+
+;; map : (CD -> String) (Listof CD) -> (Listof String)
+;; filter : (CD -> Boolean (Listof CD) -> (Listof CD)
+  
+  
+;; in-stock? : CD -> Boolean  
+(define (in-stock? a-cd)
+  (> (cd-copies a-cd) 0))
+
+
+;                                                            
+; TASK 4.
+; 
+; Fill in the function below using the *map* and *filter*
+; abstract functions. 
+; 
+; (Hint: Your helper function will need to be in a local
+;                    definition.)
+; 
+
+
+;; titles-by:  string [List-of CD] -> [List-of String]
+;; consumes an artist name and inventory and produces a list of titles of CDs by that artist
+
+(check-expect (titles-by "mozart" CDs) (list "marriage of figaro"))
+
+(define (titles-by name a-locd)
+ (local [ 
+         ;; by-artist?: CD -> Boolean
+         (define (by-artist? a-cd)
+           (string=? (cd-artist a-cd) name))
+         ]
+ (map cd-title
+       (filter by-artist? a-locd))))
+
+
+
+
+;                                                           
+; TASK 5.
+; 
+; Here is a generalization of a function we've seen 
+; previously... (look back at the notes for 
+;                     the previous lecture)
+; 
+
+
+;; any-divisible : Nat [List-of Nat] -> Boolean
+;; determines if any of the numbers in the given list
+;; are divisible by the given number
+
+
+
+
+
