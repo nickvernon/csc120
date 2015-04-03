@@ -1,0 +1,23 @@
+; Nick Vernon
+; THE ROCK
+
+;Time (seconds)   Distance fallen (in inches)
+;    0               (place-image *therock* 250 0
+;                       (empty-scene 500 500))
+;    1               (place-image *therock* 250 3
+;                      (empty-scene 500 500))
+;    2               (place-image *therock* 250 6
+;                      (empty-scene 500 500))
+
+;    t               (place-image *therock* 250 (3*t)
+;                      (empty-scene 500 500))
+
+(require 2htdp/image)
+(require 2htdp/universe)
+
+(define (rock-at t)
+  (place-image . 
+               250 (* 3 t) 
+               (empty-scene 500 500)))
+
+(animate rock-at)
