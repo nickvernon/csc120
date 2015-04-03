@@ -1,0 +1,293 @@
+
+;                                                           
+;  Lecture 9
+;  Compound Data: Defining Structures
+;  &
+;  Designing Functions for Compound Data
+
+
+(require 2htdp/image)
+(require 2htdp/universe)
+
+;                                                           
+; For many problem domains, we need to represent 
+; information as compound data, made up of many pieces
+; of simpler types of data.
+;   
+; This week we are going to add a new kind of data definition
+; to our repertoire: compound data. This will allow us to
+; represent more complex information from problem domains. 
+; 
+; We've had a preview of a pre-defined type of compound data:
+; a posn. However, usually definitions of compound data are
+; usually left to the programmer - a programming language
+; simply provides one or more mechanisms for defining your
+; own types of compound data. 
+; 
+; Compound data, such as posn, that is built up out of two 
+; or more 'smaller' pieces of data that are somehow 
+; associated to each other is called a STRUCTURE.
+; 
+; To define your own structures, BSL provides a mechanism:
+; 
+;   (define-struct ... )
+; 
+
+
+
+;                                                           
+; .
+; 
+;   
+;   
+; OUR ZOO:
+;  - We need to keep track of our animals and their 
+;    properties (how big/old they are, what they eat, etc.)
+;  
+;  - Our first attraction : Boa constrictors 
+;    Each boa has:
+;    o A name
+;    o A length
+;    o A favorite food
+;  
+; We need a data definition that allows us to associate
+; the 3 pieces of information about each boa constrictor
+; together as a unit. Our data definition has a new
+; feature which is a STRUCTURE DEFINITION - using the
+; define-struct mechanism which has effects in our program
+; that we will talk about shortly...
+; 
+; The TYPES COMMENT portion of a data definition involving
+; a structure indicates how you expect the structure to
+; be used (what type of data each FIELD contains)
+; 
+
+
+
+
+;           DATA DEFINITION            
+
+
+(define-struct boa (name length food))       ; structure definition
+; A Boa is (make-boa String Number String)   ; types comment
+; interp. a boa with given name, length in feet,  ; interpretation
+;         and favorite food
+
+(define BOA1 (make-boa "Slinky" 10 "rats"))  ; data examples
+(define BOA2 (make-boa "Slim" 5 "lettuce"))
+
+#;    ; template
+(define (boa-func a-boa)
+  (... (boa-name a-boa) ...     ; String
+   ... (boa-length a-boa) ...   ; Number
+   ... (boa-food a-boa) ...     ; String
+   ))
+
+
+;                                                           
+; REVIEW:
+; 
+; The effect of     (define-struct boa (name length food))
+; is to introduce several new operators into your program:
+; 
+;  - make-boa   : String Number String -> Boa
+;  - boa-name   : Boa -> String
+;  - boa-length : Boa -> Number
+;  - boa-food   : Boa -> String
+;  - boa?       : Anything -> Boolean
+;  
+; In general, define-struct create 3 kinds of new operations:
+; 
+;  - One CONSTRUCTOR:
+;                        make-<name>
+;    that creates INSTANCES of the structures from as many 
+;    values as there are fields
+;    
+;  - One SELECTOR per field:
+;                   <name>-<fieldname>
+;    which extracts the value of the field from an 
+;    appropriate structure
+;    
+;  - One STRUCTURE PREDICATE:
+;                   <name>?
+;    which distinguishes instances of the structure 
+;    from all other values
+; 
+
+
+
+;                                                           
+; TEMPLATES FOR SIMPLE COMPOUND DATA (STRUCTURES)
+; 
+; The template for a function that processes a simple
+; structure will contain expressions that apply all the
+; SELECTOR functions to the parameter that is the structure
+; type.
+;   - REMEMBER to *apply* the selector functions to the
+;     parameter.
+; 
+; For additional clarity, one may also occassionally include
+; a type comment for each selector expression, to remind
+; oneself what type of data that field is.
+; 
+
+
+
+;                                                           
+; NOTE: 
+; - The name of the 'function' in the template is 
+;   generic - use the name of the structure and 
+;             append "-func"
+; 
+; - The name of the parameter will always be "a-" (or "an-")
+;   prefixed to the name of the structure
+;   
+
+
+
+
+;                                                           
+; SOME FUNCTIONS...
+
+
+
+;; boa-portable? : Boa Number -> Boolean
+;; determine if boa shorter than given cage length
+(check-expect (boa-portable? BOA1 5) false)
+(check-expect (boa-portable? BOA2 50) true)
+
+(define (boa-portable? aboa cage-size)
+  (<= (boa-length aboa) cage-size))
+
+
+
+;                                                           
+; EXERCISE:
+; Implement feed-snake, which takes a snake and returns a 
+; snake with the same name and favorite food, but five 
+; feet longer.
+; 
+
+
+;; feed-snake : Boa -> Boa
+;; produces a snake five feet longer
+
+(check-expect (feed-snake BOA1) (make-boa "Slinky" 15 "rats"))
+(check-expect (feed-snake BOA2) (make-boa "Slim" 10 "lettuce"))
+
+(define (feed-snake a-boa)
+  (make-boa (boa-name a-boa)
+            (+ 5 (boa-length a-boa))
+            (boa-food a-boa)))
+
+
+
+;;==========================================================
+;;==========================================================
+;;==========================================================
+
+;                                                           
+; New addition to our zoo!!!!!
+; 
+; 
+; .
+; 
+; Armadillos:   length, dead or not?
+; 
+
+
+
+(define-struct dillo (length dead?))
+; A Dillo is (make-dillo Number Boolean)
+; interp. an armadillo of given length in feet and whether
+;         it is dead or not
+
+(define PUNYDILLO (make-dillo 3 true))
+(define MONSTADILLO (make-dillo 15 false))
+
+
+;                                                           
+; EXERCISE: 
+; Write the template for dillo...
+; 
+
+
+; template
+#;
+(define (dillo-func a-dillo)
+  (... (dillo-length a-dillo) ...    ; Number
+   ... (dillo-dead? a-dillo) ...     ; Boolean
+   ))
+
+       
+
+;                                                           
+; SOME FUNCTIONS...
+; 
+; .
+; 
+
+
+;; hit-with-truck : Dillo -> Dillo
+;; produce a dead dillo that's one unit longer than original
+(check-expect (hit-with-truck PUNYDILLO) (make-dillo 4 true))
+(check-expect (hit-with-truck MONSTADILLO) (make-dillo 16 true))
+
+(define (hit-with-truck a-dillo)
+  (make-dillo (+ 1 (dillo-length a-dillo)) true))
+
+
+
+;                                                           
+;  EXERCISE:
+;  Implement feed-dillo, which produces a dillo two units
+;  longer... unless dead.
+; 
+
+
+;; feed-dillo : Dillo -> Dillo
+;; produces a dillo two units longer, unless dead
+
+(check-expect (feed-dillo PUNYDILLO) PUNYDILLO)
+(check-expect (feed-dillo MONSTADILLO) (make-dillo 17 false))
+
+(define (feed-dillo a-dillo)
+  (if (dillo-dead? a-dillo)
+      a-dillo
+      (make-dillo (+ 2 (dillo-length a-dillo))
+                  (dillo-dead? a-dillo))))
+
+ 
+
+
+;;==========================================================
+;;==========================================================
+;;==========================================================
+
+
+;                                                           
+;  EXERCISES:
+; 
+;  1.
+;  Write down the names of the functions (constructors, 
+;  selectors, and predicates) that the following structure 
+;  definition defines:
+;  
+;       (define-struct CD (artist title price))
+; 
+;  2.
+;  Provide a TYPES COMMENT and TEMPLATE appropriate for
+;  the structure above.
+;  
+;  3.
+;  Provide a data example of a CD.
+;  
+;  4.
+;  Write the structure definition, types comment, and
+;  template for a Posn.
+; 
+
+
+
+
+
