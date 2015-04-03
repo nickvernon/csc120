@@ -1,0 +1,501 @@
+
+;                                                           
+;  Lecture 20
+;  Designing Abstractions
+;   
+;  . 
+;  
+; "Simplicity does not precede complexity, but follows it."
+;                                -- Alan Perlis (1922-1990)
+;  
+;  
+
+
+
+;                                                           
+; MAKE SURE LANGUAGE LEVEL IS SET TO:
+; "Intermediate Student"
+; 
+
+
+(require 2htdp/image)
+
+;                                                           
+; Here is the map2 function from our last lecture...
+; 
+; FILL IN a signature and purpose comment:
+; 
+
+
+; map2 : 
+; purpose...
+
+(define (map2 F a-loc)
+  (cond
+    [(empty? a-loc) empty]
+    [(cons? a-loc)
+     (cons (F (first a-loc))
+           (map2 F (rest a-loc)))]))
+
+; 
+; So now what's the signature of map2???  So far we have used the
+; function itself a couple of times:
+;  
+; (define (negate-colors a-loc) (map2  negative  a-loc))
+; (define (red->blue a-loc) (map2 swap-red/blue a-loc))
+; 
+; The first two suggest something like:
+; 
+;   fn (listof Color) -> (listof Color)
+; 
+; we can say something more precise about the function
+; using this notation:
+;   
+;   (Color -> Color) (listof Color) -> (listof Color)
+;  
+; where "(Color -> Color)" means a function that consumes a Color
+; and produces a Color. So the signature above says:
+;   Consumes a function from Color to Color, 
+;        and a (listof Color)
+;   produces a (listof Color)
+;   
+
+
+
+
+;                                                           
+; Now, consider the following two functions. Can you
+; REWRITE them as one-liners using map2 above?
+; 
+
+
+; widths / heights: (Listof Image) -> (Listof Number)
+; produce a list of widths/heights of a list of images
+(check-expect (widths empty) empty)
+(check-expect (heights empty) empty)
+(check-expect (widths (list (rectangle 2 10 "solid" "blue")
+                            (rectangle 3 5 "solid" "red")))
+              (list 2 3))
+(check-expect (heights (list (rectangle 2 10 "solid" "blue")
+                             (rectangle 3 5 "solid" "red")))
+              (list 10 5))
+
+(define (widths loi)
+  (cond [(empty? loi) empty]
+        [else
+         (cons (image-width (first loi))
+               (widths (rest loi)))]))
+
+(define (heights loi)
+  (cond [(empty? loi) empty]
+        [else
+         (cons (image-height (first loi))
+               (heights (rest loi)))]))
+
+;                                                           
+; Does that CHANGE what the signature of 'map2' should
+; be?
+; 
+; The use of map2 in the functions above contradicts our 
+; previous signature for map2, since they pass
+; map2 a (listof Image).  Maybe the signature is:
+; 
+;   (Image -> Number) (listof Image) -> (listof Number)
+;   
+; But that conflicts with our previous signature for map2
+; based on its initial abstraction and use.  The two concrete
+; signatures so far are:
+; 
+;    (Color  -> Color) (listof Color)  -> (listof Color)
+;    (Image -> Number) (listof Image) -> (listof Number)
+;    
+; What should the signature be???
+; 
+; Note that in each case, the first argument to the function 
+; has the same type as the elements of the argument list. That
+; makes sense, that function is called on those arguments.
+; Note also the the result type of the function is the same
+; as the type of the elements in the result list. That also
+; makes sense, the function produces those list elements.
+; 
+; So we'll write:
+; 
+; ;; (X -> Y) (Listof X) -> (Listof Y)
+; ;; given F and (list i0 i1 ...) produce (list (F i0) (F i1) ...)
+; 
+; ;; <we'll talk about tests for higher-order functions later>
+; 
+; (define (map2 F a-lox)
+;   (cond [(empty? a-lox) empty]
+;         [(cons? a-lox)
+;          (cons (F (first a-lox))
+;                (map2 F (rest a-lox)))]))
+; 
+; If we look at the code for map2 it makes sense. map2 itself
+; never operates on the values in the list it consumes or the
+; values in the list it produces.
+; 
+; Instead the F argument consumes and produces those values. 
+; All map2 does is gets the values out of the input list, 
+; passes them to F and conses the results of F into the result
+; list.
+; 
+; The signature of map2 says:
+;   give me a function that consumes X and produces Y
+;   and a list of X
+;   and I will produce a list of Y
+;   
+; In a function signature with type variables that are used more 
+; than once, the signature means that for each call to the function,
+; all occurrences of each type variable must have the same value.
+; 
+
+
+
+;                                                           
+; What else can 'map2' do??? Can you WRITE THE FOLLOWING
+; function using map2?
+
+
+
+; srcircles : (Listof Number) -> (Listof Image)
+; produce a list of solid red circles with given radii
+;UNCOMMENT:
+;(check-expect (srcircles (list 2 4))
+;              (list (circle 2 "solid" "red")
+;                    (circle 4 "solid" "red")))
+
+;(define (srcircles a-lon)
+;   ...)
+
+; srcircle : Number -> Image
+; produce a solid red circle of radius r
+(check-expect (srcircle 5) (circle 5 "solid" "red"))
+
+(define (srcircle r)
+  (circle r "solid" "red"))
+
+
+;;==========================================================
+;;==========================================================
+
+
+;                                                           
+; EXERCISE:
+; Consider the following two functions. Define an 
+; abstract function based on them and redefine the original 
+; functions as one liners. Call the abstract function "filter2". 
+; You do not need to write a signature, purpose or examples for 
+; "filter2" yet.
+
+
+; pos-only : (Listof Number) -> (Listof Number)
+; neg-only : (Listof Number) -> (Listof Number)
+; produce only positive/negative numbers in list
+(check-expect (pos-only empty) empty)
+(check-expect (neg-only empty) empty)
+(check-expect (pos-only (list 1 -2 3 -4)) (list 1 3))
+(check-expect (neg-only (list 1 -2 3 -4)) (list -2 -4))
+#;
+(define (pos-only lon)
+  (cond [(empty? lon) empty]
+        [else
+         (if (positive? (first lon))
+             (cons (first lon) (pos-only (rest lon)))
+             (pos-only (rest lon)))]))
+#;
+(define (neg-only lon)
+  (cond [(empty? lon) empty]
+        [else
+         (if (negative? (first lon))
+             (cons (first lon) (neg-only (rest lon)))
+             (neg-only (rest lon)))]))
+           
+
+#;
+(define (filter2 p lon)
+  (cond [(empty? lon) empty]
+        [else
+         (if (p (first lon))
+             (cons (first lon) (filter2 p (rest lon)))
+             (filter2 p (rest lon)))]))
+
+(define (pos-only lon) (filter2 positive? lon))
+(define (neg-only lon) (filter2 negative? lon))
+
+
+
+;;==========================================================
+;;==========================================================
+
+;                                                           
+; Here are some definitions from the last homework 
+; assignment. (I've left out some parts of the data
+; definitions and test cases.)
+; 
+
+
+(define-struct checkout (media name days))
+;A Checkout is (make-checkout lib-item string number)
+;interp. a video or book, the name of the person who is checking it out, and how many days until the item is due
+;negative numbers mean it is overdue by that many days!
+
+(define-struct book (title author year))
+;A Book is (make-book (string string number))
+;interp. a book has a title, author, and year of publication
+
+(define-struct video (title director year length))
+;A Video is (make-video (string string number number)
+;interp. a video has a title, director, year of release, and length in minutes
+
+(define BOOK1 (make-book "Blah" "Blah" 2005))
+(define BOOK2 (make-book "Foo" "Bar" 1987))
+(define VIDEO1 (make-video "He" "She" 2011 120))
+(define VIDEO2 (make-video "Lamp" "Pixar" 1997 7))
+
+(define COL1 (list (make-checkout BOOK1 "Alice" 14)
+                   (make-checkout VIDEO2 "Bob" 7)
+                   (make-checkout BOOK2 "Charlie" -2)))
+(define COL2 (list (make-checkout VIDEO2 "Dana" 7)
+                   (make-checkout BOOK2 "Earl" -5)
+                   (make-checkout VIDEO1 "Fred" -1)))
+
+
+;item-overdue? : Checkout -> Boolean
+;determines whether a checkout is overdue or not
+
+(check-expect (item-overdue? (make-checkout BOOK1 "Alice" 14)) false)
+(check-expect (item-overdue? (make-checkout BOOK2 "Bob" 0)) false)
+(check-expect (item-overdue? (make-checkout VIDEO1 "Charlie" -5)) true)
+
+(define (item-overdue? a-checkout)
+  (< (checkout-days a-checkout) 0))
+
+
+; find-overdue : (Listof Checkout) -> (Listof Checkout)
+; produces a list of only the overdue items from the given list
+
+(check-expect (find-overdue empty) empty)
+(check-expect (find-overdue COL1) (list (make-checkout BOOK2 "Charlie" -2)))
+(check-expect (find-overdue COL2) (list (make-checkout BOOK2 "Earl" -5)
+                                        (make-checkout VIDEO1 "Fred" -1)))
+#;
+(define (find-overdue a-loco)
+  (cond
+    [(empty? a-loco) empty]
+    [(cons? a-loco) (if (item-overdue? (first a-loco))
+                        (cons (first a-loco) (find-overdue (rest a-loco)))
+                        (find-overdue (rest a-loco)))]))
+
+;                                                           
+; EXERCISE:
+; Rewrite the body of find-overdue above using  filter2.
+
+
+(define (find-overdue a-loco) (filter2 item-overdue? a-loco))
+
+
+;                                                           
+; EXERCISE:
+; 
+; The filter2 function is an abstraction of the following
+; functions:
+; 
+; ; pos-only : (Listof Number) -> (Listof Number)
+; ; neg-only : (Listof Number) -> (Listof Number)
+; ; find-overdue : (Listof Checkout) -> (Listof Checkout)
+; 
+; Now, write a general signature for filter2 that is
+; consistent with its use for defining all three of these
+; functions.
+; 
+
+
+; ISL has a built in version of this same function called,
+; simply, "filter". We will use that name going forward.
+
+
+
+;; =============================================================
+;; =============================================================
+
+;                                                           
+; SUMMARY - DESIGNING ABSTRACTIONS
+; 
+
+
+;; some setup...
+
+(define I1 (rectangle 10 20 "solid" "red"))
+(define I2 (rectangle 30 20 "solid" "yellow"))
+(define I3 (rectangle 40 50 "solid" "green"))
+(define I4 (rectangle 60 50 "solid" "blue"))
+(define I5 (rectangle 90 90 "solid" "orange"))
+
+(define LOI1 (list I1 I2 I3 I4 I5))
+
+;; Image -> Boolean
+;; is image wide/tall/square
+(check-expect (wide? I1) false)
+(check-expect (wide? I2) true)
+(check-expect (tall? I3) true)
+(check-expect (tall? I4) false)
+
+(define (wide?   img) (> (image-width img) (image-height img)))
+(define (tall?   img) (< (image-width img) (image-height img)))
+(define (square? img) (= (image-width img) (image-height img)))
+
+;; Image -> Number
+;; produce area of image
+(check-expect (area I1) 200)
+(check-expect (area I2) 600)
+
+(define (area img)
+  (* (image-width img)
+     (image-height img)))
+
+(define-struct drop (x y))
+(define (place-drop d img) (place-image DROP (drop-x d) (drop-y d) img))
+(define DROP (circle 4 "solid" "blue"))
+(define MTS (empty-scene 100 100))
+
+
+; 
+; Systematic recipe for designing an abstract function from examples.
+; 
+; Do this when you recognize that you have two (or more) very similar
+; functions.
+; 
+; NOTE: This process goes in pretty much exactly the opposite order
+; as the original HtDF recipe. That's because here the easiest thing
+; to produce is the function definition for the abstract function.
+; The tests are the next easiest thing to produce. The signature and
+; purpose can be harder (sometimes they aren't).
+; 
+; Systematic process to design abstract function from examples:
+;  - gather signatures, tests and definitions of 2 or more functions
+;  - identify point(s) of variation between functions
+;  - copy one function to make new one, with extra parameter(s)
+;    - update recursive calls
+;    - use parameter(s) at point of variability
+;    - rename list parameter to a-lox, if appropriate
+;  - rewrite original functions as "one-liners"
+;    - one-liners can usually have fewer tests (see below)
+;  - adapt tests to new abstract function
+;     - be sure to test variability
+;     - write more generic examples for new function
+;  - study example signatures to produce abstract signature
+;  
+
+
+; small : (Listof Number) Number -> (Listof Number) 
+; construct the list of numbers on l that are below t
+(check-expect (small (list 4 1 10 2 3 9) 5) (list 4 1 2 3))
+
+(define (small l t)
+  (extract l t <))
+
+; large : (Listof Number) Number -> (Listof Number)
+; construct the list of numbers on l that are above t
+(check-expect (large (list 4 1 10 2 3 9) 5) (list 10 9))
+
+(define (large l t)
+  (extract l t >))
+
+; extract : (Listof X) Y (X Y -> Boolean) -> (Listof X)
+; produces a list of only those numbers from the given list that produce
+; true when op is applied to them along with t
+(check-expect (extract (list 4 3 20 1 500) 10 squared>?)
+              (list 4 20 500))
+
+(define (extract l t op)
+  (cond
+    [(empty? l) empty]
+    [(cons? l)
+       (if (op (first l) t)
+        (cons (first l) (extract (rest l) t op))
+        (extract (rest l) t op))]))
+
+; squared>? : Number Number -> Boolean
+; is the area of a square with side x larger than c
+(check-expect (squared>? 3 10) false)
+(check-expect (squared>? 20 10) true)
+
+(define (squared>? x c)
+  (> (* x x) c))
+
+
+; only-wide (listof Image) -> (listof Image)
+; filter given list of images to include only wide images
+(check-expect (only-wide empty) empty)
+(check-expect (only-wide LOI1) (list I2 I4))
+#;
+(define (only-wide loi)
+  (cond [(empty? loi) empty]
+        [else
+         (if (wide? (first loi))
+             (cons (first loi) (only-wide (rest loi)))
+             (only-wide (rest loi)))]))
+
+
+; only-tall : (listof Image) -> (listof Image)
+; filter given list of images to include only tall images
+(check-expect (only-tall empty) empty)
+(check-expect (only-tall LOI1) (list I1 I3))
+#;
+(define (only-tall loi)
+  (cond [(empty? loi) empty]
+        [else
+         (if (tall? (first loi))
+             (cons (first loi) (only-tall (rest loi)))
+             (only-tall (rest loi)))]))
+
+; 
+; BECOMES....
+; 
+
+
+; (listof Image) -> (listof Image)
+; filter given list of images to include only wide/tall images
+(check-expect (only-wide LOI1) (list I2 I4))
+(check-expect (only-tall LOI1) (list I1 I3))
+
+(define (only-wide loi) (filter2 wide? loi))
+(define (only-tall loi) (filter2 tall? loi))
+
+
+; filter2 : (X -> Boolean) (listof X) -> (listof X)
+; produce list containing only elements of a-lox for which pred produces true
+(check-expect (filter2 positive? empty) empty)
+(check-expect (filter2 positive? (list 1 -2 4 -6)) (list 1 4))
+(check-expect (filter2 negative? (list 1 -2 4 -6)) (list -2 -6))
+(check-expect (filter2 false? (list true true false)) (list false))
+
+(define (filter2 pred a-lox) 
+  (cond [(empty? a-lox) empty]
+        [else
+         (if (pred (first a-lox))
+             (cons (first a-lox) (filter2 pred (rest a-lox)))
+             (filter2 pred (rest a-lox)))]))
+
+; 
+; Benefits of designing abstracted functions, like filter:
+; 
+;   - shorter definitions overall
+;   - reduce duplication
+;     - if filter needs to be improved only has to happen once
+;     - if filter has a bug it only has to be fixed once
+;     - may also generally improve performance because reducing
+;       the amount of code can improve overall performance
+;   - more perspicuous - the shared behaviour appears once in
+;     filter, the functions that call filter are focused on 
+;     their particular behaviour
+;     
+;     (define (only-wide loi) (filter wide? loi))
+;     
+
+
+
+
+;                                                           
+; 
