@@ -1,0 +1,120 @@
+;; Nick Vernon
+;; IN-CLASS EXERCISES (3/1/2014) -
+;; SIMILARITIES ... ABSTRACTION
+
+(require 2htdp/image)
+(require 2htdp/universe)
+
+
+;                                                           
+; TASK 1.
+; 
+; Create a set of test cases for the following 
+; two functions; fix any bugs that you find.
+; 
+
+
+
+;; add1* : List-of-nums -> List-of-nums 
+;; add 1 to each number on a-lon
+(check-expect (add1* empty) empty)
+(check-expect (add1* (list 5 7 8)) (list 6 8 9))
+(check-expect (add1* (list 14 2 9)) (list 15 3 10))
+
+#;(define (add1* a-lon)
+  (cond
+    [(empty? a-lon) empty]
+    [(cons? a-lon)
+     (cons (add1 (first a-lon))
+           (add1* (rest a-lon)))]))
+
+
+;; plus5 : List-of-nums -> List-of-nums 
+;; add 5 to each number on a-lon
+(check-expect (plus5 (list 1 2 3)) (list 6 7 8))
+(check-expect (plus5 empty) empty)
+(check-expect (plus5 (list 0 5 13)) (list 5 10 18))
+
+#;(define (plus5 a-lon)
+  (cond
+    [(empty? a-lon) empty]
+    [(cons? a-lon)
+     (cons (+ (first a-lon) 5)
+           (plus5 (rest a-lon)))]))
+
+
+;                                                           
+; TASK 2.
+; 
+; Then abstract over the two functions above to define a 
+; third, more general function. Provide a signature
+; and appropriate purpose comment for your abstracted 
+; function.
+; 
+
+
+;; plusX : (Listof Number) Number -> (List-of-nums)
+;; add X to each number on a-lon
+(check-expect (plusX (list 1 2 3) 5) (list 6 7 8))
+(check-expect (plusX empty 3) empty)
+(check-expect (plusX (list 0 5 13) 2) (list 2 7 15))
+
+(define (plusX a-lon X)
+  (cond
+    [(empty? a-lon) empty]
+    [(cons? a-lon)
+     (cons (+ (first a-lon) X)
+           (plusX (rest a-lon) X))]))
+
+
+;                                                           
+; TASK 3.
+; 
+; Redefine the two functions `add1*` and `plus5` in terms 
+; of the abstraction as one-liners and use the existing 
+; test suites to confirm that the revised definitions 
+; still work properly. 
+; 
+
+
+;; add1* : List-of-nums -> List-of-nums 
+;; add 1 to each number on a-lon
+(check-expect (add1* empty) empty)
+(check-expect (add1* (list 5 7 8)) (list 6 8 9))
+(check-expect (add1* (list 14 2 9)) (list 15 3 10))
+
+(define (add1* a-lon)
+  (plusX a-lon 1))
+
+
+;; plus5 : List-of-nums -> List-of-nums 
+;; add 5 to each number on a-lon
+(check-expect (plus5 (list 1 2 3)) (list 6 7 8))
+(check-expect (plus5 empty) empty)
+(check-expect (plus5 (list 0 5 13)) (list 5 10 18))
+
+(define (plus5 a-lon)
+  (plusX a-lon 5))
+
+
+;                                                           
+; TASK 4.
+; 
+; Design a function that subtracts 2 from each 
+; number on a given list.
+; 
+
+
+;; minus2 : List-of-nums -> List-of-nums 
+;; subtract 2 from each number on a-lon
+(check-expect (minus2 (list 1 2 3)) (list -1 0 1))
+(check-expect (minus2 empty) empty)
+(check-expect (minus2 (list 0 5 13)) (list -2 3 11))
+
+(define (minus2 a-lon)
+  (plusX a-lon -2))
+
+
+
+
+
