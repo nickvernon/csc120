@@ -1,2 +1,2 @@
-# csc120-225
-CSC120: Designing Programs &amp; CSC225: Data Structures and Algorithms
+# csc120
+CSC120: Designing Programs: Problem-solving and Abstraction
