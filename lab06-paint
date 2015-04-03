@@ -1,0 +1,439 @@
+;; Nick Vernon & Orbelin Palacios
+
+(require 2htdp/image)
+(require 2htdp/universe)
+
+
+;  
+; SIMPLE PAINT PROGRAM
+; 
+; In this file, you will design a simple paint program that allows you to 
+; drag the mouse to either draw or erase points in the window.
+; 
+; To get you started, this file provides data definitions and a few 
+; useful helper functions on Posn data.
+; 
+
+
+
+
+;                                                        
+;                                                        
+;   ;;;;;           ;            ;;;;;            ;;     
+;   ;    ;          ;            ;    ;          ;       
+;   ;     ;   ;;;  ;;;  ;;;      ;     ;   ;;;  ;;;  ;;; 
+;   ;     ;  ;   ;  ;  ;   ;     ;     ;  ;   ;  ;  ;   ;
+;   ;     ;      ;  ;      ;     ;     ;  ;   ;  ;  ;    
+;   ;     ;   ;;;;  ;   ;;;;     ;     ;  ;;;;;  ;   ;;; 
+;   ;     ;  ;   ;  ;  ;   ;     ;     ;  ;      ;      ;
+;   ;    ;   ;  ;;  ;  ;  ;;     ;    ;   ;   ;  ;  ;   ;
+;   ;;;;;     ;; ;  ;;  ;; ;     ;;;;;     ;;;   ;   ;;; 
+;                                                        
+;                                                        
+;                                                        
+
+;; ***********************************
+;; A Posn is (make-posn Number Number)
+;; interp. an (x, y) coordinate on the screen
+
+; examples
+(define ORIGIN (make-posn 0 0))
+(define P1 (make-posn 4 5))
+
+#;  ; template
+(define (posn-func a-posn ...)
+  (... (posn-x a-posn)
+       (posn-y a-posn) ...))
+
+
+
+
+;; ***********************************
+;; A List-of-posns is either:
+;;  - empty
+;;  - (cons Posn List-of-posns)
+          ; !!! two arrows in this data definition !!! <--- note
+
+; example:
+(define LOP1 (cons (make-posn 4 5) (cons (make-posn 0 0) (cons (make-posn 10 2) empty))))
+
+#; ; template
+(define (lop-func a-lop)
+  (cond [(empty? a-lop) ...]
+        [(cons? a-lop) (... (posn-func (first a-lop) ...)
+                            (lop-func (rest a-lop) ...) ...)]))
+
+
+
+
+
+
+;                                                       
+;                                                       
+;   ;;;;;                      ;  ;                     
+;   ;                          ;                        
+;   ;      ;   ;  ; ;;    ;;  ;;; ;   ;;;   ; ;;    ;;; 
+;   ;      ;   ;  ;;  ;  ;  ;  ;  ;  ;   ;  ;;  ;  ;   ;
+;   ;;;;   ;   ;  ;   ;  ;     ;  ;  ;   ;  ;   ;  ;    
+;   ;      ;   ;  ;   ;  ;     ;  ;  ;   ;  ;   ;   ;;; 
+;   ;      ;   ;  ;   ;  ;     ;  ;  ;   ;  ;   ;      ;
+;   ;      ;  ;;  ;   ;  ;  ;  ;  ;  ;   ;  ;   ;  ;   ;
+;   ;       ;; ;  ;   ;   ;;   ;; ;   ;;;   ;   ;   ;;; 
+;                                                       
+;                                                       
+;                                                       
+
+
+;; posn-add : Posn Posn -> Posn
+;; produce the result of adding the components of the two given posns
+
+(check-expect (posn-add (make-posn 3 4)
+                        (make-posn 5 6))
+              (make-posn 8 10))
+(check-expect (posn-add (make-posn 0 4)
+                        (make-posn 3 -6))
+              (make-posn 3 -2))
+
+(define (posn-add a-posn b-posn)
+  (make-posn (+ (posn-x a-posn) (posn-x b-posn))
+             (+ (posn-y a-posn) (posn-y b-posn))))
+
+
+
+;; posn-distance : Posn Posn -> Number
+;; compute the distance between the two posn's
+(check-expect (posn-distance (make-posn 10 10) (make-posn 13 14))
+              5)
+
+(define (posn-distance a-posn b-posn)
+  (sqrt (+ (sqr (- (posn-x a-posn) (posn-x b-posn)))
+           (sqr (- (posn-y a-posn) (posn-y b-posn))))))
+
+
+
+
+
+
+;                                                             
+;                                                             
+;   ;        ;;;    ;;;;;     ;;;;;;;              ;          
+;   ;       ;   ;   ;    ;       ;                 ;          
+;   ;      ;     ;  ;    ;       ;     ;;;    ;;;  ;   ;  ;;; 
+;   ;      ;     ;  ;    ;       ;    ;   ;  ;   ; ;  ;  ;   ;
+;   ;      ;     ;  ;;;;;        ;        ;  ;     ; ;   ;    
+;   ;      ;     ;  ;            ;     ;;;;   ;;;  ;;;    ;;; 
+;   ;      ;     ;  ;            ;    ;   ;      ; ;  ;      ;
+;   ;       ;   ;   ;            ;    ;  ;;  ;   ; ;  ;  ;   ;
+;   ;;;;;;   ;;;    ;            ;     ;; ;   ;;;  ;   ;  ;;; 
+;                                                             
+;                                                             
+;                                                             
+
+
+
+; 
+; TASK 1. 
+; Develop a function, translate/posn, which takes a list of posns and a
+; single posn and adds the respective coordinates of the given posn to
+; every posn on the list.
+; 
+; For example, 
+;  (translate/posn  (cons (make-posn 0 0) (cons (make-posn 10 2) empty)) 
+;                   (make-posn 2 -1))
+; should produce
+;  (cons (make-posn 2 -1) (cons (make-posn 12 1) empty))
+; 
+
+
+;; translate/posn : List-of-posns Posn -> List-of-posns
+;; consumes a list-of-posns and a posn and adds the respective coordinates of the given
+;; posn to every posn on the list
+
+(check-expect (translate/posn  (cons (make-posn 0 0) (cons (make-posn 10 2) empty)) 
+                               (make-posn 2 -1))
+              (cons (make-posn 2 -1) (cons (make-posn 12 1) empty)))
+(check-expect (translate/posn LOP1 (make-posn 0 0)) LOP1)
+
+
+(define (translate/posn a-lop new-posn)
+  (cond [(empty? a-lop) empty]
+        [(cons? a-lop) (cons (posn-add (first a-lop) new-posn)
+                            (translate/posn (rest a-lop) new-posn))]))
+
+
+
+
+; 
+; TASK 2. 
+; Develop a function snoc : List-of-posns Posn -> List-of-posns
+; that adds the given posn to the end of the given list.
+
+
+;; snoc : List-of-posns Posn -> List-of-posns
+;; given a posn, adds it to the end of the given list
+
+(check-expect (snoc empty P1) (cons P1 empty))
+(check-expect (snoc LOP1 P1) (cons P1 LOP1))
+(check-expect (snoc LOP1 ORIGIN) (cons (make-posn 0 0) 
+                                       (cons (make-posn 4 5) 
+                                             (cons (make-posn 0 0)
+                                                   (cons (make-posn 10 2)
+                                                         empty)))))
+
+(define (snoc a-lop a-posn)
+  (cond [(empty? a-lop) (cons a-posn a-lop)]
+        [(cons? a-lop) (cons a-posn a-lop)]))
+
+
+
+
+
+; 
+; TASK 3. 
+; Define an image representing a point:
+; 
+; (define PT (circle 1 "solid" "black"))
+; 
+; Now, design a function draw-points : List-of-posns Image -> Image 
+; that draws the given list of posns as little points on the given image.
+; 
+
+
+(define PT (circle 1 "solid" "black"))
+
+
+;; draw-points : List-of-posns Image -> Image
+;; draws the given list of posns as little points on the given image
+
+(check-expect (draw-points empty (empty-scene 50 50)) (empty-scene 50 50))
+(check-expect (draw-points LOP1 (empty-scene 20 20)) (place-image PT 4 5
+                                                          (place-image PT 0 0
+                                                                       (place-image PT 10 2
+                                                                                    (empty-scene 20 20)))))
+(check-expect (draw-points (cons (make-posn 20 50) (cons (make-posn 42 87) (cons (make-posn 100 65) empty))) (empty-scene 100 100))
+              (place-image PT 20 50
+                           (place-image PT 42 87
+                                        (place-image PT 100 65
+                                                     (empty-scene 100 100)))))
+
+(define (draw-points a-lop an-image) 
+  (cond [(empty? a-lop) an-image]
+        [(cons? a-lop) (place-image PT 
+                                    (posn-x (first a-lop))
+                                    (posn-y (first a-lop))
+                                    (draw-points (rest a-lop) an-image))]))
+
+
+
+
+
+; 
+; TASK 4. 
+; Design a function, remove-nearby : List-of-posns Posn -> List-of-posns 
+; that produces a list with all posns within distance 5 of the given posn
+; removed from the list that is given. (Hint: Use one of the helper
+; functions that are already defined in the file.)
+; 
+
+
+;; remove-nearby : List-of-posns Posn -> List-of-posns
+;; given a list-of-posns and a posn, produces a list with all posns within distance 5
+;; of the given posn removed from the list that is given.
+
+(check-expect (remove-nearby LOP1 (make-posn 0 0)) (cons (make-posn 4 5) (cons (make-posn 10 2) empty)))
+(check-expect (remove-nearby LOP1 (make-posn 7 3)) (cons (make-posn 0 0) empty))
+(check-expect (remove-nearby (cons (make-posn 4 5) (cons (make-posn 6 4) (cons (make-posn 3 6) empty)))
+                             (make-posn 4 5))
+              empty)
+(check-expect (remove-nearby empty (make-posn 100 100)) empty)
+
+(define (remove-nearby a-lop a-posn) 
+  (cond [(empty? a-lop) empty]
+        [(cons? a-lop) (if (<= (posn-distance (first a-lop) a-posn) 5)
+                           (remove-nearby (rest a-lop) a-posn)
+                           (cons (first a-lop) (remove-nearby (rest a-lop) a-posn)))]))
+
+
+
+
+
+
+;                                                                     
+;                                                                     
+;  ;    ;    ;            ;      ;    ;;;;;;;              ;          
+;  ;   ; ;   ;            ;      ;       ;                 ;          
+;  ;   ; ;  ;   ;;;   ; ; ;   ;; ;       ;     ;;;    ;;;  ;   ;  ;;; 
+;   ;  ; ;  ;  ;   ;  ;;  ;  ;  ;;       ;    ;   ;  ;   ; ;  ;  ;   ;
+;   ; ;   ; ;  ;   ;  ;   ;  ;   ;       ;        ;  ;     ; ;   ;    
+;   ; ;   ; ;  ;   ;  ;   ;  ;   ;       ;     ;;;;   ;;;  ;;;    ;;; 
+;   ; ;   ; ;  ;   ;  ;   ;  ;   ;       ;    ;   ;      ; ;  ;      ;
+;    ;     ;   ;   ;  ;   ;  ;  ;;       ;    ;  ;;  ;   ; ;  ;  ;   ;
+;    ;     ;    ;;;   ;   ;   ;; ;       ;     ;; ;   ;;;  ;   ;  ;;; 
+;                                                                     
+;                                                                     
+;                                                                     
+
+
+;; A MouseEvent is either:
+;;   - "drag"
+;;   - or some other string
+;; interp. represents a user's action with the mouse in the window - 
+;;         we are only interested in dragging events for now.
+
+#;  ; template
+(define (mouse-event-func a-mouse-event)
+  (cond
+    [(string=? a-mouse-event "drag") ...]
+    [else ...]))
+
+
+
+
+(define-struct draw-world (erase? points))
+;; A DrawWorld is (make-draw-world Boolean List-of-posns)
+;; interp. the list of posns represents points that the user has drawn
+;;         on the window; the boolean 'erase?' field represents whether
+;;         the dragging the mouse on the window erases points, rather
+;;         than drawing them.
+
+; 
+; TASK 5.
+; Complete the data definition above by providing some examples of
+; DrawWorlds and a template.
+; 
+
+
+(define DW1 (make-draw-world false empty))
+(define DW2 (make-draw-world true empty))
+(define DW3 (make-draw-world true LOP1))
+(define DW4 (make-draw-world false LOP1))
+
+
+(define (draw-world-func a-dw)
+  (... (draw-world-erase? a-dw) ...              ; Boolean
+   ... (lop-func (draw-world-points a-dw)) ...   ; List-of-posns
+   ))
+
+
+
+
+; 
+; TASK 6.
+; Design a function, render-draw-world : DrawWorld -> Image 
+; that produces an image of the world on an empty scene. 
+; (Hint: use draw-points.)
+; 
+
+
+
+;; render-draw-world : DrawWorld -> Image
+;; produces an image of the world on an empty scene
+
+(check-expect (render-draw-world DW1) (empty-scene 100 100))
+(check-expect (render-draw-world DW2) (empty-scene 100 100))
+(check-expect (render-draw-world DW3) (draw-points LOP1 (empty-scene 100 100)))
+(check-expect (render-draw-world DW4) (draw-points LOP1 (empty-scene 100 100)))
+
+(define (render-draw-world a-dw) 
+  (draw-points (draw-world-points a-dw) (empty-scene 100 100)))
+
+
+
+
+
+; 
+; TASK 7.
+; Develop handle-mouse : DrawWorld Number Number MouseEvent -> DrawWorld.
+; Responds to "drag" events as follows: unless the erase? mode of the 
+; world is true, adds a posn to the end of the list of points; 
+; if erase? is true, removes all points that are nearby 
+; the (x, y) coordinates of the mouse. 
+; (Hint: you already have helper functions for these tasks!)
+; 
+
+
+
+;; handle-mouse : DrawWorld Number Number MouseEvent -> DrawWorld
+;; If the erase? mode of the world is true, removes all points that are nearby the (x, y) coordinates of the mouse,
+;; but if the erase? mode of the world is false, adds a posn to the end of the list of points.
+
+;!!! NEEDS CHECK EXPECTS
+
+(define (handle-mouse a-dw num-a num-b a-mouse-event)
+  (cond
+    [(mouse=? "drag" a-mouse-event)(if (draw-world-erase? a-dw)
+                                             (make-draw-world (draw-world-erase? a-dw) (remove-nearby (draw-world-points a-dw) (make-posn num-a num-b)))
+                                             (make-draw-world (draw-world-erase? a-dw) (cons (make-posn num-a num-b) (draw-world-points a-dw))))]
+    [else a-dw]))
+
+
+
+
+; 
+; TASK 8.
+; Develop    handle-key : DrawWorld KeyEvent -> DrawWorld.
+; - The "d" and "e" keys should toggle the world mode between 
+;   "draw" and "erase". 
+; - The arrow keys should move the entire list of posns in the appropriate
+;   direction by 3 pixels. (There is a helper function in the file to 
+;                               achieve this task.) 
+; - The "q" function should clear the list of points from the world 
+;   and stop the animation. You can achieve this by applying the special 
+;   constructor stop-with to the result that your function produces:
+; 
+;   (define (handle-key a-dw a-kev)
+;     (cond
+;       ...
+;       [(key=? "q" a-kev) (stop-with (make-draw-world true empty))]
+;       ...))
+; 
+
+
+;; handle-key : DrawWorld KeyEvent -> DrawWorld
+;; produces a Draw World where the "d" and "e" keys toggle the world between "draw" and "erase", the arrow keys move the 
+;;          entire list of posns in the appropriate direction by 3 pixels, and the "q" key clears the list of points
+;;          from the world and stops the animation
+
+; NEEDS CHECK EXPECTS !!!
+
+(define (handle-key a-dw a-ke)
+  (cond
+    [(key=? "d" a-ke)(make-draw-world false (draw-world-points a-dw))]
+    [(key=? "e" a-ke) (make-draw-world true (draw-world-points a-dw))]
+    [(key=? "left" a-ke) (make-draw-world false (translate/posn (draw-world-points a-dw) (make-posn -3 0)))]
+    [(key=? "right" a-ke) (make-draw-world false (translate/posn (draw-world-points a-dw) (make-posn 3 0)))]
+    [(key=? "up" a-ke) (make-draw-world false (translate/posn (draw-world-points a-dw) (make-posn 0 3)))]
+    [(key=? "down" a-ke) (make-draw-world false (translate/posn (draw-world-points a-dw) (make-posn 0 -3)))]
+    [(key=? "q" a-ke)(stop-with (make-draw-world true empty))]
+    ))
+
+
+
+; 
+; TASK 9.
+; Finally, develop a function, run-paint : DrawWorld -> DrawWorld 
+; that uses big-bang to put the pieces of your program together. Use
+; the to-draw, on-key, and on-mouse clauses of big-bang.
+; 
+
+
+
+
+(define (run-paint a-dw)
+  (big-bang a-dw
+            (to-draw render-draw-world)
+            (on-key handle-key)
+            (on-mouse handle-mouse)
+            ))
+
+
+
+; 
+; If you would like, add more features to your program. For example, 
+; you may enhance the data definitions to enable coloring, or draw 
+; lines connecting the points instead of drawing them separately as 
+; little dots, etc.
+; 
+
+
+
