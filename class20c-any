@@ -1,0 +1,128 @@
+;; Nick Vernon
+;; LAB 8 - DESIGNING ABSTRACTIONS
+;; PART C - any?
+
+(require 2htdp/image)
+
+
+;                                                           
+; TASK 1.
+; 
+; Consider the following pair of functions. Define an 
+; abstract function based on them and redefine the original 
+; functions as one liners. Call the abstract function `any?`. 
+; 
+; You will need to switch your Language Level in DrRacket 
+; to "Intermediate Student" in order to complete this 
+; exercise.
+; 
+
+
+
+;; some-positive? : (Listof Number) -> Boolean
+;; produce true if some number in lon is positive
+(check-expect (some-positive? empty) false)
+(check-expect (some-positive? (list 2 -3 -4)) true)
+(check-expect (some-positive? (list -2 -3 -4)) false)
+
+(define (some-positive? lon)
+  (any? positive? lon))
+
+
+;; some-negative? : (Listof Number) -> Boolean
+;; produce true if some number in lon is negative
+(check-expect (some-negative? empty) false)
+(check-expect (some-negative? (list 2 3 -4)) true)
+(check-expect (some-negative? (list 2 3 4)) false)
+
+(define (some-negative? lon)
+  (any? negative? lon))
+
+
+;; any? : (X -> Boolean) (Listof X) -> Boolean
+;; produces true if the function produces true for
+;; at least one of the things in the given list
+
+(define (any? p lon)
+  (cond [(empty? lon) false]
+        [else
+         (or (p (first lon))
+             (any? p (rest lon)))]))
+
+
+
+;                                                           
+; TASK 2.
+; 
+; Use your `any?` function to design a function called 
+; `any-square?` that determines if any of the images in a
+; given list of images has the same width and height. 
+; 
+
+         
+;; any-square : (Listof Images) -> Boolean
+;; determines if any of the images in a
+;; given list of images has the same width and height
+(check-expect (any-square empty)
+                          false)
+(check-expect (any-square (list (rectangle 40 20 "outline" "black")
+                                (rectangle 20 40 "outline" "black")))
+                          false)
+(check-expect (any-square (list (rectangle 50 50 "outline" "black")
+                                (rectangle 50 50 "outline" "black")))
+                          true)
+(check-expect (any-square (list (rectangle 40 20 "outline" "black")
+                                (rectangle 40 40 "outline" "black")))
+                          true)
+
+(define (any-square loi)
+  (any? square? loi))
+
+;; square? : Image -> Boolean
+;; determines if image has same width and height
+
+(define (square? i)
+  (= (image-height i) (image-width i)))
+
+
+;; got-milk?
+(check-expect (got-milk? (list "eggs" "cheese")) false)
+(check-expect (got-milk? (list "eggs" "milk")) true)                            
+
+(define (got-milk? a-los)
+  (any? milk? a-los))
+
+;; milk? : String -> Number
+;; determines if given string is "milk"
+(check-expect (milk? "hello") false)
+(check-expect (milk? "milk") true)
+
+(define (milk? s)
+  (string=? "milk" s))
+
+
+
+
+;                                                           
+; TASK 3.
+; 
+; If you haven't already, write a general signature for any? 
+; that is consistent with its use for defining all three of 
+; the functions above.
+; 
+
+
+;; any? : (X -> Boolean) (Listof X) -> Boolean
+;; produces true if the function produces true for
+;; at least one of the things in the given list
+
+
+;                                                           
+; ISL has a built in version of the `any?` function called
+; `ormap`. We will use that built-in function from
+; now on. 'andmap' will produce true if everything in the
+; list satisfies that property.
+; 
+
+
+
