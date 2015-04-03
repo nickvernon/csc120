@@ -1,0 +1,165 @@
+; Nick Vernon & Orbelin Palacios
+; Treasure Hunt
+(require 2htdp/image)
+(require 2htdp/universe)
+
+(define LAND .)
+
+
+; An Island is one of the following:
+;  - "Shipwreck Bay"
+;  - "Dead Man's Island"
+;  - "Treasure Island"
+;  - "Pirates' Island"
+;  - "Musket Hill"
+;  - "Mutineers' Island"
+;  - "Smugglers' Cove"
+; interp. represents the names of the possible islands
+
+(define (island-func an-island)
+     (cond
+       [(string=? an-island "Shipwreck Bay") (...)]
+       [(string=? an-island "Dead Man's Island") (...)]
+       [(string=? an-island "Treasure Island") (...)]
+       [(string=? an-island "Pirates' Island") (...)]
+       [(string=? an-island "Musket Hill") (...)]
+       [(string=? an-island "Mutineers' Island") (...)]
+       [(string=? an-island "Smugglers' Cove") (...)]
+       ))
+
+; island-pic : Island -> Image
+; produces an image of an island with the given name below it
+
+(check-expect (island-pic "Shipwreck Bay") (above LAND (text "Shipwreck Bay" 12 "black")))
+(check-expect (island-pic "Musket Hill") (above LAND (text "Musket Hill" 12 "black")))
+(check-expect (island-pic "Smugglers' Cove") (above LAND (text "Smugglers' Cove" 12 "black")))
+
+#;(define (island-pic an-island) LAND)  ; stub
+#;(define (island-pic an-island)        ; template
+    (... an-island ...))
+
+(define (island-pic an-island)
+  (above LAND (text an-island 12 "black")))
+
+
+
+(define MAP (place-image
+             (island-pic "Dead Man's Island")
+             500 300
+             (place-image 
+              (island-pic "Shipwreck Bay") 
+              200 100 
+              (place-image
+               (island-pic "Treasure Island")
+               850 450
+               (place-image
+                (island-pic "Pirates' Island")
+                1000 150
+                (place-image
+                 (island-pic "Musket Hill")
+                 450 400
+                 (place-image
+                  (island-pic "Mutineers' Island")
+                  1000 350
+                  (place-image
+                   (island-pic "Smugglers' Cove")
+                   800 200
+                   (empty-scene 1200 500)))))))))
+                         
+
+
+
+; draw-map : Island -> Image
+; consumes the name of a current island and draws a map
+; with seven islands and indicates the current island
+
+(check-expect (draw-map "Shipwreck Bay") (place-image (ellipse 225 70 60 "blue") 200 100 MAP))
+(check-expect (draw-map "Dead Man's Island") (place-image (ellipse 225 70 60 "blue") 500 300 MAP))
+(check-expect (draw-map "Treasure Island") (place-image (ellipse 225 70 60 "blue") 850 450 MAP))
+(check-expect (draw-map "Pirates' Island") (place-image (ellipse 225 70 60 "blue") 1000 150 MAP))
+(check-expect (draw-map "Musket Hill") (place-image (ellipse 225 70 60 "blue") 450 400 MAP))
+(check-expect (draw-map "Mutineers' Island") (place-image (ellipse 225 70 60 "blue") 1000 350 MAP))
+(check-expect (draw-map "Smugglers' Cove") (place-image (ellipse 225 70 60 "blue") 800 200 MAP))
+
+#; (define (draw-map an-island) LAND)   ; stub
+#; (define (draw-map an-island)         ; template
+     (... an-island ...))
+
+(define (draw-map an-island)
+  (cond
+    [(string=? an-island "Shipwreck Bay") (place-image (ellipse 225 70 60 "blue") 200 100 MAP)]
+    [(string=? an-island "Dead Man's Island") (place-image (ellipse 225 70 60 "blue") 500 300 MAP)]
+    [(string=? an-island "Treasure Island") (place-image (ellipse 225 70 60 "blue") 850 450 MAP)]
+    [(string=? an-island "Pirates' Island") (place-image (ellipse 225 70 60 "blue") 1000 150 MAP)]
+    [(string=? an-island "Musket Hill") (place-image (ellipse 225 70 60 "blue") 450 400 MAP)]
+    [(string=? an-island "Mutineers' Island") (place-image (ellipse 225 70 60 "blue") 1000 350 MAP)]
+    [(string=? an-island "Smugglers' Cove") (place-image (ellipse 225 70 60 "blue") 800 200 MAP)]
+    ))
+                                   
+
+; sail-off : Island Key-Event -> Island
+; produces the island that you get to by sailing off from the current island
+
+(check-expect (sail-off "Pirates' Island" "a") "Shipwreck Bay")
+(check-expect (sail-off "Pirates' Island" "c") "Pirates' Island")
+(check-expect (sail-off "Musket Hill" "a") "Pirates' Island")
+(check-expect (sail-off "Dead Man's Island" "b") "Shipwreck Bay")
+(check-expect (sail-off "Smugglers' Cove" "b") "Treasure Island")
+(check-expect (sail-off "Mutineers' Island" "c") "Mutineers' Island")
+
+#;(define (sail-off an-island k) an-island) ; stub
+#;(define (sail-off an-island k)            ; template
+    (... an-island k ...))
+
+(define (sail-off an-island k)
+  (cond
+    [(and (string=? an-island "Shipwreck Bay")(key=? k "a")) "Musket Hill"]
+    [(and (string=? an-island "Shipwreck Bay")(key=? k "b")) "Dead Man's Island"]
+    [(string=? an-island "Shipwreck Bay") "Shipwreck Bay"]
+    [(and (string=? an-island "Dead Man's Island")(key=? k "a")) "Musket Hill"]
+    [(and (string=? an-island "Dead Man's Island")(key=? k "b")) "Shipwreck Bay"]
+    [(string=? an-island "Dead Man's Island") "Dead Man's Island"]
+    [(string=? an-island "Treasure Island") "Tresure Island"]
+    [(and (string=? an-island "Pirates' Island")(key=? k "a")) "Shipwreck Bay"]
+    [(and (string=? an-island "Pirates' Island")(key=? k "b")) "Musket Hill"]
+    [(string=? an-island "Pirates' Island") "Pirates' Island"]
+    [(and (string=? an-island "Musket Hill")(key=? k "a")) "Pirates' Island"]
+    [(and (string=? an-island "Musket Hill")(key=? k "b")) "Mutineers' Island"]
+    [(string=? an-island "Musket Hill") "Musket Hill"]
+    [(and (string=? an-island "Mutineers' Island")(key=? k "a")) "Smugglers' Cove"]
+    [(and (string=? an-island "Mutineers' Island")(key=? k "b")) "Dead Man's Island"]
+    [(string=? an-island "Mutineers' Island") "Mutineers' Island"]
+    [(and (string=? an-island "Smugglers' Cove")(key=? k "a")) "Pirates' Island"]
+    [(and (string=? an-island "Smugglers' Cove")(key=? k "b")) "Treasure Island"]
+    [(string=? an-island "Smugglers' Cove") "Smugglers' Cove"]
+    ))
+    
+
+; game-over? : Island -> Boolean
+; determines if the current island is Treasure Island
+
+(check-expect (game-over? "Treasure Island") true)
+(check-expect (game-over? "Shipwreck Bay") false)
+(check-expect (game-over? "Smugglers' Cove") false)
+(check-expect (game-over? "Mutineers' Island") false)
+          
+#;(define (game-over? an-island) true)   ; stub
+#;(define (game-over? an-island)         ; template
+    (... an-island ...))
+
+(define (game-over? an-island)
+  (if (string=? an-island "Treasure Island")
+      true
+      false
+      ))
+
+; play : Island -> Island
+; begins the island hopping game starting at the given island
+
+(define (play an-island)
+  (big-bang an-island
+            (on-draw draw-map)
+            (on-key sail-off)
+            (stop-when game-over?)))
+
+(play "Pirates' Island")
