@@ -1,0 +1,327 @@
+
+;                                                           
+;  Lecture 4
+;  Designing Functions
+
+
+(require 2htdp/image)
+(require 2htdp/universe)
+
+
+;                                                           
+; PROGRAMMING AND CREATIVITY
+; 
+; The examples of functions/programs we’ve seen so far may
+; seem to have been written in a creative leap.
+;  - In some cases maybe it's not clear how you would
+;    have written them on your own.
+;    
+;    
+; Programming is a creative activity...
+; 
+; ... but design rules can guide and focus creativity.
+; 
+; 
+; Today we discuss our initial version of a recipe to
+; guide your design of simple programs.
+;  - We'll start with a simple version of the recipe
+;  - As the course progresses, we'll expand it to
+;    handle more complex types of data and computations.
+; 
+; 
+
+
+
+;                                                           
+; BENEFITS OF THE DESIGN RECIPE
+; 
+; - A proven, step-by-step process of organizing
+;   programs around problem data
+;   (Developed and used at top institutions across 
+;    the nation/world, including Adelphi, Brown University, 
+;    Cal Poly, Harvard, Northeastern, Northwestern, Rice, 
+;    WPI, Utah, U Chicago, ...)
+;   
+;   - Saves you from staring at a blank screen
+;   - One of the most important elements of the course!
+;   
+; - A device for diagnosing difficulties while learning to 
+;   program
+;   
+;   - We use it to help you help yourself (and as a rubric
+;     for grading)
+;     
+; - Applicable to problem-solving across disciplines
+;   - Medicine, journalism, engineering, ...
+;   - Even if you never "program" again (which you actually 
+;     probably will (this is the Computing Age))
+;   
+
+
+
+; 
+; The core of the How to Design Functions (HtDF) Recipe is
+; linked on the course home page. A summary of the steps 
+; are as follows. The web page has a more detailed explanation
+; of each step.
+; 
+; 1 Signature, purpose and stub.
+; 2 Define examples, wrap them in check-expect.
+; 3 Template.
+; 4 Code the function body.
+; 5 Test and debug until working.
+; 
+; (Prior to these 5 steps, there will eventually be an
+;  additional important step, which is to clearly understand
+;  and define the type of input *data* that a given function
+;  processes - for now, our functions are using primitive
+;  types of data (number, string, etc.), so that step is
+;  straightforward (see Section 2.3.1 in the online textbook).
+; 
+
+
+
+; 
+; In lecture today I will demonstrate the recipe with a few 
+; examples. The lab exercises will get you to practice applying 
+; the Design Recipe on your own...
+; 
+
+
+
+
+
+
+;;; in2cm.rkt
+
+;                                                           
+; PROBLEM:
+; 
+; DESIGN a function called 'in->cm' that converts inches 
+; to centimeters. One inch is 2.54 centimeters. 
+; 
+
+
+;; in->cm : Number -> Number
+;; converts the measurement n in inches to centimeters
+(check-expect (in->cm 1) 2.54)
+(check-expect (in->cm 2) 5.08)
+(check-expect (in->cm 10) (* 10 2.54))
+
+;(define (in->cm n)   ; stub
+;  0)
+
+;(define (in->cm n)   ; template
+;  ... n ...)
+
+(define (in->cm n)
+  (* n 2.54))
+
+
+
+
+;;; yell.rkt
+
+; 
+; PROBLEM:
+; 
+; DESIGN a function called yell that consumes a string like "hello"
+; and produces "hello!".
+; 
+
+
+;; yell : String -> String    
+;; add "!" to the end of s
+(check-expect (yell "hello") "hello!")
+(check-expect (yell "bye") (string-append "bye" "!"))
+
+;(define (yell s)  ;stub
+;  "a")
+
+;(define (yell s)  ;template
+;  (... s))
+
+(define (yell s)
+  (string-append s "!"))
+
+
+
+
+; 
+; Notes about the design of functions.
+; 
+; Function design is a process and results in an artifact (a
+; *thing* that you have produced). 
+; 
+; Signature is of form
+;  ; functionName : input-type input-type -> result-type
+; 
+; We read it to say the function CONSUMES input value(s) of 
+; given TYPE and PRODUCES a result value of TYPE.
+; 
+; Purpose statements should be 1 line long - be crisp, concise,
+; and clear about what the function produces.
+; 
+; Signature and purpose help us know what we want the function
+; to do.
+; 
+; Name of parameters can be used to shorten the purpose comment.
+; 
+; Signature helps us write examples. It tells us what type of
+; data the argument should be.
+; 
+; The signature and purpose help make up examples - they say
+; what the expected result should be.
+; 
+; Examples serve as EXAMPLES first and later as tests.
+; So we could have actually written:
+; 
+;   (yell "hello") "hello!"  ; a call and what it should produce
+;   
+; Checking correctness of examples by hand doesn't scale. So we
+; wrap them with check-expect as follows:
+; 
+;   (check-expect (yell "hello") "hello!")
+;   (check-expect (yell "bye") (string-append "bye" "!"))
+;   
+; The stub supports checking that the examples have balanced
+; parens and the proper number of arguments - i.e. that the
+; basic syntax (notation) is correct, even if the function
+; doesn't quite behave as desired yet.
+; 
+; This week, the template (body of the function) is always:
+;  
+;   (... <parameter-name> ...)
+; 
+; The template serves to remind you that to code the body of
+; the function you should use the parameter(s).  The ... reminds
+; you that you need to call some primitives or another 
+; function(s) to help do your work.
+; 
+; The examples should help you complete the body of the function.
+; If they don't, consider revising them to make it more clear
+; how the result is computed. In particular it helps to write why
+; an expected result is what it is. That is, write the expression
+; that computes the result rather than just the result value.
+; 
+;   (in->cm 10)     (* 10 2.54)
+;   (yell "hello")  (string-append "hello" "!")
+; 
+;   
+
+
+
+
+;;; area.rkt
+
+; 
+; PROBLEM:
+; 
+; DESIGN a function called area that consumes the length of one
+; side of a square and produces the area of the square.
+; 
+; Remember, when we say DESIGN, we mean follow the recipe.
+; 
+; Leave behind commented out versions of the stub and template.
+; 
+
+
+;; area : Number -> Number
+;; produce area of square with side length s
+(check-expect (area 2) (* 2 2))
+(check-expect (area 3) (* 3 3))
+
+;(define (area s) ; stub
+;  2)
+
+;(define (area s) ; template
+;  (... s))
+
+(define (area s)
+  (* s s))
+
+
+
+; 
+; 
+; Now work through the problem below.
+; 
+; As you work through it note the following:
+; 
+; - usually we have to think up the name for the function
+;    (predicates, by convention, end in ?)
+;  - usually we have to figure out the types of the argument
+;    and type of the result (predicates should always produce 
+;                                       Boolean)
+;  - usually we have to work out just what the function should
+;    do (i.e. what does tall mean? h > w, h >= w. When you
+;    discover a subtlety like that write an example for it right
+;    away and maybe update the purpose.
+; 
+
+
+
+;;; tall.rkt
+
+; 
+; PROBLEM:
+; 
+; DESIGN a function that consumes an image and determines whether
+; the image is tall.
+; 
+; Remember, when we say DESIGN, we mean follow the recipe.
+; 
+; Leave behind commented out versions of the stub and template.
+; 
+
+
+; need to choose a name -- convention for boolean funcs.. ?
+; write one check expect then stub, run
+; template then (if ...) body
+; run -- see highlighting  - talk about code coverage
+; add check expect
+; talk about boundary cases - write example, refine purpose
+; final run
+
+;; tall? : Image -> Boolean
+;; produce true if the given is tall (height is > width)
+(check-expect (tall? (rectangle 20 40 "solid" "red"))  true)
+(check-expect (tall? (rectangle 80 40 "solid" "red"))  false)
+(check-expect (tall? (rectangle 40 40 "outline" "blue"))  false)
+
+;(define (tall? img) ; stub
+;  false)
+
+;(define (tall? an-img)     ; template
+;  (... an-img ...))  
+
+;(define (tall? img)
+;  (if (> (image-height img) (image-width img))
+;      true
+;      false))
+
+(define (tall? img)
+  (> (image-height img) (image-width img)))
+
+
+
+; 
+; Other points to note:
+; - The steps of the recipe should be done in the stated order,
+;   except that sometimes you can swap the order of steps 1 and 2,
+;   or go back to an earlier step to revise it. If the signature
+;    and purpose are not good enough to help write the example
+;    consider revising them! (Especially the purpose). Or, sometimes
+;    it is easier to write examples before signature and purpose.
+;    A complete design has all the elements, however, and the 
+;    initial steps MUST be followed before you try to fill in 
+;    the body.
+;    
+;  - Be sure there are sufficient examples/tests to cover all the
+;    cases of the function, both explicit and implicit cases.
+; 
+;  - Note: (if XYZ true false) is always the same as XYZ
+; 
+
+
+
