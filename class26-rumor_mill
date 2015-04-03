@@ -1,0 +1,157 @@
+;; Nick Vernon
+;; IN-CLASS EXERCISES (3/27/2015) -
+;; RUMOR MILLS - TREES
+
+(require 2htdp/image)
+
+#;
+.
+
+;                                                           
+; TASK 1.
+; 
+; Consider the following data definition for a rumor
+; mill such as the one illustrated above. Fill in the
+; template and define some data examples that capture
+; the relationships in the illustration.
+; 
+; You may want to show me your template and examples before
+; you continue onto the next task.
+; 
+
+
+
+(define-struct person (name fr1 fr2))
+;; A Rumor-mill is either:
+;;  - empty, or
+;;  - (make-person String Rumor-mill Rumor-mill)
+;; interp. represents a network of people who talk to each other
+;;     to spread gossip
+
+
+#;  ; template
+(define (rm-func a-rm)
+  (cond
+    [(empty? a-rm)  ...]
+    [(person? a-rm) (... (person-name a-rm)
+                           (rm-func (person-fr1 a-rm))
+                           (rm-func (person-fr2 a-rm)))]))
+
+; examples
+
+;; ... FILL IN ...
+ (define N (make-person "Nick" empty empty))
+ (define A (make-person "Alyssa" empty empty))
+ (define M (make-person "Megan" empty empty))
+ (define S (make-person "Sarah" M empty))
+ (define G (make-person "Garrett" empty empty))
+ (define T (make-person "Tayla" G empty))
+ (define E (make-person "Erick" N A))
+ (define D (make-person "Dudley" T E))
+ (define J (make-person "Josh" S D))
+ 
+
+;                                                           
+; TASK 2.
+; 
+; Complete the following function definition.
+; 
+
+
+;; informed? : Rumor-mill String -> Boolean
+;; determine whether the person of the given name is 
+;; in the rumor mill
+
+(check-expect (informed? M "Sarah") false)
+(check-expect (informed? D "Josh") false)
+(check-expect (informed? J "Megan") true)
+
+(define (informed? a-rm s)
+  (cond
+    [(empty? a-rm)  false]
+    [(person? a-rm) (or (string=? (person-name a-rm) s)
+                           (informed? (person-fr1 a-rm) s)
+                           (informed? (person-fr2 a-rm) s))])) 
+
+
+;                                                           
+; TASK 3.
+; 
+; Complete the following function definition.
+; 
+
+
+;; rumor-delay : Rumor-mill -> Number
+;; produce maximum number of days required for a rumor 
+;; to reach everyone, (assuming each person waits 1 day 
+;; before passing on rumor)
+
+(check-expect (rumor-delay N) 0)
+(check-expect (rumor-delay J) 3)
+(check-expect (rumor-delay S) 1)
+(check-expect (rumor-delay D) 2)
+
+(define (rumor-delay a-rm)
+  (cond
+    [(empty? a-rm)  0]
+    [(person? a-rm) (if (and (empty? (person-fr1 a-rm)) (empty? (person-fr1 a-rm)))
+                    0
+                     (+ 1 
+                     (max (rumor-delay (person-fr1 a-rm))
+                          (rumor-delay (person-fr2 a-rm)))))]))
+
+
+;        
+; 
+; TREES --- FORESTS
+; 
+; The types of trees you've used to model the rumor mill
+; above, and the horse pedigrees in the lecture video, are
+; called "binary" trees - because each "node" in the tree
+; connects to at most *two* other nodes.
+; 
+; In addition to trees, we can also talk about "forests" - 
+; lists of trees. For example, there may actually be
+; several rumor mills in operation in our course! ...
+; 
+; 
+; 
+; TASK 4.
+; 
+; Write out the data definition for List-of-rumor-mills. 
+; (I know, since we've talked about abstraction, we don't
+;    technically have to write out List-of-... definitions
+;    any more, but it is instructive in this case to 
+;    explicitly see the references between the two
+;    data definitions.)
+; 
+; Make sure your template is complete and define at
+; least one more example of a (small) rumor mill. 
+; 
+; 
+
+
+
+
+
+
+
+
+
+;                                                           
+; TASK 5.
+; 
+; Develop a function, 
+; 
+; ;; involved? : List-of-rumor-mills String -> Boolean
+; 
+; that takes a list of rumor mills and a name and produces
+; true if the named person is involved in any of the 
+; rumor mills in the given list. Note, your template should
+; suggest using a helper function, and you have one that 
+; should be conveniently helpful (see Task 2).
+; 
+
+
+
+
