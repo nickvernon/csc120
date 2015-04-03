@@ -1,0 +1,21 @@
+;; Nick Vernon & Orbelin Palacios
+
+; insulin-dose : Number -> Number
+; given blood-sugar amount, produces needed insulin injections
+
+;(define (insulin-dose b) 0) ; stub
+
+(check-expect (insulin-dose 195) 5)
+(check-expect (insulin-dose 295) 10)
+(check-expect (insulin-dose 115) 1)
+(check-expect (insulin-dose 100) 0)
+
+#;(define (insulin-dose b)   ; template
+  (... b ...))
+
+(define (insulin-dose b)
+  (floor (/ (- b 95) 20)))
+
+(insulin-dose 100)
+(insulin-dose 250)
+(insulin-dose 5000)
