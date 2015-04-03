@@ -1,0 +1,118 @@
+;; Orbelin Palacios & Nick Vernon
+;; Lab 5 - Designing Functions for Mixed Data
+
+
+
+(define-struct text-file (name lines))
+;; A Text-File is (make-text-file String Number)
+;; interp. a text-file with given name and number of lines
+
+; examples
+(define text-file1 (make-text-file "final paper.doc" 100))
+(define text-file2 (make-text-file "long book.doc" 10000))
+
+#;  ; template
+(define (text-file-func a-text-file)
+  (... (text-file-name a-text-file)    ; String
+       (text-file-lines a-text-file)   ; Number
+       ...))
+
+
+(define-struct image-file (name width height color?))
+;; An Image-file is (make-image-file String Number Number Boolean)
+;; interp. an image-file with given name, image width, image height, and
+;; whether the image is colored (or black and white)
+
+; examples
+(define image-file1 (make-image-file "square" 10 10 false))
+(define image-file2 (make-image-file "old picture" 40 40 false))
+(define image-file3 (make-image-file "new picture" 100 70 true))
+
+#;  ; template
+(define (image-file-func an-image-file) 
+  (... (image-file-name an-image-file)    ; String
+       (image-file-width an-image-file)   ; Number
+       (image-file-height an-image-file)  ; Number
+       (image-file-color? an-image-file)  ; Boolean
+       ...))
+
+
+(define-struct sound-file (name duration))
+;; A Sound-File is (make-sound-file String Number)
+;; interp. a sound-file with given name and duration in seconds
+
+; examples
+(define sound-file1 (make-sound-file "Track 1" 210))
+(define sound-file2 (make-sound-file "voice mail" 30))
+
+#;  ; template
+(define (sound-file-func a-sound-file)
+  (... (sound-file-name a-sound-file)      ; String
+       (sound-file-duration a-sound-file)  ; Number
+       ...))
+
+
+; A File is one of:
+;   - a Text-File, or
+;   - an Image-File, or
+;   - a Sound-file
+; interp. represents a file in the web designer's database
+
+
+#;   ; template
+(define (file-func a-file)
+  (cond
+    [(text-file? a-file) (... (text-file-func a-file) ...)]
+    [(image-file? a-file)(... (image-file-func a-file) ...)]
+    [(sound-file? a-file)(... (sound-file-func a-file) ...)]))
+
+
+
+
+
+; file-size : File -> Number
+; computes the size of the file in bytes
+
+(check-expect (file-size text-file2) 600000)
+(check-expect (file-size image-file3) 21000)
+(check-expect (file-size sound-file1) 6300)
+
+(define (file-size a-file)
+  (cond
+    [(text-file? a-file) (text-file-size a-file)]
+    [(image-file? a-file)(image-file-size a-file)]
+    [(sound-file? a-file)(sound-file-size a-file)]))
+
+
+
+; text-file-size : Text-File -> Number
+; computes the size of a text file in bytes
+
+(check-expect (text-file-size text-file1) 6000)
+(check-expect (text-file-size text-file2) 600000)
+
+(define (text-file-size a-text-file)
+  (* 60 (text-file-lines a-text-file)))
+
+
+; image-file-size : Image-File -> Number
+; computes the size of an image file in bytes
+
+(check-expect (image-file-size image-file1) 100)
+(check-expect (image-file-size image-file2) 1600)
+(check-expect (image-file-size image-file3) 21000)
+
+(define (image-file-size an-image-file)
+  (if (image-file-color? an-image-file)
+      (* 3 (* (image-file-width an-image-file) (image-file-height an-image-file)))
+      (* (image-file-width an-image-file) (image-file-height an-image-file))))
+
+
+; sound-file-size : Sound-File -> Number
+; computes the size of a sound file in bytes
+
+(check-expect (sound-file-size sound-file1) 6300)
+(check-expect (sound-file-size sound-file2) 900)
+
+(define (sound-file-size a-sound-file)
+  (* 30 (sound-file-duration a-sound-file)))
