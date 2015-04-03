@@ -1,0 +1,35 @@
+
+
+;                                                           
+; 
+; Lecture 17 - Starter Code
+; List Abbreviations ; Helper Functions ; Composition
+; Sorting
+; 
+
+
+
+
+;; remove-dups : List-of-numbers -> List-of-numbers
+;; removes all duplicates from a list of numbers
+
+(check-expect (remove-dups empty) empty)
+(check-expect (remove-dups (list 1 5 3 2))
+              (list 1 5 3 2))
+              
+(define (remove-dups a-lon)
+  a-lon)
+
+
+
+
+
+;; sort> : List-of-numbers -> List-of-numbers
+;; produces a copy of the given list of numbers sorted in descending order
+
+(check-expect (sort> empty) empty)
+(check-expect (sort> (list 5 4 -2))   (list 5 4 -2))
+
+(define (sort> a-lon)
+  a-lon)
+
