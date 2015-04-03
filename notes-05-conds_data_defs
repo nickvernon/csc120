@@ -1,0 +1,496 @@
+(require 2htdp/image)
+(require 2htdp/universe)
+
+;                                                           
+;  Lecture 5
+;  Conditionals - Data Definitions (Intervals, Enumerations)
+
+
+; 
+; 
+;  ...a computer language is not just a way of getting a 
+;  computer to perform operations but rather ... it is a 
+;  novel formal medium for expressing ideas about methodology. 
+;  Thus, programs must be written for people to read, and
+;  only incidentally for machines to execute...
+;          [Abelson and Sussman, 
+;           Structure and Interpretation of Computer Programs]
+;  
+;        
+;          
+;          
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;                                                           
+; REVIEW -
+; Last week we introduced a recipe for DESIGNING FUNCTIONS,
+; a set of steps that produce a structured design artifact:
+;    - signature, purpose, stub (temporary)
+;    - examples (as check-expects)
+;    - template (... skeleton of the actual body ...)
+;    - body (of the function definition)
+;    - test (make sure it works)
+;    
+; 
+;    EXAMPLE:
+
+
+;; tall? : Image -> Boolean
+;; produce true if the given image is tall (height is > width)
+(check-expect (tall? (rectangle 20 40 "solid" "red")) true)
+(check-expect (tall? (rectangle 40 20 "solid" "red")) false)
+(check-expect (tall? (square 40 "solid" "red")) false)
+
+;(define (tall? an-img) ; stub
+;  false)
+
+;(define (tall? an-img) ; template
+;  (... an-img ...))
+
+(define (tall? an-img)
+  (if (> (image-height an-img) (image-width an-img))
+      true
+      false))   
+   
+
+
+;                                                           
+; Early steps help with later steps:
+;   - signature and purpose help you think about examples
+;   - examples and template help you think about the body
+;     - look for patterns in the expected values when 
+;       possible
+; 
+; At the end, you have produced a function that reflects
+; solid, well-thought-out design.
+; 
+; 
+
+
+
+
+; 
+; ASIDE...
+; 
+; .
+; 
+; 'You are sad,' the Knight said in an anxious tone: 'let me sing 
+; you a song to comfort you.'
+; 
+; 'Is it very long?' Alice asked, for she had heard a good deal of poetry that day.
+; 
+; 'It's long,' said the Knight, 'but it's very, very beautiful. Everybody that 
+; hears me sing it -- either it brings the tears into their eyes, or else --'
+; 
+; 'Or else what?' said Alice, for the Knight had made a sudden pause.
+; 
+; 'Or else it doesn't, you know. The name of the song is called 
+; "Haddocks' Eyes".'
+; 
+; 'Oh, that's the name of the song, is it?' Alice said, trying to feel interested.
+; 
+; 'No, you don't understand,' the Knight said, looking a little vexed. 'That's 
+; what the name is called. The name really is "The Aged Aged Man".'
+; 
+; 'Then I ought to have said "That's what the song is called"?' Alice corrected herself.
+; 
+; 'No, you oughtn't: that's quite another thing! The song is called "Ways and Means": 
+; but that's only what it's called, you know!'
+; 
+; 'Well, what is the song, then?' said Alice, who was by this time completely bewildered.
+; 
+; 'I was coming to that,' the Knight said. 'The song really is "A-sitting On a Gate": 
+; and the tune's my own invention.'
+; 
+; [Lewis Carroll, _Through the Looking-Glass_]
+; 
+; (
+;  - The song's NAME is CALLED "Haddocks' Eyes"
+;  - The song's NAME is "The Aged Aged Man"
+;  - The song is CALLED "Ways and Means"
+;  - The song IS "A-sitting On a Gate"
+; )
+; 
+; ==============================================================
+; ;; tall? : Image -> Boolean
+; ;; produce true if the given image is tall (height is > width)
+; (define (tall? an-img) ; stub
+;    ...
+;   
+;  - the TYPE of the parameter is "Image"
+;  - the DESCRIPTION of the parameter is "given image"
+;  - the NAME of the parameter is "an-img"
+;  
+;   
+; (check-expect (tall? (rectangle 20 40 "solid" "red")) true)
+; 
+;  - the ARGUMENT (actual value of the parameter at run-time)
+;    is  "(rectangle 20 40 "solid" "red")"
+
+
+
+
+; 
+; Topics for next two lectures:
+; 
+;   - cond expressions (a new bit of mechanism)
+;   - Data Definitions
+;   - A few kinds of data definitions - intervals, 
+;       enumerations, itemizations
+;   - Designing functions using data definitions
+;   - Overview of the entire recipe for data defs + funcs.
+;   - Systematically generating templates
+; 
+; 
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;                                                           
+; CONDITIONAL EXPRESSIONS
+; 
+; Some of you worked on Exercise 10 for homework 1:
+; Create an expression that computes whether a picture 
+; is "tall", "wide", or "square".
+; 
+; 
+
+
+(define SHAPE (rectangle 20 10 "solid" "red"))
+
+(if (= (image-height SHAPE) (image-width SHAPE))
+    "square"
+    (if (> (image-height SHAPE) (image-width SHAPE))
+        "tall"
+        "wide"))
+
+;                                                           
+; An 'if' expression is a two-way decision: do one thing
+; or another. While 'if's can be NESTED, a 'cond' construct
+; provides a more convenient way to make multi-way 
+; decision. (With more than two options, 'if' expressions
+; start getting indented more and more, and become ugly
+; and hard to understand.)
+; 
+
+
+(cond [(= (image-height SHAPE) (image-width SHAPE))  "square"]
+      [(> (image-height SHAPE) (image-width SHAPE))    "tall"]
+      [else   "wide"])
+
+
+;                                                           
+; SYNTAX FOR cond EXPRESSIONS
+; 
+; (cond
+;   [ <question-1>  <answer-1> ]
+;   [ <question-2>  <answer-2> ]
+;   ...
+;   [ <question-N>  <answer-N> ])
+; 
+; OR
+;  
+; (cond
+;   [ <question-1>  <answer-1> ]
+;   [ <question-2>  <answer-2> ]
+;   ...
+;   [ else          <answer> ])
+;    ------
+; 
+; (Not using 'else' in the last clause is a good way to
+; cause an error to be signalled if no case matches as
+; expected.)
+; 
+; 
+; 
+; EVALUATING cond EXPRESSIONS
+; 
+; - Evaluate the question of the first clause
+;   - If true, use the value of the corresponding answer
+;     as the value of the entire cond expression
+;   - If false, throw away the first clause, and repeat.
+; 
+; ('else' is always interpreted as 'true').
+; 
+; Example: 
+; 
+
+
+(define (sign n)
+  (cond
+    [(< n 0) "negative"]
+    [(> n 0) "positive"]
+    [else    "zero"]))
+
+(sign (+ 7 8))
+
+;                                                           
+; ===> (sign 15)
+; 
+; ===> (cond
+;        [(< 15 0) "negative"]
+;        [(> 15 0) "positive"]
+;        [else    "zero"])
+; 
+; ===> (cond
+;        [false "negative"]
+;        [(> 15 0) "positive"]
+;        [else    "zero"])
+; 
+; ===> (cond
+;        [(> 15 0) "positive"]
+;        [else    "zero"])
+; 
+; ===> (cond
+;        [true "positive"]
+;        [else    "zero"])
+; 
+; ===> "positive"
+; 
+
+
+#; 
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(bitmap "images/chili-peppers.jpg")
+
+;                                                           
+; Scoville Organoleptic Test
+; 
+; 
+; 
+; (scale .25 (bitmap "images/PepperswithscovilleCentralMarketHoustonTX.jpg"))
+; http://en.wikipedia.org/wiki/Scoville_scale
+; 
+; 
+; EXERCISE:
+; Develop a program that identifies a pepper by its Scoville 
+; rating. Bell peppers have rating between 0 and 100. 
+; Jalapeno peppers have rating between 2500 - 8000.
+; Serrano peppers have rating between 10000 - 23000. 
+; For any other rating, your program should indicate it is 
+; an unknown type of pepper.
+; 
+; 
+; 
+; 
+
+
+
+;                                                           
+; INFORMATION and DATA
+; 
+; The purpose of any program is to describe a computation 
+; which transforms some collection of information into
+; another.
+; 
+; After analyzing the problem statement to understand what 
+; information there is,
+; 
+;  - You must decide how to REPRESENT the information as 
+;    data in your (programming) language; 
+;    and how to INTERPRET data as information
+; 
+;  - That is, choose a representation suitable for 
+;    the program’s input and output
+;    
+;    
+;   information   ---- represented by ---->
+;  in program's                               data
+;    domain      <---- interpreted as ----
+; 
+;    
+; 
+; EXAMPLES
+; Suppose you were writing a program that involved 
+; processing the following type of information; 
+; what data representation would you use?
+; 
+;  - Fahrenheit degrees
+;  - Grocery items on a shopping list
+;  - People's faces
+;  - Wages
+;  - Your grade in a course
+;  
+; (Note: choice of representation is not always unique)
+; 
+; 
+; Going the other way:
+; Consider a piece of data: the string "red".
+; 
+; What does it mean? What does it represent? What is 
+; its significance?
+;  - Color of a firework? Financial status of a 
+;    startup company? The DEFCON status? The color
+;    of a traffic light?
+; 
+; 
+; 
+; 
+; We can't know without being told how to INTERPRET it.
+; Similarly we can't represent something, like the weight
+; of a cat, or the color of a traffic light without being 
+; told how to REPRESENT it.
+; 
+; This is what a DATA DEFINITION is going to do for us.
+; It will tell us how to represent information as data
+; and how to interpret data as information.
+; 
+; A DATA DEFINITION is made up of four or five parts:
+;  1. Possibly a *structure definition* (define-struct),
+;     (not until next week)
+;  2. A *types comment* that describes how the information
+;     is represented as data
+;  3. An *interpretation* that describes how data of that
+;     form should be interpreted as information
+;  4. One or more *examples* of the data
+;  5. A *template* for a function operating on an input
+;     parameter of the data
+; 
+;     
+; One of the most important points of this course is that:
+; 
+;   - the form of information in the problem determines 
+;     the form of the data definition
+;     
+;   -> which in turn determines the form of the examples 
+;      and templates
+;      
+;   -> and therefore shapes and guides much of the 
+;      final program design.
+;     
+
+
+
+
+;                                                           
+; BACK TO...
+; 
+; EXERCISE:
+; Develop a program that identifies a pepper by its Scoville 
+; rating. Bell peppers have rating between 0 and 100. 
+; Jalapeno peppers have rating between 2500 - 8000. 
+; Serrano peppers have rating between 10000 - 23000. 
+; For any other rating, your program should indicate it is 
+; an unknown type of pepper.
+; 
+
+
+
+; 
+; The Data Definition:
+; 
+; (An INTERVAL distinguishes different subclasses of numbers) 
+; 
+
+
+; A ScovilleRating is a number:               ; types comment
+;  - between 0 and 100,                       ;
+;  - between 2500 and 8000,                   ; 
+;  - between 10000 and 23000, or              ;
+;  - any other positive number                ;
+; interp. the Scoville rating of a pepper,    ; interpretation
+;    where 0-100 represents a bell pepper,    ; 
+;    2500-8000 jalapeno, 10000-23000 serrano, ;
+;    and anything else an unknown type        ;
+
+(define RIPE-BELL 55)                         ; examples
+(define BLAND-JALAPENO 2600)
+(define HOT-SERRANO 22000)
+
+(define (scoville-rating-func a-rating)       ; template
+  (cond
+    [ (<= a-rating 100)  ... ]
+    [ (<= 2500 a-rating 8000)  ... ]
+    [ (<= 10000 a-rating 23000)  ... ]
+    [ else  ... ]))
+
+;                                                           
+; NAMING:
+; 
+; The name of the template function, will be the name of the
+; data type + "-func" suffix, e.g.  "scoville-rating-func"
+; 
+; The name of the parameter in the template will be the
+; prefix "a-" (or "an-") + name of the data type, 
+; e.g. "a-rating"  or  "a-scoville-rating" (the second is
+;      or even "a-sr"                       a little long)
+; 
+
+
+
+
+; ; NOW THE PROGRAM:                                     
+
+
+
+; pepper-type : ScovilleRating -> String
+; given the Scoville rating, produce the name of a
+; pepper with that characteristic rating
+
+(check-expect (pepper-type 0) "bell")
+(check-expect (pepper-type 45) "bell")
+(check-expect (pepper-type 100) "bell")
+(check-expect (pepper-type 156) "unknown")
+(check-expect (pepper-type 2499) "unknown")
+(check-expect (pepper-type 2500) "jalapeno")
+(check-expect (pepper-type 4500) "jalapeno")
+(check-expect (pepper-type 8000) "jalapeno")
+(check-expect (pepper-type 8001) "unknown")
+(check-expect (pepper-type 9999) "unknown")
+(check-expect (pepper-type 10000) "serrano")
+(check-expect (pepper-type 20001) "serrano")
+(check-expect (pepper-type 23000) "serrano")
+(check-expect (pepper-type 23001) "unknown")
+
+;(define (pepper-type a-rating)   ;  stub
+;  "bell")
+
+; <use template from ScovilleRating>
+
+(define (pepper-type a-rating)
+  (cond [ (<= a-rating 100) "bell" ]
+        [ (<= 2500 a-rating 8000) "jalapeno" ]
+        [ (<= 10000 a-rating 23000) "serrano" ]
+        [ else "unknown" ] ))
+
+
+;                                                           
+; TEMPLATES
+; 
+; The idea of a template is to have a skeleton (outline) 
+; that starts you off writing a function to process a 
+; particular kind of data.
+; 
+;   - Along with your contract, purpose, and header, 
+;     the template lets you start filling in the body 
+;     of a function with something already "on paper"
+; 
+;     
+; TEMPLATES FOR INTERVALS
+; 
+; The template for data that falls into intervals will 
+; have a cond expression where the conditions use 
+; relational operators to distinguish the cases: < <= > >=
+; 
+
+
+
+
