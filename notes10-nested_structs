@@ -1,0 +1,440 @@
+
+;                                                           
+;  Lecture 10
+;  Nested Structures (Structures in Structures)
+
+
+(require 2htdp/image)
+(require 2htdp/universe)
+
+
+;                                                           
+; .
+; 
+; 
+; We continue with our zoo examples...
+; 
+
+
+
+
+;  BOA CONSTRICTORS 
+
+
+(define-struct boa (name length food))       ; structure definition
+; A Boa is (make-boa String Number String)   ; types comment
+; interp. a boa with given name, length in feet,  ; interpretation
+;         and favorite food
+
+(define BOA1 (make-boa "Slinky" 10 "rats"))  ; data examples
+(define BOA2 (make-boa "Slim" 5 "lettuce"))
+
+#;    ; template
+(define (boa-func a-boa)
+  (... (boa-name a-boa) ...     ; String
+   ... (boa-length a-boa) ...   ; Number
+   ... (boa-food a-boa) ...     ; String
+   ))
+
+
+;  ARMADILLOS 
+
+
+(define-struct dillo (length dead?))
+; A Dillo is (make-dillo Number Boolean)
+; interp. an armadillo of given length in feet and whether
+;         it is dead or not
+
+(define PUNYDILLO (make-dillo 3 true))
+(define MONSTADILLO (make-dillo 15 false))
+
+#;    ; template
+(define (dillo-func a-dillo)
+  (... (dillo-length a-dillo) ...    ; Number
+   ... (dillo-dead? a-dillo) ...     ; Boolean
+   ))
+
+
+
+
+
+;;==========================================================
+;;==========================================================
+;;==========================================================
+
+
+;; boa-portable? : Boa Number -> Boolean
+;; determine if boa shorter than given cage length
+(check-expect (boa-portable? BOA1 5) false)
+(check-expect (boa-portable? BOA2 50) true)
+
+(define (boa-portable? aboa cage-size)
+  (<= (boa-length aboa) cage-size))
+
+
+
+;; feed-snake : Boa -> Boa
+;; produces a snake five feet longer
+
+(check-expect (feed-snake BOA1) (make-boa "Slinky" 15 "rats"))
+(check-expect (feed-snake BOA2) (make-boa "Slim" 10 "lettuce"))
+
+(define (feed-snake a-boa)
+  (make-boa (boa-name a-boa)
+            (+ 5 (boa-length a-boa))
+            (boa-food a-boa)))
+
+
+
+;; hit-with-truck : Dillo -> Dillo
+;; produce a dead dillo that's one unit longer than original
+(check-expect (hit-with-truck PUNYDILLO) (make-dillo 4 true))
+(check-expect (hit-with-truck MONSTADILLO) (make-dillo 16 true))
+
+(define (hit-with-truck a-dillo)
+  (make-dillo (+ 1 (dillo-length a-dillo)) true))
+
+
+
+;; feed-dillo : Dillo -> Dillo
+;; produces a dillo two units longer, unless dead
+
+(check-expect (feed-dillo PUNYDILLO) PUNYDILLO)
+(check-expect (feed-dillo MONSTADILLO) (make-dillo 17 false))
+
+(define (feed-dillo a-dillo)
+  (if (dillo-dead? a-dillo)
+      a-dillo
+      (make-dillo (+ 2 (dillo-length a-dillo))
+                  (dillo-dead? a-dillo))))
+
+ 
+
+
+;;==========================================================
+;;==========================================================
+;;==========================================================
+
+;                                                           
+; .  .
+; 
+; Let's add ants to our zoo. Ants have a weight and a 
+; location in the zoo, relative to their home. 
+
+
+;; A Posn is (make-posn Number Number)
+;; ...
+
+#;  ; template
+(define (posn-func a-posn)
+  (... (posn-x a-posn)
+       (posn-y a-posn) ...))
+
+
+(define-struct ant (weight loc))
+; An Ant is (make-ant Number Posn)
+; interp. An ant of given weight in ounces and a location in the
+;   zoo, relative to their home
+
+(define ANT1 (make-ant 0.001 (make-posn 4 5)))
+(define ANT2 (make-ant 0.007 (make-posn 0 0)))
+
+#;    ; template                          
+(define (ant-func an-ant)            
+   (... (ant-weight an-ant) ...
+    ... (posn-func (ant-loc an-ant)) ... 
+   ))                     ;  New template feature: 
+;  reference to other structures 
+;  in the data definition 
+;  ==> causes ==>
+;  reference to a helper function 
+;  on the nested data in the 
+;  template
+
+
+
+
+;                                                           
+;  Define ant-at-home?, which takes an ant and reports 
+;  whether it is at the origin (0,0).
+
+
+
+; ant-at-home? : Ant -> Boolean
+; determine whether an ant's position is at the origin (0,0)
+
+(check-expect (ant-at-home? ANT1) false)
+(check-expect (ant-at-home? ANT2) true)
+
+(define (ant-at-home? an-ant)
+   (posn-at-origin? (ant-loc an-ant)))
+
+
+;;;;; Helper function:
+
+; posn-at-origin? : Posn -> Boolean
+; determine whether a posn is at the origin (0, 0)
+
+(check-expect (posn-at-origin? (make-posn 0 0)) true)
+(check-expect (posn-at-origin? (make-posn 1 5)) false)
+
+(define (posn-at-origin? a-posn)
+  (and (= (posn-x a-posn) 0) 
+       (= (posn-y a-posn) 0)))
+
+
+;                                                           
+;  Define feed-ant, which feeds an ant 0.001 lbs of food
+
+
+
+; feed-ant : Ant -> Ant
+; feed an ant 0.001 lbs of food
+
+(check-expect (feed-ant ANT1)
+              (make-ant 0.002 (make-posn 4 5)))
+
+(define (feed-ant an-ant)
+   (make-ant
+    (+ 0.001 (ant-weight an-ant))
+    (ant-loc an-ant)))
+
+
+
+
+;; Define `move-ant`, which takes an ant and an amount
+;; to move in the x direction and amount to move in y
+;; direction and produces the moved ant
+
+
+;;==========================================================
+;;==========================================================
+;;==========================================================
+
+;                                                           
+;  .
+;  
+;  We want to add two more animals to our zoo: tigers
+;  and rabbits. Tigers have a name and weight. Rabbits
+;  have an age and color. Additionally, each of these two
+;  animals acts as sponsor for a particular commercial
+;  product. For example, sometimes our tiger performs in
+;  Frosted Flakes ads, and our rabbit performs in Trix
+;  commercials. We want to keep track of what product these
+;  animals are currently sponsoring. A Product is described 
+;  by the name and type of the product and the name of its 
+;  manufacturer.
+;  
+;  Since the data definition for tigers and rabbits depends
+;  on products, we define products first...
+;  
+
+
+
+(define-struct product (name type brand))
+; A Product is (make-product String String String)
+; interp. represents a commercial product
+
+(define TRIX (make-product "Trix" "cereal" "General Mills"))
+(define FLAKES (make-product "Frosted Flakes" "cereal" "Kellogs"))
+(define AA-PACK (make-product "AA 16 Pack" "battery" "Energizer"))
+(define SUPER-GAS (make-product "Exxon Supreme 93" "gas" "Exxon"))
+
+#;
+(define (product-func a-prod ...)
+   ( ... (product-name a-prod) ...
+     ... (product-type a-prod) ...
+     ... (product-brand a-prod) ...
+    ))
+
+
+
+(define-struct tiger (name weight sells))
+; A Tiger is (make-tiger String Number Product)  ;  <--- draw an arrow where one def. refers to another.
+
+
+(define TONY (make-tiger "Tony the Tiger" 250 FLAKES))
+
+#;
+(define (tiger-func a-tig ...)
+   ( ... (tiger-name a-tig) ...
+     ... (tiger-weight a-tig) ...
+     ... (product-func (tiger-sells a-tig)) ... ;  arrow in the data definition corresponds to an arrow, realized
+;  as a function call, in the function definition.
+
+    ))
+
+
+
+;                                                           
+;  Now some functions: 
+;  In today's volatile economy many famous product lines 
+;  are being bought out by competing companies. Write a 
+;  function, "change-brand",  which takes a tiger and the 
+;  name of a company and produces a tiger that sells the 
+;  same product but for the new company brand name. 
+;  As part of the ensuing stress, the weight of the tiger 
+;  also decreases by 25 pounds in the process.
+
+
+; change-tiger-brand : Tiger String -> Tiger
+; produce a tiger whose loyalty has switched to the given company
+
+(check-expect (change-tiger-brand TONY "Berry Mills")
+              (make-tiger "Tony the Tiger" 225 
+                          (make-product "Frosted Flakes" "cereal" "Berry Mills")))
+
+(define (change-tiger-brand a-tig co-name)
+   (make-tiger (tiger-name a-tig)
+               (- (tiger-weight a-tig) 25)
+               (buy-out (tiger-sells a-tig) co-name)))
+
+;  handling the nested structure often requires defining 
+;  a new helper function -- in this case we need a function 
+;  that changes the brand of a particular product when a 
+;  company buys it.
+
+
+
+
+;  Here's a helper function, buy-out, which takes a product 
+;  and the name of a company that is buying out the brand 
+;  of that product.
+
+
+; buy-out : Product String -> Product
+; change the (company) brand of a product to the given name
+
+(check-expect (buy-out FLAKES "Berry Mills")
+              (make-product "Frosted Flakes" "cereal" "Berry Mills"))
+(check-expect (buy-out SUPER-GAS "Citgo")
+              (make-product "Exxon Supreme 93" "gas" "Citgo"))
+
+(define (buy-out a-prod co-name)
+   (make-product (product-name a-prod)
+                 (product-type a-prod)
+                 co-name))
+
+
+
+;                                                           
+;  Now we write a function to capture what happens when 
+;  tigers are fed, which is that their weight increases 
+;  by 10 pounds.
+
+
+; feed-tiger : Tiger -> Tiger
+; produces a tiger that is 10 pounds heavier due to being fed
+
+(check-expect (feed-tiger TONY)
+              (make-tiger "Tony the Tiger" 275 FLAKES))
+
+(define (feed-tiger a-tig)
+   (make-tiger (tiger-name a-tig)
+               (+ 25 (tiger-weight a-tig))
+               (tiger-sells a-tig)   ;  we don't need a helper function if not
+;  interested in decomposing the nested data
+
+    ))
+
+
+
+;;==========================================================
+;;==========================================================
+;;==========================================================
+
+;                                                           
+; PREVIEW OF...
+; "MIXED DATA" (Itemizations + Structures)
+; 
+
+
+
+;                                                           
+;  We've now got several types of animals in our zoo. All 
+;  animals need to eat, so we should be able to define a 
+;  single function, "feed-animal", that takes as input any 
+;  animal and feeds it, causing it to grow appropriately.
+;  
+
+
+;  In our current context, what is an Animal?
+;  Let's give a data definition...
+
+
+; An Animal is either:
+;   - a Boa, or
+;   - a Dillo, or
+;   - an Ant, or
+;   - a Tiger
+; interp. a particular animal in our zoo
+
+;  The "either" in the definition above makes 
+;  this an itemization.
+
+
+;                                                           
+;  The comment above *is* the data definition. We have no 
+;  need for defining new structures using define-struct,
+;  since that has already happened. Also, we already have
+;  lots of examples of animals - every boa, dillo, ant, and
+;  tiger that we defined above is an Animal by this 
+;  definition.
+;  
+;  Now, for the template step, since there is an itemization,
+;  the template will always have a cond... expression. 
+;  Four cases in the data definition means four cond cases...
+;  
+;  How do we write the question for each case? Recall that
+;    (define-struct boa (name length food))
+;  provides another function besides the constructor 
+;  and selectors:
+;     boa? : Any -> Boolean
+;  This is a "predicate" function, which determines whether 
+;  a particular piece of data is a Boa structure. We use 
+;  the corresponding predicates for each type of data in 
+;  the mixed data definition to formulate the question for 
+;  each cond clause...
+
+
+#;   ; template
+(define (animal-func an-ani ...)
+   (cond
+      [(boa? an-ani)   (boa-func an-ani)]
+      [(dillo? an-ani) (dillo-func an-ani)]
+      [(ant? an-ani)   (ant-func an-ani)]
+      [(tiger? an-ani) (tiger-func an-ani)]
+   ))
+
+;  Since the Animal data definition refers to four other
+;  definitions of ours, note that the template simply
+;  applies the corresponding templates for those types
+;  of data to the an-ani parameter in each clause.
+;  
+
+
+
+
+
+
+;                                                           
+;  Now the function...
+
+
+; feed-animal : Animal -> Animal
+; produce the resulting animal after having been fed
+
+(check-expect (feed-animal BOA1)        (make-boa "Slinky" 15 "rats"))
+(check-expect (feed-animal PUNYDILLO)   (make-dillo 3 true))
+(check-expect (feed-animal MONSTADILLO) (make-dillo 17 false))
+(check-expect (feed-animal ANT1)        (make-ant 0.002 (make-posn 4 5)))
+(check-expect (feed-animal TONY)        (make-tiger "Tony the Tiger" 275 FLAKES))
+
+(define (feed-animal an-ani)
+   (cond
+      [(boa? an-ani)   (feed-snake an-ani)]
+      [(dillo? an-ani) (feed-dillo an-ani)]
+      [(ant? an-ani)   (feed-ant an-ani)]
+      [(tiger? an-ani) (feed-tiger an-ani)]
+   ))
+
