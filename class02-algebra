@@ -1,0 +1,153 @@
+;; Nick Vernon
+;; IN-CLASS EXERCISES (1/16/2015)
+
+(require 2htdp/image)
+
+;                                                                     
+; TASK:
+; 
+; Here is the Racket logo: .
+; 
+; Write an expression that produces the image:
+; 
+; .
+; 
+; using the primitive image operators:
+; 
+;   - above
+;   - beside
+;   - flip-horizontal
+;   - flip-vertical
+; 
+; When you're done, use this logo: .
+; to write an expression that produces the image:
+; 
+; .
+;   
+; (10m)
+
+
+
+
+
+
+
+;                                                                     
+; 
+; Do you notice a lot of repetition in your two expressions above?
+; 
+; 
+; TASK:
+; 
+; Fill in the ...'s in the function definition below to develop
+; a function that takes a logo and produces an image in the pattern
+; of the two that you produced above.
+; 
+; (5m)
+
+
+(define (four-square a-logo)
+  ... )
+
+
+
+;                                                                     
+; TASK:
+; 
+; Now use the four-square function to produce the same images as 
+; you got with the two expressions you wrote above.
+; 
+; (2m)
+
+
+
+
+
+
+
+
+
+
+;                                                                     
+; TASK:
+; 
+; In BSL, you can create all kinds of shapes., for example:
+; 
+; > (star 12 "solid" "red")
+; .
+; 
+; Develop a function named "my-star". It takes a color name, as
+; a string, and returns an image of a 5-cornered star of radius 12 
+; of that color. For example, if you apply my-star to "red", 
+; it returns the above image.
+; 
+; (my-star "red") ==> .
+; (my-star "blue") ==> .
+; 
+; (10m)
+
+
+
+
+
+
+; ====================================================================
+
+;                                                                     
+; After finishing the functions above, try completing the tasks below.
+; We will go over them together as a class.
+; 
+
+
+;                                                                     
+; TASK:
+; 
+; Write out the step-by-step evaluation for each of the following 
+; expressions: 
+; 
+
+
+; (+ (* 2 3) (/ 8 2))
+
+; (* (string-length "foo") 2)
+
+; (* (string-length (string-append (substring "Red Sox" 2 5) "cat")) 4)
+
+; (above (overlay (text "hello" 25 "black") (circle 50 "solid" "green"))
+;       (overlay (text "world" 25 "yellow") (square 100 "solid" "blue")))
+
+
+;                                                                     
+; TASK:
+; 
+; Given each of the following function definitions, write out the 
+; step-by-step evaluation of the corresponding expressions.
+; 
+; Be sure to show every intermediate evaluation step.
+; 
+
+
+
+(define (foo n)
+  (* n n))
+; (foo (+ 3 4))
+
+
+(define (farfle s)
+  (string-append s s))
+; (farfle (substring "abcdef" 0 2))
+
+
+(define (bobble s)
+  (if (<= (string-length s) 6)
+      (string-append s "ible")
+      s))
+; (bobble (substring "fungus" 0 4))
+
+
+(define (foobar s)
+  (if (string=? (substring s 0 1) "a")
+      (string-append s "a")
+      s))
+; (foobar (substring "abcde" 0 3))
+
