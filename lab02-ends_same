@@ -1,0 +1,28 @@
+;; Orbelin Palacios & Nick Vernon 
+;; Lab 2 - Check Ends
+
+
+;; ends-same? : String -> Boolean
+;; given a string, produce true if the first and last characters
+;; of the string are the same
+
+(check-expect (ends-same? "") true)
+(check-expect (ends-same? "mom") true)
+(check-expect (ends-same? "hello") false)
+
+
+#;(define (ends-same? s) true) ; stub
+#;(define (ends-same? s)       ; template
+    (... s ...))
+
+(define (ends-same? s)
+  (if (or (string=? s "") 
+          (string=? (substring s 0 1)(substring s (- (string-length s) 1) (string-length s))))
+          
+      true
+      false))
+
+(ends-same? "nick")
+(ends-same? "n")
+(ends-same? "")
+(ends-same? "adlfkjalaldjfalfkjladkfjla;jdfaa")
