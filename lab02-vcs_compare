@@ -1,0 +1,210 @@
+
+;; Orbelin Palacios & Nick Vernon
+;; CSC 120 Lab 2 - Version Control Pricing Program
+
+(require 2htdp/image)
+
+
+;  TASK 1: Design a function, 'github-price' that takes a number of 
+;          repositories and produces the corresponding monthly GitHub
+;          membership price
+
+
+;; github-price : Number -> Number
+;; given a number of repos, produce monthly GitHub membership price
+
+(check-expect (github-price 0) 0)
+(check-expect (github-price 15) 25)
+(check-expect (github-price 25) 50)
+(check-expect (github-price 100) 100)
+(check-expect (github-price 150) 200)
+
+#;(define (github-price r) 0)  ; stub
+#;(define (github-price r)     ; template
+    (... r... ))
+    
+(define (github-price r)
+  (cond[(< r 10) 0]
+       [(< r 20) 25]
+       [(< r 50) 50]
+       [(< r 125) 100]
+       [else 200]))
+
+
+;  TASK 2: Design a function, 'bitbucket-price' that takes a number
+;          of users and produces the corresponding monthly Bitbucket
+;          membership price
+
+
+;; bitbucket-price : Number -> Number 
+;; given number of users, produce monthly Bitbucket membership price
+
+(check-expect (bitbucket-price 0) 0)
+(check-expect (bitbucket-price 8) 10)
+(check-expect (bitbucket-price 20) 25)
+(check-expect (bitbucket-price 35) 50)
+(check-expect (bitbucket-price 75) 100)
+(check-expect (bitbucket-price 101) 200)
+
+#;(define (bitbucket-price u) 0)  ; stub
+#;(define (bitbucket-price u)     ; template
+    (... u ...))
+
+(define (bitbucket-price u)
+  (cond [(< u 6) 0]
+        [(< u 11) 10]
+        [(< u 26) 25]
+        [(< u 51) 50]
+        [(< u 101) 100]
+        [else 200]
+        ))
+
+;  TASK 3: Design a function 'price-compare' that takes two prices 
+;          and produces whether the first is "low", "high", or "equal"
+;          compared to the second. A signature is provided below.
+;      For example,   (price-compare 10 30)  should produce  "low"
+
+
+;; price-compare : Number Number -> String
+;; given two prices, determines whether the first is "low", "high", or
+;; equal compared to the second
+
+(check-expect (price-compare 10 30) "low")
+(check-expect (price-compare 50 26) "high")
+(check-expect (price-compare 125 125) "equal")
+
+#;(define (price-compare f t) "")  ; stub
+#;(define (price-compare f t)      ; template
+    (... f t ...))
+
+(define (price-compare f t)
+  (cond [(< f t) "low"]
+        [(> f t) "high"]
+        [(= f t) "equal"]
+        ))             
+
+
+;  TASK 4: Design a function that produces an appropriate highlight
+;          color for a price status:  "green" for a "low" price,
+;          "red" for "high", and "yellow" for "equal".
+;          A signature is provided below.
+;      For example,   (status-color "high") should produce "red"
+
+
+;; status-color : String -> String
+;; given price-status, produce a respective status-color
+
+(check-expect (status-color "low") "green")
+(check-expect (status-color "high") "red")
+(check-expect (status-color "equal") "yellow")
+
+#;(define (status-color c) "") ; stub
+#;(define (status-color c)     ; template
+    (... c ...))
+
+(define (status-color c)
+  (cond [(string=? c "low") "green"]
+        [(string=? c "high") "red"]
+        [(string=? c "equal") "yellow"]
+        ))
+
+
+
+;  TASK 5: Develop a function, `price-box` that takes the name of 
+;          a company ("GitHub" or "Bitbucket"), a price, and a 
+;          status ("high", "low", or "equal"), and produces a
+;          box like: 
+;                    .
+;         The image is the result of (price-box "GitHub" 50 "equal")
+;         Use font of size 18 for the label and 24 for the price.
+;         Make the square 80 pixels wide/tall.
+;         Hint: use your `status-color` function.
+
+
+
+;; price-box : String Number String -> Image
+;; given a company name, price, and status, produce an image to represent
+;; the data
+
+(check-expect (price-box "GitHub" 50 "equal") 
+              (above (text "GitHub" 18 "black")
+                     (overlay (text "$50" 24 "black")
+                              (square 80 "solid" "yellow"))))
+(check-expect (price-box "GitHub" 50 "low") 
+              (above (text "GitHub" 18 "black")
+                     (overlay (text "$50" 24 "black")
+                              (square 80 "solid" "green"))))
+(check-expect (price-box "GitHub" 1000 "high") 
+              (above (text "GitHub" 18 "black")
+                     (overlay (text "$1000" 24 "black")
+                              (square 80 "solid" "red"))))
+
+#;(define (price-box a b m) (circle 5 "solid" "red"))  ; stub
+#;(define (price-box a b m)    ; template
+    (... a b m ...))
+
+(define (price-box a b m)
+  (above (text a 18 "black")
+         (overlay (text (string-append "$" (number->string b)) 24 "black")
+                  (square 80 "solid" (status-color m)))))
+
+
+
+;  TASK 6: Develop a function, `price-box-pair` that takes a GitHub
+;          price and a Bitbucket price (both numbers) and produces a
+;          pair of boxed prices, side by side.
+;      For example, (price-box-pair 50 200) produces
+;          .
+
+
+;; price-box-pair : Number Number --> Image
+;; Given prices for GitHub and Bitbucket, produces pair of boxed prices, side by side
+
+
+(check-expect (price-box-pair 50 200)
+              (beside (price-box "GitHub" 50 "low")
+                      (price-box "Bitbucket" 200 "high")))
+#;(define (price-box-pair gh bb) (circle 5 "solid" "black"))  ; stub
+#;(define (price-box-pair gh bb)             ; template
+    (... gh bb ...))
+  
+(define (price-box-pair gh bb)
+  (beside (price-box "GitHub" gh (price-compare gh bb))
+          (price-box "Bitbucket" bb (price-compare bb gh))))
+
+; tests:
+
+;(price-box-pair 100 200)
+;(price-box-pair 100 100)
+;(price-box-pair 545 51)
+  
+
+
+
+
+
+;  TASK 7: Finally, design a function, `github-vs-bitbucket`, that
+;          takes a number of repositories and a number of users and
+;          displays a pair of price boxes along with labels for the
+;          number of repos and users.
+;      For example, (github-vs-bitbucket 20 200) produces
+;          .
+;      The expression to generate this image is the following (you
+;      can use it for one of your examples):
+; 
+; (above/align 
+;  "left"
+;  (beside (above (text "GitHub" 18 "black")
+;                 (overlay (text "$50" 24 "black")
+;                          (square 80 "solid" "green")))
+;          (above (text "Bitbucket" 18 "black")
+;                 (overlay (text "$200" 24 "black")
+;                          (square 80 "solid" "red"))))
+;  (text "20 repos" 12 "black")
+;  (text "200 users" 12 "black"))
+
+
+;; github-vs-bitbucket : Number Number --> Image
+;; produces a pair of price boxes with labels given a number of repos and users
+
+
