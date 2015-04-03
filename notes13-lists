@@ -1,0 +1,218 @@
+
+;                                                           
+;  Lecture 13
+;  Self-Referential Data: Lists
+;  
+
+
+(require 2htdp/image)
+(require 2htdp/universe)
+
+;                                                           
+; 
+;       .
+; 
+; 
+
+
+
+;                                                           
+; Quick summary of the course so far:
+; 
+; We have learned a way to design data definitions, that 
+; describe how data in the program represents information 
+; in the problem domain.
+; 
+; We have learned a way to design functions that operate 
+; on either primitive data or types defined by us in a 
+; data definition.
+; 
+; We have learned a way to design interactive world 
+; programs, made up of constants, data definitions 
+; and functions.
+; 
+; We have seen the role that the FORM of the data plays 
+; in determining much of the form of the program. For any 
+; given function the form of the data determines the form 
+; of the template, has an influence on the number of 
+; examples we consider, and ultimately guides the form of
+; the final function definition.
+; 
+; So far we have seen several forms of FIXED SIZE data.
+; 
+;   atomic:  Number, Boolean, String, Image, ...
+;   
+;   compound: Posn, Boa, ...
+;   
+;   one-of (mixed):
+;     one of distinct         (called enumeration)
+;     one of any of above     (called itemization)
+;     
+;   all this operated on FIXED size information (data)
+
+
+
+;                                                           
+; TODAY: Expansion...
+; 
+
+
+#;
+(require "mflatt/lecture7-lists.rkt")
+
+
+
+;                                                           
+; ...
+; 
+; Representing an ARBITRARY-sized list of numbers
+;  ("arbitrary" means "unknown", not infinite, not random)
+; 
+
+
+
+(define-struct empty-list ())
+(define EMPTY (make-empty-list))
+
+(define-struct bigger-list (first rest))
+;; A List-of-numbers is either:
+;;   - EMPTY, or
+;;   - (make-bigger-list Number List-of-numbers)    ; self-referential!
+;; interp. a list of weights of fish in our aquarium is
+;;         either empty or adds a weight to an existing list of weights
+
+(define MT-LON EMPTY)
+(define LON-1 (make-bigger-list 10 EMPTY))
+(define LON-2 (make-bigger-list 5 (make-bigger-list 10 EMPTY)))
+(define LON-3 (make-bigger-list 7 LON-2))
+
+#;   ; template
+(define (lon-func a-lon)
+  (cond
+    [(empty-list? a-lon) (...)]
+    [(bigger-list? a-lon) (... (bigger-list-first a-lon)
+                               (lon-func (bigger-list-rest a-lon)) ...)]))
+
+
+; aq-weight : List-of-numbers -> ...
+; produces the sum of all weights in the given list
+(check-expect (aq-weight EMPTY)
+              0)
+(check-expect (aq-weight (make-bigger-list 2 (make-empty-list)))
+              2)
+(check-expect (aq-weight (make-bigger-list 2 (make-bigger-list 7 (make-empty-list))))
+              9)
+(check-expect (aq-weight LON-3) 22)
+
+(define (aq-weight a-lon)
+  (cond
+    [(empty-list? a-lon)  0]
+    [(bigger-list? a-lon) (+ (bigger-list-first a-lon) 
+                             (aq-weight     ; note: arrow***
+                              (bigger-list-rest a-lon)))]))
+
+
+
+;                                                           
+; SHORTCUTS
+; 
+; The names  make-empty-list, make-bigger-list, etc.
+; are awfully long.....
+; 
+; DrRacket has *built-in* shorter versions
+; 
+; EMPTY                   ===   empty     ; a named constant
+; empty-list?             ===   empty?    ; predicate
+; 
+; make-bigger-list        ===   cons      ; constructor
+; bigger-list-first       ===   first     ; selectors
+; bigger-list-rest        ===   rest      ; ...
+; bigger-list?            ===   cons?     ; predicate
+; 
+; 
+; Remember:
+; CONS-truct a list from the empty list and 1 more item
+; 
+
+
+(first (cons 1 empty))
+(rest (cons 1 empty))
+(cons? empty)
+
+
+
+;                                                           
+; The data definition using built-in names...
+; (don't need any structure definitions)
+; 
+
+
+; A List-of-numbers is either:
+;   - empty, or
+;   - (cons Number List-of-numbers)         ; note: arrow***
+; interp. a list of weights of fish in our aquarium
+
+; examples
+(define MT-LON.2 empty)
+(define LON-1.2 (cons 10 MT-LON.2))
+(define LON-2.2 (cons 5 LON-1.2))
+(define LON-3.2 (cons 7 (cons 5 (cons 10 empty))))
+
+; template
+#;; lon-func : List-of-numbers -> ...
+(define (lon-func a-lon)
+  (cond
+    [(empty? a-lon) (...) ]
+    [(cons? a-lon)  (... (first a-lon) ...
+                     ... (lon-func     ; note: arrow***
+                          (rest a-lon)) ...) ]))
+
+; aq-weight : List-of-numbers -> ...
+; produces the sum of all weights in the given list
+(check-expect (aq-weight.2 empty)
+              0)
+(check-expect (aq-weight.2 (cons 2 empty))
+              2)
+(check-expect (aq-weight.2 (cons 2 (cons 7 empty)))
+              9)
+(check-expect (aq-weight.2 LON-3.2) 22)
+
+(define (aq-weight.2 a-lon)
+  (cond
+    [(empty? a-lon)  0]
+    [(cons? a-lon) (+ (first a-lon) 
+                             (aq-weight.2     ; note: arrow***
+                              (rest a-lon)))]))
+
+
+
+
+;                                                           
+; DESIGN RECIPE FOR LISTS
+; 
+; Design Recipe changes for today:
+; 
+;                            NONE
+; 
+; Granted, the self-reference was slightly novel...
+; 
+; .
+; 
+; 
+; ; A self-reference in a data definition leads to a 
+; ; RECURSIVE function -- one that calls itself...
+; 
+
+
+
+;                                                           
+; Try this...
+; 
+
+
+; any-heavy-fish? : List-of-numbers -> Boolean
+; determine whether any fish in the given list is 10 lbs or more
+
+
+
+
