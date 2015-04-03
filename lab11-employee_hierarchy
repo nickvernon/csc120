@@ -1,0 +1,146 @@
+;; Orbelin Palacios & Nick Vernon
+;; Lab 11
+
+;; 0 - Employee Hierarchy - warmup [10 points]
+
+
+(define-struct employee (name salary projects supervise))
+;; An Employee is either (make-employee String Number ListofString ListofEmployee)
+;; interp. represents an employee with given name salary, list of projects
+;;    and list of employees they supervise
+
+; examples
+(define N (make-employee "Nick" 100000 (list "important stuff") empty))
+(define F (make-employee "Fish" 15 (list "web" "service") (list N)))
+(define C (make-employee "Chester" 15 (list "web" "service") empty))
+(define JAN (make-employee "Jandice" 15 (list "web" "service") empty))
+(define B (make-employee "Ben" 30 (list "database" "web" "service") 
+                       (list F C JAN)))
+(define W (make-employee "Wendy" 30 (list "database" "web" "service")
+                       empty))
+(define L (make-employee "Logan" 30 (list "database" "web" "service")
+                       empty))
+(define D (make-employee "Danny" 30 empty
+                       empty))
+(define JHN (make-employee "John" 50 (list "special" "database" "management")
+                       (list B)))
+(define A (make-employee "Alyssa" 50 (list "special")
+                         (list L W)))
+(define JAM (make-employee "Jameel" 100 (list "tetris" "blitz" "information") (list D)))
+(define O (make-employee "Orbelin" 100000 (list "boss activities") (list JAM A JHN)))
+
+
+#;  ; template
+(define (employee-func an-employee)
+  (... (employee-name an-employee)
+       (employee-salary an-employee)
+       (los-func (employee-projects an-employee))
+       (loe-func (employee-supervise an-employee))...))
+
+;; A ListofEmployees is either:
+;; - empty, or
+;; - (cons Employee ListofEmployee)
+;; interp. a list of employees
+
+(define MT-EMP empty)
+(define EMPLOYEES1 (list O N JAM A))
+(define EMPLOYEES2 (list W B C))
+(define EMPLOYEES3 (list JHN L JAN C B W))
+
+
+#;  ; template
+(define (loe-func a-loe)
+  (cond
+    [(empty? a-loe) ...]
+    [(cons? a-loe) (... (employee-func (first a-loe))
+                        (loe-func (rest a-loe)) ...)]))
+
+
+;; everyone-busy? : Employee -> Boolean
+;; produces true if every person in the company is working on at least one project
+
+(check-expect (everyone-busy? O) false)
+(check-expect (everyone-busy? N) true)
+(check-expect (everyone-busy? JAM) false)
+(check-expect (everyone-busy? B) true)
+
+
+(define (everyone-busy? an-employee)
+  (if (empty? (employee-projects an-employee))
+       false
+       (employees-busy? (employee-supervise an-employee)))) 
+
+
+;; employees-busy? : ListofEmployees -> Boolean
+;; produces true if everyone in the list is busy
+
+(check-expect (employees-busy? EMPLOYEES1) false)
+(check-expect (employees-busy? EMPLOYEES2) true)
+(check-expect (employees-busy? EMPLOYEES3) true)
+(check-expect (employees-busy? MT-EMP) true)
+
+(define (employees-busy? a-loe)
+  (cond
+    [(empty? a-loe) true]
+    [(cons? a-loe) (if (everyone-busy? (first a-loe))
+                       (employees-busy? (rest a-loe))
+                       false)]))
+
+;; on-project : String Employee -> ListofStrings
+;; consumes the name of a project and an employee hierarchy 
+;; and produces a list of names of people who work on the named project
+
+(check-expect (on-project "special" O) (list "Alyssa" "John"))
+(check-expect (on-project "blitz" JAM) (list "Jameel"))
+(check-expect (on-project "web" B) (list "Ben" "Fish" "Chester" "Jandice"))
+(check-expect (on-project " " A) empty)
+
+(define (on-project a-project an-employee)
+  (if (member? a-project (employee-projects an-employee))
+      (cons (employee-name an-employee) (employees-on-project a-project (employee-supervise an-employee)))
+      (employees-on-project a-project (employee-supervise an-employee))))
+
+
+
+;; employees-on-project : String ListofEmployees -> ListofStrings
+;; given a project and a list of employees, give back a list of those
+;; employees names
+
+(check-expect (employees-on-project "special" EMPLOYEES1) (list "Alyssa"))
+(check-expect (employees-on-project "special" EMPLOYEES3) (list "John"))
+
+
+(define (employees-on-project a-project a-loe)
+(cond
+    [(empty? a-loe) empty]
+    [(cons? a-loe) (if (member? a-project (employee-projects (first a-loe)))
+                       (append (on-project a-project (first a-loe))
+                       (employees-on-project a-project (rest a-loe)))
+                       (employees-on-project a-project (rest a-loe)))]))
+            
+                           
+
+
+;;; [Option 1, 40-70 points] Employee Hierarchy - continued
+
+
+;; raise-by-project : String Number Employee -> Employee
+;; consumes a project name, number (percentage), and employee hierarchy 
+;; and produces an employee hierarchy in which every person
+;; on the named project gets a raise of the given percentage
+
+(check-expect (raise-by-project "special" 20 O) (make-employee "Orbelin" 100000 (list "boss activities")
+                                              (list JAM
+                                                    (make-employee "John" 60 (list "special" "database" "management") (list B))
+                                                    (make-employee "Alyssa" 60 (list "special") (list L W)))))
+(check-expect (raise-by-project "special" 50 N) empty)
+
+(define (raise-by-project a-project raise an-employee)
+  empty)
+
+
+
+
+
+
+
