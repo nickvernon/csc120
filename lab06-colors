@@ -1,0 +1,224 @@
+;; Nick Vernon & Orbelin Palacios
+
+(require 2htdp/image)
+
+; 
+; Images in DrRacket are a way of representing pictures (pictorial information) in
+; the computer. Images as we've been working with them are known as bitmap images -- 
+; they are made up of a rectangular grid of pixels ('picture elements'). Each pixel 
+; in the image stores its color, which in our case is defined by three bytes -- that 
+; is, three numbers between 0 and 255. The three numbers represent the amount of red, 
+; green, and blue (RGB) in the color. By combining different amounts of red, green, 
+; and blue light, we can represent pretty much any human-visible color.
+; 
+; DrRacket actually has a predefined structure for representing colors
+; that you can use if you (require 2htdp/image):
+; 
+; (define-struct color (red green blue)
+; ; A Color is (make-color Number Number Number)
+; 
+; Experiment with what colors are produced by combining RGB values in some expressions 
+; such as the following in the interactions window (after 'Run'ning this file):
+; 
+; > (rectangle 30 30 'solid (make-color 55 90 200))
+; > (rectangle 30 30 'solid (make-color 178 190 5))
+; 
+; You should note that the RGB combination (0, 0, 0) represents black and
+; (255, 255, 255) represents white.
+; 
+
+
+
+
+
+; 
+; TASK 1.
+; 
+; Write out a template below for functions that process a single color structure.
+; 
+
+
+(define (color-func a-color)
+  (... a-color ...))
+
+
+
+
+; 
+; Now, how about writing a function that produces a negative image of an picture. 
+; Think about how it would work. For example, if the RGB components of a particular 
+; pixel are (0, 0, 0) what would the opposite color be? It should be (255, 255, 255), 
+; correct? How about if a particular component's value, say red, is 50, what would the 
+; opposite be? A red value of 50 would mean the color is slightly red. The opposite would 
+; be a color that is almost all red. Since the most red value is 255, what would make 
+; sense as the corresponding number for 'almost all red'? How about something like 
+; 255 - 50 = 205? From this discussion, you should be able to figure out that to determine 
+; the opposite of a given color, just subtract the values of each component from 255. 
+; Again, for example if an RGB color is (100, 50, 200), then the negative color would 
+; be (155, 205, 55). 
+; 
+
+
+; 
+; TASK 2.
+; 
+; Start by writing out below a data definition, examples, and template for List-of-colors. 
+; (Don't forget to think about arrows -- there should be two of them.)
+; 
+
+
+
+;; A List-of-colors is either:
+;;  - empty, or
+;;  - (cons Color List-of-colors)
+;; interp. represents a list of colors
+
+; Example:
+(define loc-1
+  empty)
+(define loc-2
+  (cons (make-color 0 0 0) (cons (make-color 2 5 100) (cons (make-color 50 168 205) empty))))
+(define loc-3
+  (cons (make-color 255 255 255) (cons (make-color 54 83 198) (cons (make-color 198 205 104) empty))))
+
+#;  ; template
+(define (loc-func a-loc)
+  (cond
+    [(empty? a-loc) ...]
+    [(cons? a-loc) (... (color-func (first a-loc))
+                        (loc-func (rest a-loc)) ...)]))
+
+
+; 
+; TASK 3.
+; 
+; Develop a function, negate-colors, that consumes a list of colors and produces a 
+; list where every color has been negated. (Your template should indicate that you need 
+;                                           a helper function.)
+
+
+;; negate-colors : List-of-colors -> List-of-colors
+;; consumes a list of colors and produces a list of colors where every color has been negated
+
+(check-expect (negate-colors loc-1) empty)
+(check-expect (negate-colors loc-2) (cons (make-color 255 255 255) (cons (make-color 253 250 155) (cons (make-color 205 87 50) empty))))
+(check-expect (negate-colors loc-3) (cons (make-color 0 0 0) (cons (make-color 201 172 57) (cons (make-color 57 50 151) empty))))
+
+(define (negate-colors a-loc)
+  (cond
+    [(empty? a-loc) empty]
+    [(cons? a-loc) (cons (negate-one (first a-loc))
+                   (negate-colors (rest a-loc)))]))
+
+
+;; negate-one : Color -> Color
+;; consumes a single color and produces the negated color
+
+(check-expect (negate-one (make-color 0 0 0)) (make-color 255 255 255))
+(check-expect (negate-one (make-color 255 255 255)) (make-color 0 0 0))
+(check-expect (negate-one (make-color 25 168 48)) (make-color 230 87 207))
+
+(define (negate-one a-color)
+  (make-color (- 255 (color-red a-color)) (- 255 (color-green a-color)) (- 255 (color-blue a-color))))
+
+
+
+
+
+
+; 
+; TASK 4.
+; 
+; BSL (Beginner Student Language) provides operations for converting to and from images 
+; and lists of colors. Look up the image->color-list, and the corresponding 
+; color-list->bitmap, operation. Fill in the dots in the following function definition:
+; 
+; ; photo-negative : Image -> Image
+; ; produces a photo negative of the given image
+; (check-expect (photo-negative (square 10 "solid" "black")) 
+;               (square 10 "solid" "white"))
+; 
+; (define (photo-negative pic)
+;   (color-list->bitmap ...
+;                       (image-width pic)
+;                       (image-height pic)))
+; 
+; (The function above takes an image, pic, which it should convert to a list of colors,
+;  then apply your negate-colors function to the list, and then convert the resulting
+;  color list into a bitmap of the same width and height as the original pic.)
+; 
+; Once you've got the function working, find an image to apply it to (search
+; Google Images, for example), or use this one:
+; .
+; 
+; 
+
+
+
+; photo-negative : Image -> Image
+; produces a photo negative of the given image
+(check-expect (photo-negative (square 10 "solid" "black")) 
+              (square 10 "solid" "white"))
+
+(define (photo-negative pic)
+  (color-list->bitmap (negate-colors (image->color-list pic))
+                      (image-width pic)
+                      (image-height pic)))
+
+
+
+
+
+
+
+
+; 
+; EXTRA.
+; 
+; Other fun stuff you could try...
+; 
+; CONVERTING TO GRAYSCALE
+; 
+; (See http://en.wikipedia.org/wiki/Grayscale)
+; 
+; The concept is not really hard to understand at all. Basically, a color is gray whenever 
+; the red, green, and blue components all have the same value. Our RGB encoding supports 
+; 256 levels of gray, from black (0, 0, 0) to white (255, 255, 255). Now, given a colored 
+; pixel, how do you determine an equivalent gray value. From [Guzdial, Media Computation, pg. 69]:
+; 
+; "What we want is a sense of the intensity of the color, called the luminance. It turns out 
+; that there is a pretty easy way to compute it: We average the three component colors. Since 
+; there are three components, the formula we're going to use for intensity is:  
+;   (red + green + blue) / 3."
+; 
+; Equivalently, if you get the red, green, and blue color components of a pixel, set the 
+; intensity value to (red * .333) + (green * .333) + (blue * .333). Then make a new color 
+; with the same value for all three RGB components: (intensity, intensity, intensity) and 
+; set the pixels color to that.
+; 
+; Actually, to compute a better notion grayscale -- one that takes into account how the 
+; human eye perceives luminance -- you could weight the values differently in computing 
+; the intensity, as follows:
+; 
+;    luminance = red * 0.299 + green * 0.587 + blue * 0.114
+; 
+; Write a function called grayscale that converts a picture to grayscale.
+; 
+; 
+; 
+; REPLACING COLORS
+; 
+; Write a function that takes a picture like this and swaps the red and blue color components
+; of all pixels that have a dominant red component... apply it to the car picture above...
+; 
+; 
+; 
+; 
+; POSTERIZATION
+; 
+; (See http://en.wikipedia.org/wiki/Posterization)
+; 
+; 
+
+
+
