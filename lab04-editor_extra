@@ -1,0 +1,278 @@
+;; Orbelin Palacios & Nick Vernon
+;; Lab 4 - Graphical Editor 
+
+(require 2htdp/image)
+(require 2htdp/universe)
+(require net/sendurl)
+
+
+;                                                                                          
+;                                                                                          
+;                                                                                          
+;                                                                                          
+;   ;;;;               ;;;     ;               ;               ;                           
+;    ;  ;             ;                              ;                                     
+;    ;   ;   ;;;;   ;;;;;;   ;;;    ;; ;;    ;;;    ;;;;;    ;;;     ;;;;   ;; ;;    ;;;;; 
+;    ;   ;  ;    ;    ;        ;     ;;  ;     ;     ;         ;    ;    ;   ;;  ;  ;    ; 
+;    ;   ;  ;;;;;;    ;        ;     ;   ;     ;     ;         ;    ;    ;   ;   ;   ;;;;  
+;    ;   ;  ;         ;        ;     ;   ;     ;     ;         ;    ;    ;   ;   ;       ; 
+;    ;  ;   ;         ;        ;     ;   ;     ;     ;   ;     ;    ;    ;   ;   ;  ;    ; 
+;   ;;;;     ;;;;;  ;;;;;;   ;;;;;  ;;; ;;;  ;;;;;    ;;;    ;;;;;   ;;;;   ;;; ;;; ;;;;;  
+;                                                                                          
+;                                                                                          
+;                                                                                          
+;                                                                                          
+
+(define-struct editor (pre post popular))
+; An Editor is (make-editor String String String )
+; interp.: (make-editor s t) means the text in the editor is
+; (string-append s t) with the cursor displayed between s and t;
+; popular represents the currently most popular search
+
+
+#;    ; template             
+(define (editor-func an-editor)
+  (... (editor-pre)                 ; String
+       (editor-post)                ; String
+       (editor-popular) ...))       ; String
+
+; examples
+(define EDIT1 (make-editor "hello" "world" "computer science"))     
+(define EDIT2 (make-editor "nick&" "orbelin" "nick&orbelin"))
+(define EDIT3 (make-editor "comp" "" "computer science"))
+(define EDIT4 (make-editor "compi" "" "computer science"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; A KeyEvent is one of:
+;  - "\b"
+;  - "\t"
+;  - "\u007F"
+;  - "\r"
+;  - "left"
+;  - "right"
+;  - one-letter string 
+;  - anything else
+; interp. the result from the key entered              
+
+(define (keyevent-fun  a-ke)
+  (cond 
+    [(key=? a-ke "\b")(...)]
+    [(key=? a-ke "\t")(...)]
+    [(key=? a-ke "\u007F")(...)]
+    [(key=? a-ke "\r") (...)]
+    [(key=? a-ke "left")(...)]
+    [(key=? a-ke "right")(...)]
+    [(= 1 (string-length a-ke))(...)]
+    [else (...)]))
+
+
+
+
+;                                                                                                                                  
+;                                                                                                                                  
+;                                                                                                                                  
+;                                                                                                                                  
+;   ;;; ;;;           ;;                                    ;;;;;;                                     ;                           
+;    ;   ;             ;                                     ;   ;                           ;                                     
+;    ;   ;   ;;;;      ;    ;; ;;    ;;;;   ;; ;;;           ; ;    ;;  ;;  ;; ;;    ;;; ;  ;;;;;    ;;;     ;;;;   ;; ;;    ;;;;; 
+;    ;;;;;  ;    ;     ;     ;;  ;  ;    ;   ;;              ;;;     ;   ;   ;;  ;  ;   ;;   ;         ;    ;    ;   ;;  ;  ;    ; 
+;    ;   ;  ;;;;;;     ;     ;   ;  ;;;;;;   ;               ; ;     ;   ;   ;   ;  ;        ;         ;    ;    ;   ;   ;   ;;;;  
+;    ;   ;  ;          ;     ;   ;  ;        ;               ;       ;   ;   ;   ;  ;        ;         ;    ;    ;   ;   ;       ; 
+;    ;   ;  ;          ;     ;   ;  ;        ;               ;       ;  ;;   ;   ;  ;    ;   ;   ;     ;    ;    ;   ;   ;  ;    ; 
+;   ;;; ;;;  ;;;;;   ;;;;;   ;;;;    ;;;;;  ;;;;;           ;;;       ;; ;; ;;; ;;;  ;;;;     ;;;    ;;;;;   ;;;;   ;;; ;;; ;;;;;  
+;                            ;                                                                                                     
+;                           ;;;                                                                                                    
+;                                                                                                                                  
+;                                                                                                                                  
+
+
+
+; add-popular : Editor -> Image
+; produces text within an empty scene of 200x20 pixels with the rest of the most popular search term in gray
+; if the pre and post portion of the editor are the beginning characters of the popular of the editor
+
+(check-expect (add-popular EDIT3)(overlay/align "left" "center" (beside (text "comp" 16 'black)
+                                                                        (beside (rectangle 1 20 "solid" "red")
+                                                                                (beside (text "" 16 "black")
+                                                                                        (text (substring "computer science" 4 16) 16 "gray"))))
+                                                (empty-scene 200 20)))
+(check-expect (add-popular EDIT4)(overlay/align "left" "center" (beside (text "compi" 16 'black)
+                                                                        (beside (rectangle 1 20 "solid" "red")
+                                                                                (text "" 16 "black")))
+                                                (empty-scene 200 20)))                                               
+(define (add-popular an-editor)
+  (if (and (starts-with? (editor-popular an-editor) (string-append (editor-pre an-editor)(editor-post an-editor)))
+           (> (string-length (string-append (editor-pre an-editor) (editor-post an-editor))) 0))
+      (overlay/align "left" "center"
+                     (beside (text (editor-pre an-editor) 16 'black)
+                             (beside (rectangle 1 20 "solid" "red")
+                                     (beside (text (editor-post an-editor) 16 "black")
+                                             (text (substring (editor-popular an-editor) 
+                                                              (string-length (string-append (editor-pre an-editor)
+                                                                                            (editor-post an-editor)))
+                                                              (string-length (editor-popular an-editor)))
+                                                   16 "gray"))))
+                     (empty-scene 200 20))
+      (overlay/align "left" "center"
+                 (beside (text (editor-pre an-editor) 16 'black)
+                         (beside (rectangle 1 20 "solid" "red")
+                                 (text (editor-post an-editor) 16 "black")
+                                 ))
+                 (empty-scene 200 20))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; starts-with? : String String -> Boolean
+; determines if one string is a prefix of another
+
+(check-expect (starts-with? "orbelin" "orb") true)
+(check-expect (starts-with? "hello" "pre") false)
+(check-expect (starts-with? "pre" "prefix") false)
+(check-expect (starts-with? "" "") true)
+(check-expect (starts-with? "hi" "hi") true)
+
+(define (starts-with? one two) 
+  (if (>= (string-length one) (string-length two))
+      (string-contains? (substring one 0 (string-length two)) two)
+      false))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; editor->string : Editor -> String
+; produces a complete string in the editor- appending the pre and post field contents
+
+(define (editor->string an-editor)
+    (string-append (editor-pre an-editor) (editor-post an-editor)))
+
+
+
+;                                                                          
+;                                                                          
+;                                                                          
+;                                                                          
+;   ;;;;;;                                     ;                           
+;    ;   ;                           ;                                     
+;    ; ;    ;;  ;;  ;; ;;    ;;; ;  ;;;;;    ;;;     ;;;;   ;; ;;    ;;;;; 
+;    ;;;     ;   ;   ;;  ;  ;   ;;   ;         ;    ;    ;   ;;  ;  ;    ; 
+;    ; ;     ;   ;   ;   ;  ;        ;         ;    ;    ;   ;   ;   ;;;;  
+;    ;       ;   ;   ;   ;  ;        ;         ;    ;    ;   ;   ;       ; 
+;    ;       ;  ;;   ;   ;  ;    ;   ;   ;     ;    ;    ;   ;   ;  ;    ; 
+;   ;;;       ;; ;; ;;; ;;;  ;;;;     ;;;    ;;;;;   ;;;;   ;;; ;;; ;;;;;  
+;                                                                          
+;                                                                          
+;                                                                          
+;                                                                          
+
+
+
+;; render : Editor -> Image
+;; produces text within an empty scene of 200x20 pixels
+
+(check-expect (render EDIT1)(overlay/align "left" "center"
+                             (beside (text "hello" 16 'black)
+                                     (beside (rectangle 1 20 "solid" "red")
+                                             (text "world" 16 "black")
+                                             ))
+                             (empty-scene 200 20)))
+(check-expect (render EDIT2)(overlay/align "left" "center"
+                             (beside (text "nick&" 16 'black)
+                                     (beside (rectangle 1 20 "solid" "red")
+                                             (text "orbelin" 16 "black")
+                                             ))
+                             (empty-scene 200 20)))
+ 
+(define (render an-editor) 
+      (if (editor? an-editor)
+          (add-popular an-editor)
+          an-editor))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; edit : Editor KeyEvent -> Editor
+;; adds a single-character KeyEvent to the end of the pre field of the given editor 
+;; unless the keyevent is the backspace. If it is the backspace, it deletes the character
+;; immediately to the left of the cursor if there are any. If the key event left is input
+;; the cursor moves left of the character immediately to its left if any, and if the key event right
+;; is input the cursor moves right of the character immediately to its right if any. The tab key
+;; completes the most popular term if applicable and the enter key sends the text to google search
+
+(check-expect (edit EDIT1 "a") (make-editor (string-append "hello" "a") "world" "computer science"))
+(check-expect (edit EDIT1 "b") (make-editor (string-append "hello" "b") "world" "computer science"))
+(check-expect (edit EDIT1 "c") (make-editor (string-append "hello" "c") "world" "computer science"))
+(check-expect (edit EDIT1 "d") (make-editor (string-append "hello" "d") "world" "computer science"))
+(check-expect (edit EDIT1 "e") (make-editor (string-append "hello" "e") "world" "computer science"))
+(check-expect (edit EDIT1 "f") (make-editor (string-append "hello" "f") "world" "computer science"))
+(check-expect (edit EDIT1 "g") (make-editor (string-append "hello" "g") "world" "computer science"))
+(check-expect (edit EDIT1 "h") (make-editor (string-append "hello" "h") "world" "computer science"))
+(check-expect (edit EDIT1 "i") (make-editor (string-append "hello" "i") "world" "computer science"))
+(check-expect (edit EDIT1 "j") (make-editor (string-append "hello" "j") "world" "computer science"))
+(check-expect (edit EDIT1 "k") (make-editor (string-append "hello" "k") "world" "computer science"))
+(check-expect (edit EDIT1 "\b") (make-editor "hell" "world" "computer science"))
+(check-expect (edit EDIT1 "\t") EDIT1)
+(check-expect (edit EDIT1 "\u007F") EDIT1)
+(check-expect (edit (make-editor "" "world" "popular") "\b") (make-editor "" "world" "popular"))
+(check-expect (edit EDIT1 "left") (make-editor "hell" "oworld" "computer science"))
+(check-expect (edit (make-editor "" "helloworld" "popular") "left") (make-editor "" "helloworld" "popular"))
+(check-expect (edit EDIT1 "right") (make-editor "hellow" "orld" "computer science"))
+(check-expect (edit (make-editor "helloworld" "" "!") "right") (make-editor "helloworld" "" "!"))
+(check-expect (edit EDIT1 "add") EDIT1)
+(check-expect (edit EDIT1 "jk") EDIT1)
+
+(define (edit an-editor a-ke) 
+      (cond
+        [(and (key-event? a-ke)(key=? "\b" a-ke)) 
+         (make-editor (if (> (string-length (editor-pre an-editor)) 0)
+                          (substring (editor-pre an-editor) 0 (- (string-length (editor-pre an-editor)) 1))
+                          (editor-pre an-editor))
+                      (editor-post an-editor) (editor-popular an-editor))
+         ]
+        [(and (key-event? a-ke)(and (key=? "\t" a-ke) (< (image-width (text (string-append (editor-pre an-editor) a-ke (editor-post an-editor)) 16 "black")) 200)))
+        (if (and (starts-with? (editor-popular an-editor)(string-append (editor-pre an-editor)
+                                                             (editor-post an-editor)))
+           (> (string-length (string-append (editor-pre an-editor) (editor-post an-editor))) 0))
+            (make-editor (string-append (editor-pre an-editor) (editor-post an-editor) (substring (editor-popular an-editor) (string-length (string-append (editor-pre an-editor) (editor-post an-editor))) (string-length (editor-popular an-editor)))) (editor-post an-editor) (editor-popular an-editor))
+            an-editor)]
+        [(and (key-event? a-ke)(key=? "\u007F" a-ke)) an-editor]
+        [(and (key-event? a-ke)(key=? "\r" a-ke)) (stop-with (make-editor (editor-pre an-editor) (editor-post an-editor) (editor-popular an-editor)))]
+        [(and (key-event? a-ke)(key=? "left" a-ke)) 
+         (make-editor (if (> (string-length (editor-pre an-editor)) 0)
+                          (substring (editor-pre an-editor) 0 (- (string-length (editor-pre an-editor)) 1))
+                          (editor-pre an-editor))
+                      (if (> (string-length (editor-pre an-editor)) 0)
+                          (string-append (substring (editor-pre an-editor) (- (string-length (editor-pre an-editor)) 1) (string-length (editor-pre an-editor))) (editor-post an-editor))
+                          (editor-post an-editor))
+                      (editor-popular an-editor))]
+        [(and (key-event? a-ke)(key=? "right" a-ke)) 
+         (make-editor (if (> (string-length (editor-post an-editor)) 0)
+                          (string-append (editor-pre an-editor) (substring (editor-post an-editor) 0 1))
+                          (editor-pre an-editor))
+                      (if (> (string-length (editor-post an-editor)) 0)
+                          (substring (editor-post an-editor) 1 (string-length (editor-post an-editor)))
+                          (editor-post an-editor))
+                      (editor-popular an-editor))] 
+        [(and (key-event? a-ke) (and (= 1 (string-length a-ke)) (< (image-width (text (string-append (editor-pre an-editor) a-ke (editor-post an-editor)) 16 "black")) 200)))
+         (make-editor (string-append (editor-pre an-editor) a-ke) (editor-post an-editor) (editor-popular an-editor))]
+        [else an-editor]
+        ))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; run : Editor -> Image
+;; consumes the pre and post field of an editor and launches an interactive editor
+
+
+(define (run an-editor)
+  (send-url
+   (string-append
+    "https://www.google.com/#q="
+    (editor->string
+     (big-bang an-editor
+            (to-draw render)
+            (on-key edit)
+            )))))
