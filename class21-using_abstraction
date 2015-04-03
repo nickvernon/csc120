@@ -1,0 +1,154 @@
+;; Nick Vernon
+;; IN-CLASS EXERCISES (3/6/2015) -
+;; USING ABSTRACTIONS
+
+(require 2htdp/image)
+
+
+
+;                                                           
+; TASK 1.
+; 
+; The three definitions below are functions you have
+; previously developed in lab/homework. REWRITE the functions
+; so that they use the built-in list processing functions
+; instead of the template. You may wish to refer to the
+; table of ISL's built-in abstract functions for list-processing:
+; 
+;   http://www.ccs.neu.edu/home/matthias/HtDP2e/part_three.html#(part._ch~3a3use) 
+; 
+
+
+
+;;***************************************
+;; got-milk? : [Listof String] -> Boolean
+;; determine if the given list contains the string "milk"
+
+(check-expect (got-milk? empty) 
+              false)
+(check-expect (got-milk? (list "flour" "sugar"))
+              false)
+(check-expect (got-milk? (list "milk" "flour" "sugar"))
+              true)
+(check-expect (got-milk? (list "flour" "sugar" "milk" "eggs" "juice"))
+              true)
+
+(define (got-milk? a-los)
+  (ormap milk? a-los))
+
+
+;; milk? : String -> Boolean
+;; determine if given string is "milk"
+(check-expect (milk? "eggs") false)
+(check-expect (milk? "milk") true)
+
+(define (milk? s)
+  (string=? s "milk"))
+
+
+;;********************************************
+;; go-bad : [Listof String] -> [Listof String]
+;; replaces every occurrence of "milk" in the given list with "yogurt"
+
+(check-expect (go-bad empty) 
+              empty)
+(check-expect (go-bad (list "flour" "sugar"))
+              (list "flour" "sugar"))
+(check-expect (go-bad (list "milk" "flour" "sugar"))
+              (list "yogurt" "flour" "sugar"))
+(check-expect (go-bad (list "eggs" "milk" "flour" "sugar"))
+              (list "eggs" "yogurt" "flour" "sugar"))
+
+(define (go-bad a-los)
+  (map milk->yogurt a-los))
+  
+;; milk->yogurt
+;; replaces string "milk" with yogurt
+  
+(define (milk->yogurt s)
+  (if (string=? s "milk")
+      "yogurt"
+      s))
+  
+;  Hint: use map 
+
+
+
+;;********************************************
+;; acronym : [Listof String] -> String
+;; builds an acronym out of *only the capitalized strings* in the given list
+
+(define usa (cons "United" (cons "States" (cons "of" (cons "America" empty)))))
+(define light (cons "Light" (cons "Amplification" (cons "by" (cons "Stimulated"
+                                                                   (cons "Emission"
+                                                                         (cons "of"
+                                                                               (cons "Radiation" empty))))))))
+(check-expect (acronym empty) "")
+(check-expect (acronym usa) "USA")
+(check-expect (acronym  light) "LASER")
+
+(define (acronym a-los)
+  (implode (filter string-upper-case? (first-letter a-los))))
+  
+  #;(cond
+    [(empty? a-los) ""]
+    [(cons? a-los)
+     (if (string-upper-case? (string-ith (first a-los) 0)) 
+         (string-append (string-ith (first a-los) 0) (acronym (rest a-los)))
+         (acronym (rest a-los)))])
+
+;  Hint: use map, filter, implode 
+
+
+;; first-letter
+
+(define (first-letter a-los)
+  (cond
+    [(empty? a-los) empty]
+    [(cons? a-los) (cons (substring (first a-los) 0 1)
+                   (first-letter (rest a-los)))]))
+
+;                                                           
+; TASK 2.
+; 
+; Design a function, `between` that takes two numbers (say 
+;  "low" and "high") and returns a list of all numbers from 
+;  low to high-1 (that's 'high minus one'). 
+;  Use `build-list`. 
+; 
+;  Hint: The first argument to build-list is the length 
+;  of the list that you want to build. The second argument 
+;  is a function that takes an argument i and returns 
+;  the item that you want to be at position i in the list 
+;  (starting from 0).
+; 
+;  Additional HINT: You probably won't be able to complete
+;  this function definition. Explain to me why not...
+; 
+
+
+;; between : 
+;; takes two numbers and returns a list off all numbers from
+;; the smallest number to the largest minus one
+
+(define (between low high)
+  (local [
+          (define (add1-to-low i)
+            (+ low i))
+          ]
+    (build-list (- high low) add1-to-low)))
+
+
+
+
+;                                                            
+; TASK 3.
+; 
+; Using your function `between`, design the function "evens" 
+; that takes two numbers, and returns a list of all the
+; even numbers in that range. Use `filter`.
+; 
+
+
+
+
