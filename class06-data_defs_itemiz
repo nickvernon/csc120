@@ -1,0 +1,210 @@
+;; Nick Vernon
+;; IN-CLASS EXERCISES (1/28/2015) - DATA DEFINITIONS: ITEMIZATIONS
+
+(require 2htdp/image)
+(require 2htdp/universe)
+
+;                                                                     
+; This is a helper function that you will use later...
+; 
+
+
+(define BULB-SIZE 25)    ; radius of the bulbs
+(define LIGHT-WIDTH (+ 6 (* 2 BULB-SIZE)))
+(define LIGHT-HEIGHT (+ 10 (* 6 BULB-SIZE)))
+(define LIGHT-FRAME (rectangle LIGHT-WIDTH LIGHT-HEIGHT "outline" "black"))
+
+;; bulb : String -> Image
+;; produces a bulb of the given color
+(check-expect (bulb "red") (circle BULB-SIZE "solid" "red"))
+
+(define (bulb c) 
+  (circle BULB-SIZE "solid" c))
+
+
+
+
+;                                                                     
+; TASK:
+; 
+; Complete the following data definition by providing a template
+; 
+
+
+;; A TLColor is one of:                   ; types comment
+;;  - "red"                               ;
+;;  - "yellow"                            ;
+;;  - "green"                             ;
+;; interp. the color of a traffic light   ; interpretation
+
+; examples are redundant for enumerations
+
+; template:
+
+(define (TLColor-func a-tl)
+  (cond
+    [(string=? a-tl "red") (...)]
+    [(string=? a-tl "yellow") (...)]
+    [(string=? a-tl "green") (...)]))
+
+
+
+;                                                                     
+; TASK:
+; 
+; Use the data definition and template above to complete the
+; following function definition. Remember to follow all steps of
+; the HtDF recipe, in order.
+; 
+
+
+;; next-color : TLColor -> TLColor
+;; produce the next color of a traffic light given its current color
+
+;(define (next-color a-tlc) a-tlc)   ; stub
+
+; <use template from TLColor>
+
+(check-expect (next-color "red")    "green")
+(check-expect (next-color "yellow") "red")
+(check-expect (next-color "green")  "yellow")
+
+(define (next-color a-tlc)
+  (cond
+    [(string=? a-tlc "red") "green"]
+    [(string=? a-tlc "yellow") "red"]
+    [(string=? a-tlc "green") "yellow"]))
+
+
+
+;                                                                     
+; TASK:
+; 
+; Now, design a function, tl-image, which produces an image of
+; a traffic light, given its current color. Use the bulb helper
+; function that is defined above.
+; 
+; Run this file and paste the following in the Interactions area
+; to see how to produce images of the traffic light.
+; 
+; (overlay
+;  (above (bulb "red") (bulb "black") (bulb "black"))
+;  LIGHT-FRAME)
+; 
+; (overlay
+;  (above (bulb "black") (bulb "yellow") (bulb "black"))
+;  LIGHT-FRAME)
+; 
+; (overlay
+;  (above (bulb "black") (bulb "black") (bulb "green"))
+;  LIGHT-FRAME)
+; 
+; 
+
+
+
+;; tl-image : TLColor -> Image
+;; produces an image of traffic light with bulb of the given color lit
+
+;(define (tl-image a-tlc) LIGHT-FRAME)   ; stub
+
+(check-expect (tl-image "red") (overlay (above (bulb "black") (bulb "black") (bulb "green"))
+                                     LIGHT-FRAME))
+(check-expect (tl-image "yellow") (overlay (above (bulb "red") (bulb "black") (bulb "black"))
+                                      LIGHT-FRAME))
+(check-expect (tl-image "green") (overlay (above (bulb "black") (bulb "yellow") (bulb "black"))
+                                      LIGHT-FRAME))
+
+
+#;(define (tl-image a-tlc)
+  (cond
+    [(string=? a-tlc "red") (...)]
+    [(string=? a-tlc "yellow") (...)]
+    [(string=? a-tlc "green") (...)]))
+
+(define (tl-image a-tlc)
+  (cond
+    [(string=? a-tlc "red") (overlay (above (bulb "black") (bulb "black") (bulb "green"))
+                                     LIGHT-FRAME)]
+    [(string=? a-tlc "yellow") (overlay (above (bulb "red") (bulb "black") (bulb "black"))
+                                     LIGHT-FRAME)]
+    [(string=? a-tlc "green") (overlay (above (bulb "black") (bulb "yellow") (bulb "black"))
+                                     LIGHT-FRAME)]))
+
+(tl-image "red")
+(tl-image "yellow")
+(tl-image "green")
+
+
+;                                                                     
+; TASK:
+; 
+; Now, you're ready to put your traffic light into action. Add
+; (require 2htdp/universe) to the top of this file and uncomment
+; the function definition below. It uses the two functions you've
+; defined above to launch an animation of a traffic light!
+; 
+
+
+;; run-traffic : TLColor -> TLColor
+;; starts a traffic light running, initially the given color
+
+; <no examples/tests because this is an interactive function>
+
+(define (run-traffic a-tlc)
+  (big-bang a-tlc
+            (on-tick next-color 2)
+            (to-draw tl-image)))
+
+
+(run-traffic "green")
+
+
+
+;; =================================================================
+;; =================================================================
+;; =================================================================
+
+;; EXTRA
+
+;                                                                   
+; Here's a definition of grades from the screencast on itemizations:
+; 
+
+
+;; A Grade is one of:
+;;   - a number in [0, 100], 
+;;   - "missing", or
+;;   - "excused"
+;; interp. an assignment grade in a course
+
+; examples
+(define G1  95)
+(define G2  78)
+(define G3  "missing")
+
+#;
+(define (grade-func a-grade)
+  (cond 
+    [(number? a-grade) (... a-grade ...)]
+    [(string=? a-grade "missing")  ...]
+    [(string=? a-grade "excused")  ...]))
+
+
+
+;                                                                   
+; TASK:
+; 
+; Use the data definition above to design the following functions:
+; 
+; - bump-up/10 : consumes a grade and raises it by 10 points,
+;                if possible, to a maximum of 100
+;                
+; - is-passing? : determine if a grade is above 60 or excused
+; 
+; - include-in-avg? : determine whether to include given
+;              grade in calculating an average for the course
+; 
+
+
+
