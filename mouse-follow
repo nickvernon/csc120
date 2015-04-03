@@ -1,0 +1,42 @@
+
+(require 2htdp/image)
+(require 2htdp/universe)
+
+(define SMILEY-FACE .)
+(define BACKGROUND (empty-scene 500 500))
+
+
+; The state of the world is represented by a Posn
+
+
+; draw-smiley : Posn -> Image
+; produces a scene with smiley face at the given posn
+
+(check-expect (draw-smiley (make-posn 40 20))
+              (place-image SMILEY-FACE 40 20 BACKGROUND))
+
+
+(define (draw-smiley a-posn)
+  (place-image SMILEY-FACE (posn-x a-posn) (posn-y a-posn) BACKGROUND))
+  
+
+; handle-mouse : Posn Number Number MouseEvent -> Posn
+; update the posn of the world if the mouse is moved
+
+(check-expect (handle-mouse (make-posn 40 20) 13 42 "button-up")
+              (make-posn 40 20))
+(check-expect (handle-mouse (make-posn 40 20) 13 42 "move")
+              (make-posn 13 42))
+
+(define (handle-mouse a-posn x y a-mev)
+  (cond 
+    [(mouse=? a-mev "move") (make-posn x y)]
+    [else a-posn]))
+
+
+; run-smiley : Posn -> Posn
+; runs a interactive program where a smiley face follows the mouse
+(define (run-smiley a-posn)
+  (big-bang a-posn
+            (to-draw draw-smiley)
+            (on-mouse handle-mouse)))
