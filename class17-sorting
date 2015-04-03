@@ -1,0 +1,215 @@
+;; Nick Vernon
+;; IN-CLASS EXERCISES (2/25/2015) -
+;; SORTING ; HELPER (AUXILIARY) FUNCTIONS
+
+(require 2htdp/image)
+
+;                                                         
+;                                                         
+;     ;;;                        ;                ;       
+;    ;   ;                       ;                ;       
+;   ;     ;   ;;;   ; ;;    ;;; ;;;  ;;;   ; ;;  ;;;  ;;; 
+;   ;        ;   ;  ;;  ;  ;   ; ;  ;   ;  ;;  ;  ;  ;   ;
+;   ;        ;   ;  ;   ;  ;     ;      ;  ;   ;  ;  ;    
+;   ;        ;   ;  ;   ;   ;;;  ;   ;;;;  ;   ;  ;   ;;; 
+;   ;     ;  ;   ;  ;   ;      ; ;  ;   ;  ;   ;  ;      ;
+;    ;   ;   ;   ;  ;   ;  ;   ; ;  ;  ;;  ;   ;  ;  ;   ;
+;     ;;;     ;;;   ;   ;   ;;;  ;;  ;; ;  ;   ;  ;;  ;;; 
+;                                                         
+;                                                         
+;                                                         
+
+
+(define BLANK (square 0 "solid" "white"))
+
+(define I1 (rectangle 10 20 "solid" "blue"))   ; area: 200
+(define I2 (rectangle 20 30 "solid" "red"))    ; area: 600
+(define I3 (rectangle 30 40 "solid" "green"))  ; area: 1200
+
+
+
+
+;                                                        
+;                                                        
+;   ;;;;;           ;            ;;;;;            ;;     
+;   ;    ;          ;            ;    ;          ;       
+;   ;     ;   ;;;  ;;;  ;;;      ;     ;   ;;;  ;;;  ;;; 
+;   ;     ;  ;   ;  ;  ;   ;     ;     ;  ;   ;  ;  ;   ;
+;   ;     ;      ;  ;      ;     ;     ;  ;   ;  ;  ;    
+;   ;     ;   ;;;;  ;   ;;;;     ;     ;  ;;;;;  ;   ;;; 
+;   ;     ;  ;   ;  ;  ;   ;     ;     ;  ;      ;      ;
+;   ;    ;   ;  ;;  ;  ;  ;;     ;    ;   ;   ;  ;  ;   ;
+;   ;;;;;     ;; ;  ;;  ;; ;     ;;;;;     ;;;   ;   ;;; 
+;                                                        
+;                                                        
+;                                                        
+
+;; A List-of-images is one of:
+;;  - empty
+;;  - (cons Image List-of-images)
+;; interp. an arbitrary number of images
+
+(define LOI1 empty)
+(define LOI2 (cons I1
+                   (cons I2
+                         empty)))
+
+; 
+; TASK 1.
+; 
+; Write out the template for List-of-images.    
+; 
+
+
+#;(define (loi-fun a-loi ...)
+  (cond [(empty? a-loi) ...]
+        [(cons? a-loi) (... (first a-loi) ...
+                            (loi-func (rest a-loi)...))]))
+
+
+
+
+;                                                       
+;                                                       
+;   ;;;;;                      ;  ;                     
+;   ;                          ;                        
+;   ;      ;   ;  ; ;;    ;;  ;;; ;   ;;;   ; ;;    ;;; 
+;   ;      ;   ;  ;;  ;  ;  ;  ;  ;  ;   ;  ;;  ;  ;   ;
+;   ;;;;   ;   ;  ;   ;  ;     ;  ;  ;   ;  ;   ;  ;    
+;   ;      ;   ;  ;   ;  ;     ;  ;  ;   ;  ;   ;   ;;; 
+;   ;      ;   ;  ;   ;  ;     ;  ;  ;   ;  ;   ;      ;
+;   ;      ;  ;;  ;   ;  ;  ;  ;  ;  ;   ;  ;   ;  ;   ;
+;   ;       ;; ;  ;   ;   ;;   ;; ;   ;;;   ;   ;   ;;; 
+;                                                       
+;                                                       
+;                                                       
+
+
+
+; 
+; TASK 2.
+; 
+; Design a function, `image-area-greater?`, that takes two  
+; images and determines if the area of the first is more
+; than the second.
+; 
+; Remember, whenever you find your function definition needs   
+; to accomplish some subtask, it is good to introduce a 
+; helper function.
+; 
+
+
+;; image-area-greater? : Image Image -> Boolean
+;; given two images, determine if the area of the first is more
+;; than the area of the second
+
+(check-expect (image-area-greater? I2 I3) false)
+(check-expect (image-area-greater? I2 I1) true)
+(check-expect (image-area-greater? I3 I2) true)
+
+(define (image-area-greater? an-img1 an-img2)
+  (if (> (find-area an-img1) (find-area an-img2))
+      true
+      false))
+  
+
+
+;; find-area: Image -> Number
+;; given an image, determine that images area
+   
+(check-expect (find-area I1) 200)
+(check-expect (find-area I2) 600)
+(check-expect (find-area I3) 1200)
+(check-expect (find-area (rectangle 10 60 "solid" "blue")) 600)
+
+(define (find-area an-img)
+  (* (image-width an-img) (image-height an-img)))
+
+
+
+; 
+; TASK 3.
+; 
+; Design a function called `sort-images/area>` that consumes  
+; an arbitrary number of images and produces them 
+; sorted in decreasing order of size (area). 
+;     
+
+
+;; sort-images/area> : LOI -> LOI
+;; given list of images, produce them back sorted in decreasing
+;; order of size (area)
+
+(check-expect (sort-images/area> LOI1) empty)
+(check-expect (sort-images/area> LOI2) (cons I2 (cons I1 empty)))
+(check-expect (sort-images/area> (cons (rectangle 10 10 "solid" "purple")
+                                       (cons (rectangle 10 30 "solid" "yellow")
+                                             (cons (rectangle 10 60 "solid" "red") empty))))
+              (cons (rectangle 10 60 "solid" "purple")
+                                       (cons (rectangle 10 30 "solid" "yellow")
+                                             (cons (rectangle 10 10 "solid" "red") empty))))
+
+(define (sort-images/area> a-loi)
+  (cond [(empty? a-loi) empty]
+        [(cons? a-loi) (insert-image> (first a-loi)
+                            (sort-images/area> (rest a-loi)))]))
+
+;; insert-image> Image List-of-images -> List-of-images
+;; produces a list of images with the given image in its proper position
+;; in the given list of *sorted* images
+
+(check-expect (insert-image> I1 empty) (cons I1 empty))
+(check-expect (insert-image> I1 (list (rectangle 10 10 "solid" "purple")
+                                (rectangle 10 30 "solid" "yellow")
+                                (rectangle 10 60 "solid" "red"))) 
+                          (list (rectangle 10 60 "solid" "purple")
+                                (rectangle 10 30 "solid" "yellow")
+                                I1
+                                (rectangle 10 10 "solid" "red")))
+(check-expect (insert-image> I3 (list I2 I1)) (list I3 I2 I1))
+
+(define (insert-image> an-img a-loi)
+  (cond [(empty? a-loi) (cons an-img empty)]
+        [(cons? a-loi) (if (>= (find-area an-img) (find-area (first a-loi)))
+                           (cons an-img a-loi)
+                           (cons (first a-loi) (insert-image> an-img (rest a-loi))))]))
+
+
+
+
+
+
+
+
+
+
+
+
+
+;                                                                 
+;                                                                 
+;                                                                 
+;                                                                 
+;                                                                 
+;  ;;;;;; ;;;;;; ;;;;;; ;;;;;; ;;;;;; ;;;;;; ;;;;;; ;;;;;; ;;;;;; 
+;                                                                 
+;                                                                 
+;  ;;;;;; ;;;;;; ;;;;;; ;;;;;; ;;;;;; ;;;;;; ;;;;;; ;;;;;; ;;;;;; 
+;                                                                 
+;                                                                 
+;                                                                 
+;                                                                 
+;                                                                 
+
+; 
+; EXTRA.
+; 
+; Develop a function, `sort-strings`, that sorts a list of strings  
+; (such as the names of animals) in alphabetical order.
+; 
+; How does sort-strings compare to sort-images/area> ?
+; 
+
+
+
+
