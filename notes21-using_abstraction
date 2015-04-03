@@ -1,0 +1,641 @@
+
+
+;                                                           
+; 
+; Lecture 22
+; Using Abstractions
+; 
+; .
+; "Being abstract is something profoundly different from 
+; being vague... The purpose of abstraction is not to be vague, 
+; but to create a new semantic level in which one can be 
+; absolutely precise."
+;                                     - E. Dijkstra (1930-2002)
+; 
+
+
+
+;;==============================================================
+
+;; What is "Abstraction"?
+
+
+; 
+;  Abstraction is the process of finding similarities or common 
+;  aspects, and forgetting unimportant differences.
+; 
+;  e.g. writing a function: The differences in parameter *values*
+;       are forgotten, and the similarity is captured in the 
+;       function body.
+;       
+;  We've also now seen that we can not only abstract over *values*
+;  in a function definition - we can also abstract over other
+;  *functions* used by that function. (In fact, as we will see, 
+;  functions _are_ values in ISL.)
+;  
+;  
+;  "Abstraction" is an essential human concept -
+;  http://en.wikipedia.org/wiki/Abstraction
+;  
+;  "For all the attributes that humans share with other animals, 
+;  there is a trait that clearly sets us apart: our reliance on 
+;  symbolism."
+;  http://www.scientificamerican.com/article.cfm?id=ancient-engravings-push-b
+;  
+; 
+
+
+
+; 
+; Functional abstraction in a programming language is the process of 
+; creating abstract functions such as `map' and `filter'.
+; 
+;   - It reduces code size
+;   - Avoid copy-paste
+;   - Bugs fixed/improvements in one place affect many uses
+;   - Eases understanding by making the use of a common pattern
+;     recognizable
+;   - *Tackles Complexity*
+; 
+;   
+; Functions like `map' and `filter' are called HIGHER-ORDER FUNCTIONS
+; because they take other functions are arguments (inputs). Many
+; programming languages provide the ability to do this to one 
+; degree or another, but few/none make it as easy and elegant as
+; Racket/Scheme/Lisp, from which your BSL/ISL languages are descended.  
+; 
+
+
+
+;;==============================================================
+;; 
+;; SOME SETUP... 
+
+; fib : Nat -> Nat
+; produces the n'th Fibonacci number, (fib 0) = 0, (fib 1) = 1
+(check-expect (fib 0) 0)
+(check-expect (fib 1) 1)
+(check-expect (fib 2) 1)
+(check-expect (fib 3) 2)
+(check-expect (fib 4) 3)
+(check-expect (fib 5) 5)
+
+(define (fib n)
+  (fib-forward n 0 1))
+
+; fib-forward : Nat Nat Nat
+; produces the n'th Fibonacci number after f1, where f1 and 
+; f2 are consecutive numbers in the Fibonacci sequence
+(check-expect (fib-forward 0 3 5) 3)
+(check-expect (fib-forward 1 3 5) 5)
+(check-expect (fib-forward 2 3 5) 8)
+(check-expect (fib-forward 2 5 8) 13)
+(check-expect (fib-forward 1 8 13) 13)
+
+(define (fib-forward n f1 f2)
+  (cond
+    [(zero? n) f1]
+    [(positive? n)
+     (fib-forward (sub1 n) f2 (+ f1 f2))]))
+
+
+;                                                           
+; 
+; The last lecture, we talked about a "fib" function (above).
+; (fib N) produces the N'th Fibonacci number, where
+; (fib 0) = 0 and (fib 1) = 1.
+; 
+; What if you wanted a list of the first 100 Fibonacci 
+; numbers? How do you do that?
+; 
+; Possibilities:
+; 
+; 1) Start typing:  
+;    (list (fib 0) (fib 1) (fib 2) (fib 3) ... )
+;   - A lot of typing
+; 
+; 2) Write a function:
+;    ; fib-list : ??? -> (Listof Number)
+;    (define (fib-list ???) ???)
+; 
+;   - What do you base it on? What template to use?
+;     > Could write a general function that produces a list
+;       of the first n Fibonacci numbers - that would be
+;       based on the template for Nat (from last lecture).
+; 
+; 3) Use an existing function...
+; 
+
+
+
+
+
+
+;                                                           
+; "BUILT-IN" ABSTRACTIONS
+; 
+; Recall, we developed some useful abstractions based on
+; sets of very similar functions we had written to process
+; different types of lists. 
+; 
+; Among them were "map" and "filter". 
+; 
+; These abstracted (or, generalized) functions consumed a 
+; function as well as a list and used the function to do 
+; something with every element in the list.
+; 
+;   > In other words, these "loop" over the elements in
+;     a list, performing some operation.
+; 
+;   > Once you have such abstractions or looping 
+;     constructs, you should use them whenever possible. 
+; 
+; 
+; ISL (Intermediate Student language) provides a number
+; of built-in abstract functions for processing natural 
+; numbers and lists. Today we'll go over some of them. A
+; useful list is given in Figure 50:
+; http://www.ccs.neu.edu/home/matthias/HtDP2e/htdp2e-part3.html#(counter._(figure._fig~3ascheme-ho-list))
+; 
+
+
+
+;                                                           
+; *Selected* ISL Abstract Functions for List-Processing
+; 
+; 
+; ; build-list : Nat (Nat -> X) -> [List-of X]
+; ; construct a list by applying f to 0, 1, ..., (sub1 n)
+; ;    (build-list f n) = (list (f 0) ... (f (- n 1)))
+; (define (build-list n f) ...)
+;  
+; 
+; 
+; ; filter : (X -> Boolean) [List-of X] -> [List-of X]
+; ; produce a list from all those items on alox for which p holds
+; (define (filter p alox) ...)
+;  
+; 
+; 
+; ; sort : [List-of X] (X X -> Boolean) -> [List-of X]
+; ; produce a variant of alox that is sorted according to cmp
+; (define (sort alox cmp) ...)
+;  
+; 
+; 
+; 
+; ; map : (X -> Y) [List-of X] -> [List-of Y]
+; ; construct a list by applying f to each item on alox
+; ;    (map f (list x-1 ... x-n)) = (list (f x-1) ... (f x-n))
+; (define (map f alox) ...)
+;  
+; 
+; 
+; 
+; ; andmap : (X -> Boolean) [List-of X] -> Boolean
+; ; determine whether p holds for every item on alox
+; ;    (andmap p (list x-1 ... x-n)) = (and (p x-1) ... (p x-n))
+; (define (andmap p alox) ...)
+;  
+; 
+; ; ormap : (X -> Boolean) [List-of X] -> Boolean
+; ; determine whether p holds for at least one item on alox
+; ;    (ormap p (list x-1 ... x-n)) = (or (p x-1) ... (p x-n))
+; (define (ormap p alox) ...)
+; 
+; 
+
+
+
+;                                                           
+; The key to using these is to have a good sense of what
+; each does, and be able to understand the nature of the
+; inputs they consume by reading their signatures and 
+; unifying it with a concrete context you are working with.
+; 
+; Let's take the first one, 
+; 
+; ; build-list : Nat (Nat -> X) -> [List-of X]
+; ; construct a list by applying f to 0, 1, ..., (sub1 n)
+; ;    (build-list f n) = (list (f 0) ... (f (- n 1)))
+; (define (build-list n f) ...)
+; 
+; - The purpose statement suggests it builds a list of  n
+;   items. Each item in the list comes from applying the
+;   function  f  to the index of the item (0, 1, 2, ...).
+;   
+; Consider the following:
+;    (build-list 10 add1)
+;                /    \
+;       Nat ----/      \------ (Nat -> Nat)
+;                                      /
+;                 unifies with the X -/
+;                 in the signature    \
+;                                      \--------------v
+; Thus, we expect the expression to produce [List-of Nat]
+; and indeed, it will produce:
+; 
+;    (list  (add1 0) (add1 1) (add1 2) ... (add1 9))
+; or
+;    (list 1 2 3 4 5 6 7 8 9 10)
+;    
+; 
+; ;;=======================================================
+; 
+; SO, returning to our Fibonacci sequence, if we want a list
+; of the first 100 Fibonacci numbers, we could try using
+; build-list:
+; 
+;    (build-list 100 ...)
+;    
+; What goes in ... ?  Well, the result we're ultimately
+; looking for is a [List-of Nat]. build-list produces in
+; general a [List-of X] -- so in our concrete context, 
+; X = Nat. That means we need to provide a function f with
+; signature  Nat -> X  i.e., Nat -> Nat, such that  (f 0)
+; gives us the first element we want in the list, (f 1)
+; gives us the second, etc.
+; 
+; Luckily, we have the fib function. Note that we suggested
+; above that we could start typing
+;     (list (fib 0) (fib 1) (fib 2) (fib 3) ... )
+;     
+; But that's exactly what the build-list function does
+; for us! So, 
+; 
+; (build-list 100 fib)
+; 
+
+
+
+
+
+;                                                           
+; Now, suppose we wanted a list of the squares of all the
+; odd numbers in the sequence of the first 100 Fibonacci
+; numbers. What do we do?
+; 
+; We know how to generate a list of Fibonacci numbers. The
+; problem statement above suggests we need to:
+; 
+;  1) Filter out all but the odd numbers.
+;  2) Produce a list with the squares of all the numbers
+;     in the resulting list
+; 
+; These are two distinct tasks, suggesting the development
+; of two distinct helper functions. We could go through the
+; design recipe for each of these functions and produce
+; definitions based on the appropriate template for a list.
+; 
+; Alternatively, we can recognize that the essence of what
+; we need to do for each of these two tasks is captured by
+; a couple of the abstract functions for processing lists.
+; 
+; 
+; 
+; 1) Filtering out odd numbers
+; 
+; The "filter" function captures an abstraction of going 
+; through a list and keeping only the elements in the list
+; that meet some criteria. Let's look at the header of the
+; function:
+; 
+; ; filter : (X -> Boolean) [List-of X] -> [List-of X]
+; ; produce a list from all those items on alox for which p holds
+; (define (filter p alox) ...)
+; 
+; To use this, we need to provide a predicate, 
+;   p : X -> Boolean
+; and a list of things,
+;   alox : [List-of X]
+; where the type parameter X can be instantiated with any 
+; concrete type we want. In our specific context, we are 
+; dealing with a list of natural numbers, so it makes sense 
+; to consider having
+;   X = Nat
+; 
+; Thus, 
+;   (build-list 100 fib)  : [List-of Nat]
+; 
+; and now to filter this list, we need to provide a function,
+;   p : Nat -> Boolean
+; that produces "true" when given a number that we wish to
+; keep in the filtering operation. Conveniently, in this case,
+; there exists a predicate,
+; 
+;   odd? : Nat -> Boolean
+; 
+; which fits the signature needed by filter, and it produces
+; true when given a number that is odd. So we can apply 
+; filter to this predicate and our list to filter out all 
+; *but* the odd numbers:
+; 
+; (filter odd? (build-list 100 fib))
+; 
+; 
+; ;;============================================================
+; 
+; 2) Producing a list of squares of all numbers in a list
+; 
+; Now we have a list of the odd numbers in the Fibonacci 
+; sequence. We want to produce a list of their squares. The 
+; "map" function captures the common abstraction of taking a 
+; list of elements and applying some function to each of them,
+; collecting the results in another list. Let's look at the
+; signature of map:
+; 
+; ; map : (X -> Y) [List-of X] -> [List-of Y]
+; ; construct a list by applying f to each item on alox
+; ;    (map f (list x-1 ... x-n)) = (list (f x-1) ... (f x-n))
+; (define (map f alox) ...)
+; 
+; 
+; In general, map can take a list of one type, X, of items and
+; produce a list of a different type, Y, of items. In our
+; case here, we want to take a list of (natural) numbers and
+; produce a list of numbers. So for us, we would instantiate
+; both X and Y with the type, Nat. That means map needs a 
+; function   f : Nat -> Nat   which will convert each number 
+; in the original list to its square, for the resulting list.
+; Again, luckily we have such a function, sqr.
+; 
+; So, we can achieve our goal by applying map with the sqr
+; function to the list that is the result of the filter
+; operation above:
+; 
+; (map sqr (filter odd? (build-list 100 fib)))
+; 
+; We might want to combine all of this in a function that
+; produces the squares of all the odd numbers in the first
+; n numbers of the Fibonacci sequence:
+; 
+
+
+
+;; first-n-fib/odd-squares : Nat -> [List-of Nat]
+;; produces a list of the squares of the odd numbers in the first
+;;  n numbers of the Fibonacci sequence
+(check-expect (first-n-fib/odd-squares 10)
+              (list 1 1 9 25 169 441))
+
+(define (first-n-fib/odd-squares n)
+  (map sqr (filter odd? (build-list n fib))))
+
+
+;                                                           
+; 
+; What if we wanted to know, for some reason, if any of
+; the numbers in a list (such as the one produced by
+; first-n-fib/odd-squares) were divisible by 49?
+; 
+; We could start writing a function,
+; 
+; ;; any-divisible/49 : [List-of Nat] -> Boolean
+; ;; determines if any of the numbers in the given list
+; ;; are divisible by 49
+; 
+; (check-expect (any-divisible/49 (list 1 3 7 91)) false)
+; (check-expect (any-divisible/49 (list 1 3 7 91)) false)
+; (check-expect (any-divisible/49 (list 245 3 7 91)) true)
+; (check-expect (any-divisible/49 (list 1 245 3 7 91)) true)
+; 
+; 
+
+
+
+;                                                           
+; We could proceed to fill in the function using the usual
+; "lox-func" template. Instead, let's take a look at the
+; "ormap" function:
+; 
+; ; ormap : (X -> Boolean) [List-of X] -> Boolean
+; ; determine whether p holds for at least one item on alox
+; ;    (ormap p (list x-1 ... x-n)) = (or (p x-1) ... (p x-n))
+; (define (ormap p alox) ...)
+; 
+; 
+; This abstraction suggests providing a function (predicate)
+; to test for a condition, and a list of items, and it 
+; produces true if *any* of the items in the list satisfy the 
+; condition. Since our list is a [List-of Nat], the p
+; predicate must be some function with signature Nat -> Boolean.
+; 
+; This time, we don't have a pre-defined function that tests
+; for divisibility by 49. It's not hard to write one...
+
+
+;; divisible/49 : Nat -> Boolean
+;; determine if n is divisible by 49
+
+(check-expect (divisible/49 3) false)
+(check-expect (divisible/49 50) false)
+(check-expect (divisible/49 0) true)
+(check-expect (divisible/49 49) true)
+(check-expect (divisible/49 245) true)
+
+(define (divisible/49 n)
+  (= 0 (remainder n 49)))
+
+
+;                                                           
+; Now we have a predicate that we can use with ormap to
+; complete the definition of any-divisible/49:
+; 
+
+
+
+;; any-divisible/49 : [List-of Nat] -> Boolean
+;; determines if any of the numbers in the given list
+;; are divisible by 49
+
+(check-expect (any-divisible/49 (list 1 3 7 91)) false)
+(check-expect (any-divisible/49 (list 1 3 7 91)) false)
+(check-expect (any-divisible/49 (list 245 3 7 91)) true)
+(check-expect (any-divisible/49 (list 1 245 3 7 91)) true)
+
+(define (any-divisible/49 a-lon)
+  (ormap divisible/49 a-lon))
+
+
+
+;                                                           
+; SUMMARY
+; 
+; The key idea is that when you are designing a function that 
+; operates on a list, try to identify whether it has map, 
+; foldr, filter or some other abstract list function behavior. 
+; If so, build it up around a call to that function instead of the  
+; listof template.
+; 
+
+
+
+
+
+;;==============================================================
+;;==============================================================
+;;==============================================================
+;;==============================================================
+;;==============================================================
+;; 
+;; SOMETHING ELSE ...
+
+
+
+; 
+; PROBLEM:
+; 
+; Design an abstract function based on the template for ListOfNumber.
+; 
+; (define (lon-func lon)
+;   (cond [(empty? lon) ...]
+;         [(cons? lon)
+;          (... (first lon)
+;               (lon-func (rest lon)))]))
+; 
+; For the time being you do not need to design a signature for
+; this abstract function.
+; 
+
+
+; 
+; When we abstract from a template we already have a definition in
+; which the points of variation are identified. They are the ... ! 
+; So getting a working function definition just requires coming up
+; with a name for the function, adding a new parameter for each set of
+; ..., and then replacing the ... with the parameter name.
+; 
+
+#;
+(define (foldr2 fn base lon)                 ;convention for abstract
+  (cond [(empty? lon) base]                  ;function parameters is
+        [(cons? lon)                         ;function argument goes 1st
+         (fn (first lon)                     ;list argument last
+             (foldr2 fn base (rest lon)))]))
+
+; 
+; So this is the abstract function for the (listof Number) template.
+; That means we should be able to do some classic listof number things
+; with it. Lets try writing some examples:
+; 
+
+
+(check-expect (foldr2 + 0 (list 1 2 3)) 6)   ;sum
+(check-expect (foldr2 * 1 (list 2 3 4)) 24)  ;product
+
+; 
+; That's nice. What about count? Remember that for count the contribution
+; of each element of the list is just 1, the actual element itself is
+; ignored. But foldr2 wants to call fn with the list elements as its first
+; argument. We can deal with that by defining a little helper function 
+; that consumes two arguments, ignores its first, and just adds 1 to its
+; second.
+; 
+
+
+(check-expect
+ (local [(define (add-1-to-arg2 arg1 arg2)
+           (+ 1 arg2))]
+   (foldr2 add-1-to-arg2 0 (list 1 2 3)))     ;count
+ 3)
+
+; 
+; Now let's see if we can make it operate on values that are not numbers.
+; We know we've used the (listof Image) template to glue images together
+; before so we can try that.
+
+
+(define BLANK (square 0 "solid" "white"))
+(define C1 (circle 10 "solid" "red"))
+(define C2 (circle 10 "solid" "yellow"))
+(define C3 (circle 10 "solid" "green"))
+
+
+(check-expect (foldr2 beside BLANK (list C1 C2 C3))         ;(4)
+              (beside C1 C2 C3 BLANK))
+
+; 
+; Let's try one more that mixes the types up a bit more. 
+; 
+
+
+(check-expect
+ (local [(define (add-circle c img)
+           (beside (circle 10 "solid" c) img))]
+   (foldr2 add-circle BLANK (list "red" "yellow" "green"))) ;(5)
+ (beside C1 C2 C3 BLANK))
+
+
+
+
+
+; 
+; Now lets compare all the concrete signatures:
+; 
+; sum:      (Number Number -> Number) Number (listof Number) -> Number
+; product:  (Number Number -> Number) Number (listof Number) -> Number
+; count:    (Number Number -> Number) Number (listof Number) -> Number
+; 4:        (Image Image -> Image)    Image  (listof Image)  -> Image
+; 5:        (Color Image -> Image)    Image  (listof Color)  -> Image
+; 
+;   (Color could be String in above.)
+; 
+; The resulting signature for foldr2 is:
+; 
+;      (X Y -> Y) Y (listof X) -> Y
+;      
+; 
+
+
+; 
+; Rearranging everything, adding the purpose, and renaming the lon 
+; parameter to lox we get.
+; 
+
+
+;; (X Y -> Y) Y (listof X) -> Y
+;; (foldr2 fn b (list x1 x2...xn)) -> (fn x1 (fn x2 ... (fn xn b)))
+(check-expect (foldr2 + 0 (list 1 2 3)) 6)   ;sum
+(check-expect (foldr2 * 1 (list 2 3 4)) 24)  ;product
+
+
+(define (foldr2 fn base lon)
+  (cond [(empty? lon) base] 
+        [(cons? lon)               
+         (fn (first lon)    
+             (foldr2 fn base (rest lon)))]))
+   
+
+; 
+; Don't despair about the purpose! Remember that for abstract functions
+; the purpose is often the hardest part. No one writes that purpose that
+; way the first time. But do look at it and convince yourself its right.
+; 
+; To see why this is called fold consider the sum case for a minute. 
+; foldr2 takes a list of numbers and a base, and one by one it folds the
+; numbers in the list down onto the base using + to add each one to the
+; folded up stack.
+; 
+; Its called foldr (foldr right) because the first number it adds to the
+; stack is the rightmost one - the one at the end of the list. 
+; 
+; In a couple of weeks we will talk about foldl.
+
+
+
+
+; COMPARE SEVERAL cases
+; 
+;              BASE     CONTRIBUTION FROM FIRST         COMBINE
+; count        0        1                               +
+; sum          0        (first lon)                     +
+; product      1        (first lon)                     *
+; 4            BLANK    (first lon)                     beside
+; 5            BLANK    (circle 10 "solid" (first lon)) beside
+; 
+; 
+; Think of more of these and practice writing them w/ foldr2.
+
+
+
+
