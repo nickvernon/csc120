@@ -1,0 +1,120 @@
+;; Nick Vernon
+;; IN-CLASS EXERCISES (3/30/2015) -
+;; MUTUALLY REFERENTIAL TREES
+
+(require 2htdp/image)
+
+;; A Person is (make-person String List-of-people)
+(define-struct person (name friends))
+
+(define T (make-person "Tori" empty))
+(define E (make-person "Elise" empty))
+(define Ma (make-person "Mandi" empty)) 
+(define Cp (make-person "Chipper" empty))
+(define N (make-person "Nick" empty))
+(define Mel (make-person "Melissa" empty))
+
+(define Ch (make-person "Chris" (cons Ma (cons Cp empty))))
+(define Meg (make-person "Megan" (cons N empty)))
+(define J (make-person "Josh" (cons T (cons E empty))))
+(define Ja (make-person "James" (cons J empty)))
+(define G (make-person "Garrett" (cons Ja (cons Meg (cons Ch (cons Mel empty))))))
+
+;; A Person is (make-person String List-of-people)
+;; interp. a person and a list of their firends in the rumor network
+
+#;  ; template
+(define (person-func a-person)
+  (... (person-name a-person)
+       (lop-func (person-friends a-person)) ...))
+
+;; A List-of-people is either:
+;; - empty, or
+;; - (cons Person List-of-people)
+;; interp. a list of friends
+
+#;  ; template
+(define (lop-func a-lop)
+  (cond
+    [(empty? a-lop)  ...]
+    [(cons? a-lop) (... (person-func (first a-lop))
+                        (lop-func (rest a-lop)))]))
+
+;;;;;;;;; FUNCTIONS
+
+;; count-all : Person -> Number
+;; produces the total number of people involved in the rumor mill
+;; rooted at the given person
+
+(check-expect (count-all E) 1)
+(check-expect (count-all Ch) 3)
+(check-expect (count-all G) 11)
+
+(define (count-all a-person)
+  (+ 1 
+     (count-all/list (person-friends a-person))))
+
+;; count-all/list : List-of-people -> Number           ; helper function
+;; produces the total number of people in all the given rumor mills
+
+(check-expect (count-all/list empty) 0)
+(check-expect (count-all/list (list Meg Ch)) 5)
+(check-expect (count-all/list (list Ja Meg Ch)) (+ 4 5))
+
+(define (count-all/list a-lop)
+  (cond
+    [(empty? a-lop)  0]
+    [(cons? a-lop) (+ (count-all (first a-lop))
+                      (count-all/list (rest a-lop)))]))
+
+;;;;;;;;;;
+
+;; path : Person String -> List-of-strings
+;; produces the list of people through which a rumor passes from
+;; the given person to the person with the given name
+
+(check-expect (path G "Tori") (list "Garrett" "James" "Josh" "Tori"))
+(check-expect (path Ja "Tori") (list "James" "Josh" "Tori"))
+(check-expect (path Ch "Chris") (list "Chris"))
+(check-expect (path Cp "Nick") empty)
+(check-expect (path G "Hailey") empty)
+
+(define (path a-person stop)
+  (if (string=? (person-name a-person) stop)
+      (list (person-name a-person)) 
+      (if (empty? (path/any (person-friends a-person) stop))
+          empty
+          (cons (person-name a-person)
+            (path/any (person-friends a-person) stop)))))
+
+
+(define (path a-person stop) ;;; fix definition to 
+  (if (string=? (person-name a-person) stop)
+      (list (person-name a-person)) 
+      (cons (person-name a-person)
+            (path/any (person-friends a-person) stop))))
+
+;; path/any : List-of-people String -> List-of-strings       ; helper function
+;; produces a list of strings representing the path to a given name
+;; through any of the friends in the given list
+
+(check-expect (path/any (list Ch Ja) "Mandi") 
+              (list "Chris" "Mandi"))
+(check-expect (path/any (list Ch Ja) "Josh") 
+              (list "James" "Josh"))
+(check-expect (path/any empty "Josh") 
+              empty)
+(check-expect (path/any (list Ch Ja) "Nick") 
+              empty)
+
+(define (path/any a-lop stop)
+  (cond
+    [(empty? a-lop)  empty]
+    [(cons? a-lop) (if (not (empty? (path (first a-lop) stop)))
+                       (path (first a-lop) stop)
+                       (path/any (rest a-lop) stop))]))
+
+               
+               
+
+
