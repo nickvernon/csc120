@@ -1,0 +1,58 @@
+
+
+
+#;
+             .
+
+(define-struct horse (name yob color sire dam))
+;; A Horse is one of:
+;;   - empty, or
+;;   - (make-horse String Number String Horse Horse)
+;; interp. represents a horse with pedigree information
+;;         where 'empty' represents an unknown horse
+
+
+(define BARON      (make-horse "The Baron" 1942 "chestnut" empty empty))
+(define POCAHONTAS (make-horse "Pocahontas" 1937 "black" empty empty))
+(define STOCKWELL  (make-horse "Stockwell" 1949 "chestnut" BARON POCAHONTAS))
+(define GEM        (make-horse "The Gem" 1951 "bay" empty empty))
+(define REGALIA    (make-horse "Regalia" 1962 "chestnut" STOCKWELL GEM))
+(define SAUNTERER (make-horse "Saunterer" 1954 "black" empty empty))
+(define REGAL (make-horse "Regal" 1971 "black" 
+                          SAUNTERER
+                          REGALIA))
+
+#;  ; template
+(define (horse-func a-horse)
+  (cond
+    [(empty? a-horse)  ...]
+    [(horse? a-horse) (... (horse-name a-horse)
+                           (horse-yob a-horse)
+                           (horse-color a-horse)
+                           (horse-func (horse-sire a-horse))
+                           (horse-func (horse-dam a-horse)))]))
+
+
+
+;; =====================================
+;; FUNCTIONS
+
+
+;; bay-horse? : Horse -> Boolean
+;; produces true if any horse in the given pedigree is bay colored
+(check-expect (bay-horse? empty) false)
+(check-expect (bay-horse? REGAL) true)
+(check-expect (bay-horse? GEM)   true)
+(check-expect (bay-horse? STOCKWELL) false)
+(check-expect (bay-horse? BARON) false)
+
+(define (bay-horse? a-horse)
+  (cond
+    [(empty? a-horse)  false]
+    [(horse? a-horse) (or 
+                       (string=? "bay" (horse-color a-horse))
+                       (bay-horse? (horse-sire a-horse))
+                       (bay-horse? (horse-dam a-horse)))]))
+
+
+
