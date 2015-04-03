@@ -1,0 +1,151 @@
+
+;; Library Records
+;; Developing functions using mixed data and nested structures
+
+
+
+#|----------------------------------------------------------
+BACKGROUND INFORMATION
+
+A library needs to keep track of their inventory. The library 
+carries two kinds of media:
+
+  - books, which have a title, author, and year of publication
+
+  - videos, which have a title, director, year of release, and 
+    length in minutes
+----------------------------------------------------------|#
+
+
+
+
+#|----------------------------------------------------------
+TASK 1.
+
+Design a data definition and provide an interpretation for 
+library records. Support both types of media above. Give 
+several examples of media records. Here are two to get 
+you started (your structure definitions should be 
+consistent with these examples):
+
+  (make-book "The Mythical Man-Month" "Fred Brooks" 1975)
+  (make-video "The Mythical Man-Month Movie"
+              "Ron Howard" 2011 95)
+
+You should end up with THREE data definitions: two 
+with structure definitions (for Book and Video); and then
+one itemization (mixed data) definition for Media whose
+types comment is:
+
+  ;; A Media is either:
+  ;;   - a Book, or
+  ;;   - a Video
+  ;; interp.  ...
+
+Make sure you apply the reference rule appropriate in
+the template for Media.
+----------------------------------------------------------|#
+
+
+
+
+#|----------------------------------------------------------
+TASK 2.
+
+Design a function `item-title` that, given a library media
+item, returns the title.
+----------------------------------------------------------|#
+
+
+
+
+#|----------------------------------------------------------
+TASK 3.
+
+The library keeps item records in a computer (using DrRacket), 
+but they also maintain a card catalogue. Here are sample card 
+catalogue entries for a book and a movie:
+ 
+   Fred Brooks: "The Mythical Man-Month" (1975).
+
+   "The Mythical Man-Month Movie" (Dir. Ron Howard), 
+   95 minutes (2011).
+
+Design a function `catalogue-entry` that, given a library 
+media item, returns the text of the card catalog entry 
+in the format above.
+ 
+(Hint: To make a string with the double quotation mark "
+ in it, writing """ won’t work. You need to escape the 
+ double quote with a backslash, like "\"". The backslash 
+ tells DrRacket that the next double quote is part of the 
+ string rather than the end of it.)
+----------------------------------------------------------|#
+
+
+
+
+#|----------------------------------------------------------
+
+The aforementioned library also needs to keep track of which 
+books and films are checked out. In particular, they need 
+check-out records that associate with an item (represented 
+as in Task 1) the name of the patron who checked it out 
+and the number of days until it’s due.
+(Use negative numbers for overdue items.)
+----------------------------------------------------------|#
+
+
+
+
+#|----------------------------------------------------------
+TASK 4.
+
+Design a complete data definition for a checkout record.
+Here's an example of data:
+
+(make-checkout (make-book "The Mythical Man-Month" ... ...)
+               "Nadeem Hamid" 12)
+
+----------------------------------------------------------|#
+
+
+
+
+#|----------------------------------------------------------
+TASK 5.
+
+Design a function `checkout` that, given a library item and 
+the name of the person checking it out, returns the check-out 
+record for that item. 
+   (Books are checked out for 14 days and videos for 7 days.)
+----------------------------------------------------------|#
+
+
+
+
+#|----------------------------------------------------------
+TASK 6.
+
+Design a function `next-day` for the library to use at 
+midnight every day to update the remaining days in a 
+checkout record, by returning the same record but with one 
+fewer day remaining.
+----------------------------------------------------------|#
+
+
+
+
+#|----------------------------------------------------------
+TASK 7.
+
+Design a predicate function `item-overdue?` that determines 
+whether the given checked-out item is overdue.
+----------------------------------------------------------|#
+
+
+
+
+
+
+
