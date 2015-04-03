@@ -1,0 +1,179 @@
+;; Nick Vernon
+;; LAB 8 - DESIGNING ABSTRACTIONS
+;; PART A - map
+
+(require 2htdp/image)
+
+
+;                                                           
+; TASK 1.
+; 
+; Abstract over the following two functions to define a
+; more general function named `map2`.
+; 
+; You will need to switch your Language Level in DrRacket 
+; to "Intermediate Student" in order to complete this 
+; exercise.
+; 
+
+
+;; negate-colors: (Listof Color) -> (Listof Color)
+;; produce a list of colors that are the negative of colors in the given list
+(check-expect (negate-colors (list (make-color 0 0 0)
+                                   (make-color 100 150 200)))
+              (list (make-color 255 255 255)
+                    (make-color 155 105 55)))
+
+(define (negate-colors a-loc)
+  (map2 negative a-loc))
+
+
+;; red->blue : (Listof Color) -> (Listof Color)
+;; changes all dominant-red colors in the given list to blue by
+;; swapping the red and blue components
+(check-expect (red->blue (list (make-color 200 4 5)
+                               (make-color 100 150 200)))
+              (list (make-color 5 4 200)
+                    (make-color 100 150 200)))
+
+(define (red->blue a-loc)
+  (map2 swap-red/blue a-loc))
+                       
+
+
+;;
+
+(define (map2 f a-loc)
+  (cond
+    [(empty? a-loc) empty]
+    [(cons? a-loc)
+     (cons (f (first a-loc))
+           (map2 f (rest a-loc)))]))
+
+
+;                                                           
+; TASK 2.
+; 
+; Formulate a purpose comment and a signature for `map2`.
+; 
+
+
+;; map2 : (X -> Y) (Listof X) -> (Listof Y)
+;; produces a new list of colors where every color in the given list
+;; has had the function f applied to it
+
+
+
+
+;; =============================================================
+;; =============================================================
+
+; 
+; HELPER FUNCTIONS FOR SOME OF THE FUNCTIONS ABOVE           
+; 
+; SKIP OVER THEM TO THE NEXT TASK ...
+; 
+
+
+; negative : Color -> Color
+; produces the negative of a color
+(check-expect (negative (make-color 100 35 0)) 
+              (make-color 155 220 255))
+
+(define (negative a-color)
+  (make-color (- 255 (color-red a-color))
+              (- 255 (color-green a-color))
+              (- 255 (color-blue a-color))))
+
+; close-to-red? : Color -> Boolean
+; determines if a color is mostly red
+(check-expect (close-to-red? (make-color 200 4 5)) true)
+(check-expect (close-to-red? (make-color 5 4 200)) false)
+
+(define (close-to-red? a-color)
+  (and (> (color-red a-color) (color-green a-color))
+       (> (color-red a-color) (color-blue a-color))))
+
+; swap-red/blue ; Color -> Color
+; produces a color with red and blue components swapped, 
+; if given color is close to red
+(check-expect (swap-red/blue (make-color 200 4 5))
+              (make-color 5 4 200))
+(check-expect (swap-red/blue (make-color 2 40 50))
+              (make-color 2 40 50))
+
+(define (swap-red/blue a-color)
+  (if (close-to-red? a-color)
+      (make-color (color-blue a-color) (color-green a-color)
+                  (color-red a-color))
+      a-color))
+
+
+
+
+;                                                           
+; TASK 3.
+; 
+; Consider the following two functions. Can you
+; REWRITE them as one-liners using your `map2` function?
+; 
+
+
+
+;; widths : (Listof Image) -> (Listof Number)
+;; produce a list of widths of a list of images
+(check-expect (widths empty) empty)
+(check-expect (widths (list (rectangle 2 10 "solid" "blue")
+                            (rectangle 3 5 "solid" "red")))
+              (list 2 3))
+
+(define (widths loi)
+  (map2 image-width loi))
+
+
+;; heights: (Listof Image) -> (Listof Number)
+;; produce a list of heights of a list of images
+(check-expect (heights empty) empty)
+(check-expect (heights (list (rectangle 2 10 "solid" "blue")
+                             (rectangle 3 5 "solid" "red")))
+              (list 10 5))
+
+(define (heights loi)
+  (map2 image-height loi))
+
+
+
+
+;                                                           
+; TASK 4.                                                         
+; What else can `map2` do???
+; Can you write the following function using `map2`?
+
+
+
+; srcircles : (Listof Number) -> (Listof Image)
+; produce a list of solid red circles with given radii
+(check-expect (srcircles (list 2 4))
+              (list (circle 2 "solid" "red")
+                    (circle 4 "solid" "red")))
+
+(define (srcircles a-lon)
+   (map2 srcircle a-lon))
+
+
+; srcircle : Number -> Image
+; produce a solid red circle of radius r
+(check-expect (srcircle 5) (circle 5 "solid" "red"))
+
+(define (srcircle r)
+  (circle r "solid" "red"))
+
+
+
+
+;                                                           
+; ISL has a built in version of your `map2` function called,
+; simply, `map`. We will use that built-in function from
+; now on.
+; 
+
