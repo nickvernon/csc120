@@ -1,0 +1,166 @@
+
+;; Nick Vernon
+;; Lab 1 - A Clock Face
+
+(require 2htdp/image)
+
+
+;                                                                     
+; Let's use some of the image operators you've learned about to 
+; design a clock face.
+; 
+; We'll start off by defining a background for our clock:
+; 
+
+
+(define BACKGROUND
+  .)
+
+
+;                                                                     
+; TASK:
+; 
+; Define a constant RADIUS whose value is half the width of the
+; BACKGROUND image above. (Hint: use the 'image-width' operator to
+; write your expression.)
+; 
+
+
+(image-width BACKGROUND)
+(define RADIUS (/ (image-width BACKGROUND) 2))
+
+
+;                                                                     
+; TASK:
+; 
+; Now define EMPTY-FRAME to be a circle of RADIUS size, outlined
+; in your favorite color. 
+; 
+; To make sure things are going ok, "Run" your file now, and then 
+; in the Interactions window, type EMPTY-FRAME. You should see a 
+; circle 250 pixels in diameter.
+; 
+
+
+(define EMPTY-FRAME
+  (circle RADIUS "outline" "black"))
+
+
+
+;                                                                     
+; Now, the hands: we'll use two triangles on top of each other for
+; each hand. After running the file, type BIG-HAND and LITTLE-HAND 
+; in the Interactions to see what these look like:
+
+
+(define BIG-HAND
+  (above
+   (isosceles-triangle 20 50 "solid" "lightblue")
+   (isosceles-triangle 100 350 "solid" "lightblue")))
+
+(define LITTLE-HAND
+  (above
+   (isosceles-triangle 20 50 "solid" "blue")
+   (isosceles-triangle 50 340 "solid" "blue")))
+
+
+
+;                                                                     
+; TASK:
+; 
+; Examine the two images above by typing BIG-HAND and LITTLE-HAND
+; in the Interactions window. 
+; 
+
+
+
+
+
+
+;                                                                     
+; Next, we'll use an operator `place-image/align` that is similar to 
+; `overlay`. It overlays one image upon another, but also allows you to 
+; control exactly how the images line up. (`overlay` always matches up 
+; the centers of the images.)
+; 
+; Uncomment the lines below and run the file.
+; 
+; See if you can guess what these images look like. Then, check 
+; them in the Interactions window and see how close you were.
+; 
+
+
+(define LITTLE-HAND-FRAME
+  (place-image/align LITTLE-HAND 
+                     RADIUS RADIUS "middle" "bottom"
+                     EMPTY-FRAME))
+
+(define BIG-HAND-FRAME
+  (place-image/align BIG-HAND 
+                     RADIUS RADIUS "middle" "bottom"
+                     EMPTY-FRAME))
+
+;  Note that both frame images above have a *transparent* (see-       
+;  through) background. Examine these two images by typing
+;  LITTLE-HAND-FRAME and BIG-HAND-FRAME in the Interactions 
+;  after running the file.
+
+
+
+
+
+;                                                                     
+; TASK:
+; 
+; Use the `overlay` operator to write an expression that 
+; produces this image:
+; .
+; 
+
+
+(overlay LITTLE-HAND-FRAME
+  (overlay BIG-HAND-FRAME BACKGROUND))
+
+
+
+;                                                                     
+; TASK:
+; 
+; Look up the `rotate` operator in the Help Desk. Can you use it to 
+; produce an image like this:
+; 
+; .
+; 
+
+
+(overlay (rotate -105 LITTLE-HAND-FRAME)
+   (overlay (rotate 180 BIG-HAND-FRAME) BACKGROUND))
+     
+     
+
+;                                                                     
+; TASK:
+; 
+; And how about this:
+; 
+; .
+; 
+
+
+(overlay (rotate 150 LITTLE-HAND-FRAME)
+   (overlay (rotate 0 BIG-HAND-FRAME) BACKGROUND))
+
+
+;                                                                     
+; TASK:
+; 
+; Can you identify a pattern in the angles used for the little and
+; big hands, relating the hours/minutes value to the amount of 
+; rotation? Note down any formulas you determine and save them
+; for next week's lab.
+; 
+
+
+; 180 = 6 o'clock/30min
+; 360 = 12 o'clock/0min
+; Hands move counter clockwise
