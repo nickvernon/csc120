@@ -1,0 +1,175 @@
+;; Nick Vernon
+;; IN-CLASS EXERCISES (2/4/2015) - COMPOUND DATA: STRUCTURES
+
+;; A bunch of different types of data, combining them together
+
+;                                                           
+; 
+; (***** TASKS are down at the bottom of this file. *****)
+; 
+; 
+; .
+; 
+
+
+
+;;==========================================================
+;;==========================================================
+;;==========================================================
+;;==========================================================
+;;==========================================================
+;; DATA DEFINITIONS:
+
+(define-struct boa (name length food))    ; structure definition
+;; A Boa is (make-boa String Number String)   ; types comment
+;; interp. a boa with given name, length in feet,  ; interpretation
+;;         and favorite food
+
+(define BOA1 (make-boa "Slinky" 10 "rats"))      ; data examples
+(define BOA2 (make-boa "Slim" 5 "lettuce"))
+
+#;   ; template
+(define (boa-func a-boa)
+  (... (boa-name a-boa)        ; String 
+       (boa-length a-boa)      ; Number
+       (boa-food a-boa) ...))  ; String
+
+
+;                                                           
+; .
+; 
+
+
+
+(define-struct dillo (length dead?))
+;; A Dillo is (make-dillo Number Boolean)
+;; interp. an armadillo of given length in feet and whether
+;;         it is dead or not
+
+(define PUNYDILLO (make-dillo 3 true))
+(define MONSTADILLO (make-dillo 15 false))
+
+; template
+#; 
+(define (dillo-func a-dillo)
+  (... (dillo-length a-dillo)      ; Number
+       (dillo-dead? a-dillo) ...   ; Boolean
+       ))
+
+
+;;==========================================================
+;;==========================================================
+;;==========================================================
+;;==========================================================
+;;==========================================================
+;; FUNCTIONS
+
+;                                                           
+; .
+; 
+
+
+
+;; boa-portable? : Boa Number -> Boolean
+;; produces true if given boa's length shorter than given cage length
+(check-expect (boa-portable? BOA1 5) false)
+(check-expect (boa-portable? BOA1 10) true)   ; *
+(check-expect (boa-portable? BOA2 50) true)
+
+(define (boa-portable? a-boa cage-size) 
+  (<= (boa-length a-boa) cage-size))
+
+
+
+;; hit-with-truck : Dillo -> Dillo
+;; produces a dead dillo that's one unit longer than original
+(check-expect (hit-with-truck PUNYDILLO)
+              (make-dillo 4 true))
+(check-expect (hit-with-truck MONSTADILLO)
+              (make-dillo 16 true))
+
+(define (hit-with-truck a-dillo) 
+  (make-dillo (+ 1 (dillo-length a-dillo)) true))
+
+
+;                                                           
+; TASK:
+; 
+; Implement feed-snake, which takes a snake and returns a 
+; snake with the same name and favorite food, but five 
+; feet longer.
+; 
+
+
+;; feed-snake : Boa -> Boa
+;; produces a boa that's 5 units longer than original
+(check-expect (feed-snake BOA1)
+              (make-boa "Slinky" 15 "rats"))
+(check-expect (feed-snake BOA2)
+              (make-boa "Slim" 10 "lettuce"))
+
+(define (feed-snake a-boa)
+  (make-boa (boa-name a-boa) (+ 5 (boa-length a-boa)) (boa-food a-boa)))
+
+(feed-snake BOA1)
+              
+
+;                                                           
+;  TASK: 
+;  
+;  Implement feed-dillo, which produces a dillo two units
+;  longer... unless dead.
+; 
+
+
+;; feed-dillo : Dillo -> Dillo
+;; produces a dillo that's two unites longer than orginal...unless dead
+
+
+
+
+
+
+
+;                                                           
+;  EXERCISES WITH STRUCTURES AND COMPOUND DATA DEFINITIONS:
+; 
+;  1.
+;  Write down, as a comment below, the names of the 
+;  functions (constructors, selectors, and predicates) 
+;  that the following structure definition results in:
+;  
+;       (define-struct CD (artist title price))
+; 
+;  2.
+;  Provide a TYPES COMMENT and TEMPLATE appropriate for
+;  the CD structure above.
+;  
+;  3.
+;  Provide a data example of a CD. 
+; 
+
+
+#; 1.
+;Constructors: make-CD
+;Selectors: CD-artist, CD-title, CD-price
+;Predicates: CD?
+
+#; 2.
+
+;A CD is (make-CD String String Number)   ; types comment
+  
+(define CD-fun a-CD                       ; template
+  (... (CD-artist a-CD) ...   ; String
+   ... (CD-title a-CD) ...    ; String
+   ... (CD-price a-CD) ...    ; Number
+   ))
+
+#; 3.
+;(define CD1 (make-CD "The Rolling Stones" "Sticky Fingers" 15))  ; data example
+
+
+
+
+
+
