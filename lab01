@@ -1,0 +1,86 @@
+;; Nick Vernon
+;; Lab 1 - Recycling
+
+;  5 cans = $30 per week max
+;  $10 per week always
+;  cans = x
+;  
+;  Pay = 10 + 4x
+
+
+;; Lab 1 - Insulin
+
+; <115: 0
+; 115: 1
+; 135: 2
+; 155: 3
+; 175: 4
+; 195: 5
+; 215: 6
+; 235: 7
+; 255: 8
+; 275: 9
+; 295: 10
+
+; 100: 0
+; 110: 0
+; 120: 1
+; 130: 1
+; 140: 2
+; 150: 2
+; 160: 3
+; 170: 3
+; 180: 4
+; 190: 4
+; 200: 5
+
+
+; Number of insulin injections = x 
+; Blood-sugar level/115 = y
+;
+; (y - 95) / 20 = x
+; Round answer down
+; 
+
+; (290 - 95) / 20 = 9.75 = 9
+
+; Lab 1 - Greeting
+
+(define (GREETING name)
+  (string-append "Dear " name ":"))
+
+(GREETING "Prof. Hamid")
+
+; Lab 1 - Exponet Evaluation
+
+;  (/ (- (* 9 3) (string-length (string-append "CA" "T"))) (* 3 2))
+;  (string-append "CA" "T") : "CAT"
+;  (string-length "CAT") : 3
+;  (* 9 3) : 27
+;  (- 27 3) : 24
+;  (* 3 2) : 6
+;  (/ 24 6) : 4
+
+
+(/ (- (* 9 3) (string-length (string-append "CA" "T"))) (* 3 2))
+
+; (if (> (double 3) (- 9 1)) 
+;     (sqrt (+ 20 5))
+;     14) 
+; where double is defined as
+; (define (double n)
+;    (* n 2))
+; 
+; (double 3) : (* n 3)
+; (* n 3) : 6
+; (- 9 1) : 8
+; (> 6 8) : false
+; 
+
+
+(define (double n)
+   (* n 2))
+
+(if (> (double 3) (- 9 1)) 
+    (sqrt (+ 20 5))
+    14)
