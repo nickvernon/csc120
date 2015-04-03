@@ -1,0 +1,105 @@
+;; Nick Vernon & Orbelin Palacios
+;; Lab 3
+
+(require 2htdp/image)
+(require 2htdp/universe)
+
+;; compute-resistance : String -> Number
+;; given three colors, produce the resistance of the resistor in Ohms
+
+(define (convert-color x)             ; helper function
+(cond
+    [(string=? x "black") 0]
+    [(string=? x "brown") 1]
+    [(string=? x "red") 2]
+    [(string=? x "orange") 3]
+    [(string=? x "yellow") 4]
+    [(string=? x "green") 5]
+    [(string=? x "blue") 6]
+    [(string=? x "violet") 7]
+    [(string=? x "gray") 8]
+    [(string=? x "white") 9]))
+
+#;(define (compute-resistance a b c)  ; stub
+  0)
+
+(check-expect (compute-resistance "yellow" "violet" "red")
+              4700)
+(check-expect (compute-resistance "orange" "blue" "brown")
+              360)
+(check-expect (compute-resistance "white" "green" "orange")
+              95000)
+
+(define (compute-resistance a b c)    ; function
+    (* (string->number (string-append (number->string (convert-color a))
+                                      (number->string (convert-color b))))
+                       (expt 10 (convert-color c))))
+
+
+(compute-resistance "yellow" "orange" "brown")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define RBODY 
+  (add-line (rectangle 80 30 "solid" "white")
+            15 15 65 15 (make-pen "silver" 30 "solid" "round" "round")))
+
+(define WIRE   
+  (rectangle 200 5 "solid" "LightGray"))
+
+
+; add-band : Image Number String -> Image
+; adds a band, 10 pixels wide, of the given color
+; at the given x-offset to the body image
+
+(check-expect (add-band RBODY 20 "black")
+              (add-line RBODY 20 0 20 30 (make-pen "black" 10 "solid" "butt" "miter")))
+
+(define (add-band body x-off col)
+  (place-image (rectangle 10 (image-height body) "solid" col)
+               x-off (/ (image-height RBODY) 2) body))
+
+;; resistor-image : Number -> Image
+;; given a resistance value, produce image with three corresponding color bands
+
+
+(define (convert-number y)             ; helper function
+  (cond
+    [(= y 0) "black"]
+    [(= y 1) "brown"]
+    [(= y 2) "red"]
+    [(= y 3) "orange"]
+    [(= y 4) "yellow"]
+    [(= y 5) "green"]
+    [(= y 6) "blue"]
+    [(= y 7) "violet"]
+    [(= y 8) "gray"]
+    [(= y 9) "white"]))
+
+
+#;(define (resistor-image y)
+  (overlay RBODY WIRE))
+
+(check-expect (resistor-image 4700)
+              (overlay (place-image (rectangle 10 (image-height RBODY) "solid" "yellow")
+               20 (/ (image-height RBODY) 2) (place-image (rectangle 10 (image-height RBODY) "solid" "violet")
+               40 (/ (image-height RBODY) 2) (place-image (rectangle 10 (image-height RBODY) "solid" "yellow")
+               20 (/ (image-height RBODY) 2) (place-image (rectangle 10 (image-height RBODY) "solid" "red")
+               60 (/ (image-height RBODY) 2) (place-image (rectangle 10 (image-height RBODY) "solid" "violet")
+               40 (/ (image-height RBODY) 2) (place-image (rectangle 10 (image-height RBODY) "solid" "yellow")
+               20 (/ (image-height RBODY) 2) RBODY))))))
+              WIRE))
+
+(define (resistor-image y)
+  (overlay (add-band (add-band (add-band RBODY 20 (convert-number (string->number (substring (number->string y) 0 1))))
+                              40 (convert-number (string->number (substring (number->string y) 1 2)))) 60
+                     (convert-number (string-length (substring (number->string y) 2 (string-length (number->string y))))))
+           WIRE))
+
+
+(resistor-image 4700)
+(resistor-image 630000)
+(resistor-image 290)
+
+
+
