@@ -1,0 +1,362 @@
+;; Nick Vernon
+;; IN-CLASS EXERCISES (2/2/2015) - POSN & WORLD
+
+
+;  There are 6 primary tasks that you should attempt to complete within
+;  class. If you finish and still have time, there are some additional
+;  tasks to enhance the program.
+
+
+
+(require 2htdp/image)
+(require 2htdp/universe)
+
+;                                                            
+;    ;;;;                                    ;      ;        
+;   ;    ;                                   ;               
+;   ;       ; ;;    ;;;    ;;    ;;;    ;;   ; ;;   ;  ; ;;  
+;   ;       ;;  ;  ;   ;  ;  ;  ;   ;  ;  ;  ;;  ;  ;  ;;  ; 
+;    ;;;;   ;   ;      ;  ;     ;   ;  ;     ;   ;  ;  ;   ; 
+;        ;  ;   ;   ;;;;  ;     ;;;;;   ;;   ;   ;  ;  ;   ; 
+;        ;  ;   ;  ;   ;  ;     ;         ;  ;   ;  ;  ;   ; 
+;   ;    ;  ;;  ;  ;  ;;  ;  ;  ;   ;  ;  ;  ;   ;  ;  ;;  ; 
+;    ;;;;   ; ;;    ;; ;   ;;    ;;;    ;;   ;   ;  ;  ; ;;  
+;           ;                                          ;     
+;           ;                                          ;     
+;                                                            
+;                                                         
+;        ;                        ;  ;                    
+;        ;                        ;                       
+;        ;       ;;;   ; ;;    ;; ;  ;  ; ;;    ;; ;      
+;        ;      ;   ;  ;;  ;  ;  ;;  ;  ;;  ;  ;  ;;      
+;        ;          ;  ;   ;  ;   ;  ;  ;   ;  ;   ;      
+;        ;       ;;;;  ;   ;  ;   ;  ;  ;   ;  ;   ;      
+;        ;      ;   ;  ;   ;  ;   ;  ;  ;   ;  ;   ;      
+;        ;      ;  ;;  ;   ;  ;  ;;  ;  ;   ;  ;  ;;      
+;        ;;;;;   ;; ;  ;   ;   ;; ;  ;  ;   ;   ;; ;      
+;                                              ;   ;      
+;                                               ;;;       
+;                                                         
+;                                                         
+;                                                         
+
+
+;                                                                      
+; 
+; In this series of exercises, you will practice designing 
+; functions for structured data in the form of Posns.
+; 
+; First, some constant definitions:
+
+
+(define LANDING-AREA .)
+
+
+;; controls the speed at which ship approaches target
+(define SPEED .1)
+
+;                                                                     
+; TASK 1:
+; Define the TARGET constant below to represent the Posn at the
+; very center of the LANDING-AREA image above. Use the make-posn
+; constructor, and define the coordinates relative to LANDING-AREA
+; so that if you change the image, the TARGET posn is still correct.
+
+
+(define TARGET (make-posn 
+                  (/ (image-width LANDING-AREA) 2)
+                  (/ (image-height LANDING-AREA) 2)))
+
+
+
+
+;                                                                     
+; TASK 2:
+; Finish off the template in the data definition for Posn below:
+
+
+;; A Posn is (make-posn Number Number)
+;; interp. represents an (x, y) location in the LANDING-AREA
+
+(define ORIGIN (make-posn 0 0))
+(define LEFT-EDGE (make-posn 0 100))
+(define DIAG-PATH (make-posn 50 50))
+
+; template
+#;
+(define (Posn-func a-posn)
+  (...(posn-x a-posn)...
+      (posn-y a-posn)...))
+
+
+
+
+;;====================================================================
+;;====================================================================
+;;====================================================================
+;   ;;;;;                      ;  ;                     
+;   ;                          ;                        
+;   ;      ;   ;  ; ;;    ;;  ;;; ;   ;;;   ; ;;    ;;  
+;   ;      ;   ;  ;;  ;  ;  ;  ;  ;  ;   ;  ;;  ;  ;  ; 
+;   ;;;;   ;   ;  ;   ;  ;     ;  ;  ;   ;  ;   ;  ;    
+;   ;      ;   ;  ;   ;  ;     ;  ;  ;   ;  ;   ;   ;;  
+;   ;      ;   ;  ;   ;  ;     ;  ;  ;   ;  ;   ;     ; 
+;   ;      ;  ;;  ;   ;  ;  ;  ;  ;  ;   ;  ;   ;  ;  ; 
+;   ;       ;; ;  ;   ;   ;;    ; ;   ;;;   ;   ;   ;;  
+;                                                       
+;                                                       
+
+
+
+;                                                                     
+; TASK 3:
+; Design a function, named `plop`, that takes a Posn, a color, and
+; a background scene, and places a solid circle of radius 5 in the
+; given color at the given location on the scene.
+; 
+; For example,
+;   (plop (make-posn 20 50) "yellow" LANDING-AREA)
+; should produce the image:
+;   (place-image (circle 5 "solid" "yellow") 20 50 LANDING-AREA)
+; .
+; 
+; The signature, purpose, and stub of the function are already 
+; provided to you...
+; 
+
+
+;; plop : Posn String Image -> Image
+;; produces the given background scene with a circle of given color placed
+;; at the given Posn location
+
+(check-expect (plop (make-posn 20 50) "yellow" LANDING-AREA)
+              (place-image (circle 5 "solid" "yellow") 
+                           20 50 LANDING-AREA))
+
+(check-expect (plop (make-posn 110 250) "blue" (empty-scene 400 400))
+              (place-image (circle 5 "solid" "blue") 
+                           110 250 (empty-scene 400 400)))
+
+(define (plop a-posn a-color a-scene)
+  (place-image (circle 5 "solid" a-color)
+               (posn-x a-posn) (posn-y a-posn) a-scene))
+
+
+
+
+;                                                                     
+; TASK 4:
+; Design a function, named `render-sim`, that takes a Posn, representing
+; the location of a space ship and `plop`s a yellow circle at that
+; location, and also a red circle at the TARGET location, on the
+; LANDING-AREA background scene.
+
+
+;; render-sim : Posn -> Image
+;; produces the landing area scene with target at center,
+;; and spaceship at given posn.
+
+(check-expect (render-sim (make-posn 10 10))
+              (place-image (circle 5 "solid" "yellow") 10 10 
+                           (place-image (circle 5 "solid" "red") 
+                                        (posn-x TARGET) (posn-y TARGET) LANDING-AREA)))
+
+(define (render-sim a-posn)
+    (plop TARGET "red" (plop a-posn "yellow" LANDING-AREA)))
+
+; NOTE: you don't need to use the Posn template for this one -- you can
+;       compose a couple of uses of the `plop` function.
+
+
+
+;                                                                     
+; TASK 5:
+; At the bottom of this file is a `run-sim` function which launches
+; the landing program. Try typing:
+;    (run-sim 10 10)
+; in the Interactions area after running this file at this point.
+; You should see the LANDING-AREA scene with a target circle (red)
+; drawn in the center, and a yellow circle at (10, 10) representing
+; your 'spaceship'.
+
+
+
+
+;                                                                     
+; TASK 6:
+; Design a function, `move-towards`, that takes two Posns and a number
+; (between 0.0 and 1.0) and moves the first Posn towards the second
+; one by that fractional amount. 
+; 
+; To do this, figure out the difference in distance in each 
+; direction (x/y) between the second and the first posn (in that
+; order), multiply it by the fractional amount, and add that to 
+; the individual components of the first posn.
+; 
+; For example,  
+;    (move-towards (make-posn 10 100) (make-posn 110 200) .1)
+; produces
+;    (make-posn 20 110)
+; which is the first Posn moved 1/10 of the distance to the second
+; in each direction.
+; 
+; Note that you are already provided with the template, where the
+; selectors have been applied to both p1 and p2, since they are
+; both Posns.
+
+
+
+;; move-towards : Posn Posn Number -> Posn
+;; moves blue posn the given fraction of the distance towards to the red
+
+;(check-expect (move-towards (make-posn 10 100) (make-posn 110 100) .1)
+;              (make-posn 20 100))
+
+(define (move-towards p1 p2 frac)     ; stub
+  p1)
+
+#;    
+(define (move-towards p1 p2 frac)     ; template
+  (... (posn-x p1)
+       (posn-y p1)
+       (posn-x p2)
+       (posn-y p2)
+       frac ...))
+
+
+
+
+;                                                                     
+; The `fly-ship` function moves the given Posn towards TARGET. It
+; uses `move-towards`. After you've finished defining `move-towards`
+; above, run the file, and type
+;    (run-sim 10 10)
+; in the Interactions.
+
+
+;; fly-ship : Posn -> Posn
+;; moves the given spaceship location closer to TARGET according to SPEED
+
+(check-expect (fly-ship TARGET) TARGET)
+(check-expect (fly-ship LEFT-EDGE) (move-towards LEFT-EDGE TARGET SPEED))
+
+(define (fly-ship a-posn)
+  (move-towards a-posn TARGET SPEED))
+
+
+
+
+
+;                                                                     
+; GREAT WORK!!!
+; 
+; IF YOU FINISH THE TASKS ABOVE AND STILL HAVE TIME LEFT...
+; 
+
+
+;;====================================================================
+;;====================================================================
+;;====================================================================
+;
+;   ;;;;;;        ;            
+;   ;             ;            
+;   ;      ;   ; ;;; ; ;  ;;;  
+;   ;       ; ;   ;  ;;  ;   ; 
+;   ;;;;;   ; ;   ;  ;       ; 
+;   ;        ;    ;  ;    ;;;; 
+;   ;       ; ;   ;  ;   ;   ; 
+;   ;       ; ;   ;  ;   ;  ;; 
+;   ;;;;;; ;   ;   ; ;    ;; ; 
+;                              
+;                              
+
+(define SPACE-SHIP-FLYING .)
+(define SPACE-SHIP-LANDED (circle 20 "solid" "green"))
+
+
+;                                                                     
+; EXTRA 1.
+; 
+; Fill in the function below to handle a "button-down" mouse event
+; by producing the mouse's (x, y) location as a Posn. The function
+; should produce the given Posn unchanged for all other mouse events.
+; 
+; Run (run-sim ... ...) again when you have this done, and click
+; the mouse to reset the ship's position.
+; 
+
+
+;; handle-mouse : Posn Number Number MouseEvent
+;; produces an updated spaceship location on "button-down"
+
+(check-expect (handle-mouse LEFT-EDGE 40 100 "move") LEFT-EDGE)
+;(check-expect (handle-mouse LEFT-EDGE 40 100 "button-down") (make-posn 40 100))
+
+(define (handle-mouse a-posn x y a-mev)     ; stub
+  a-posn)
+
+#; 
+(define (handle-mouse a-posn x y a-mev)     ; template
+  (cond 
+    [(mouse=? mev "button-down") ( ... a-posn x y ...)]
+    [else ( ... a-posn x y ...)]))
+
+
+
+;                                                                     
+; EXTRA 2.
+; 
+; Define a `posn-distance` function that produces the distance
+; between the two given Posns.
+; 
+; Then, modify the `render-sim` function above so that if the 
+; distance between the given Posn and TARGET is less than 5, it 
+; places the SPACE-SHIP-LANDED image at the Posn, instead of either
+; of the yellow or red circles.
+; 
+
+
+
+
+
+
+
+;                                                                     
+; EXTRA 3.
+; 
+; The following `angle-to` function, which uses the `radians->degrees`
+; helper function, determines the angle (in degrees) of the heading
+; between a given p1 and p2.
+; 
+; Use the `angle-to` function to further modify your `render-sim`
+; function so that instead of `plop`ping a yellow circle for the
+; ship, it places the SPACE-SHIP-FLYING image, rotated appropriately
+; at the given Posn location. (That is, of course, if it is not
+; less than 5 units away from the center, in which case the 
+; SPACE-SHIP-LANDED image should still be drawn.)
+; 
+
+
+
+
+
+
+
+
+
+
+;;====================================================================
+;; PUT IT ALL TOGETHER...
+
+;; run-sim : Number Number -> Posn
+;; runs a simulation of the spaceship landing at the target, starting
+;; from the given x, y position
+
+; -- no tests -- interactive function
+(define (run-sim x y)
+  (big-bang (make-posn x y)
+            (to-draw render-sim)
+            (on-tick fly-ship)
+            (on-mouse handle-mouse)))
+
+
