@@ -1,0 +1,202 @@
+;; Orbelin Palcios & Nick Vernon
+;; Literature Analysis
+
+(require 2htdp/batch-io)
+
+; 
+; TASK 1.
+; Develop a data and structure definition for storing a Frequency, 
+; which combines a String and a Number, and representing that many 
+; uses of the specified string.
+; 
+
+
+(define-struct freq (str num))
+; A Frequency is (make-freq String Number)
+; interp. a frequency with a given string and how many times
+;         that specific string is used.
+
+(define FREQ1 (make-freq "Hello" 5))
+(define FREQ2 (make-freq "World" 10))
+
+#;   ; template
+(define (freq-func a-freq)
+  (... (freq-str a-freq) ...   ; String
+   ... (freq-num a-freq) ...   ; Number
+       ))
+
+
+
+
+; 
+; TASK 2.
+; Develop a data definition ListOfStrings which uses cons and 
+; empty to hold arbitrarily many Strings. Similarly, develop a data 
+; definition for ListOfFrequency.
+; 
+
+
+; A ListOfStrings is either:
+;  - empty, or
+;  - (cons String ListOfStrings)
+
+(define LOS1 (cons "Orbelin" (cons "Palacios" empty)))
+(define LOS2 (cons "Hello" (cons "Nick" (cons "Vernon" empty))))
+(define LOS3 empty)
+
+#;  ; template
+(define (los-func a-los)
+  (cond
+    [(empty? a-los) ...]
+    [(cons? a-los) (... (first a-los)
+                        (los-func (rest a-los)) ...)]
+    ))
+
+
+
+; A ListOfFrequency is either:
+;  - empty, or
+;  - (cons Frequency ListOfFrequency)
+
+(define LOF1 (cons FREQ1 empty))
+(define LOF2 (cons (make-freq "Hey" 10) (cons FREQ2 empty)))
+(define LOF3 empty)
+
+#;  ; template
+(define (lof-func a-lof)
+  (cond
+    [(empty? a-lof) ...]
+    [(cons? a-lof) (... (freq-func (first a-lof))
+                        (lof-func (rest a-lof))...)]
+    ))
+
+
+
+
+; 
+; TASK 3. 
+; Design a function count-word which consumes a ListOfFrequency and 
+; a String and adds 1 to the frequency for that string, producing a 
+; new ListOfFrequency. If there is no Frequency for that string, 
+; the resulting ListOfFrequency should have a Frequency with that 
+; string and the number 1.
+; 
+
+
+
+;; count-word : ListOfFrequency String -> ListOfFrequency
+;; consumes a ListOfFrequency and a String and produces a new ListOfFrequency and
+;;          adds one the frequency for that string. If there is no Frequency with
+;;          that string, the resulting ListOfFrequency should have a Frequency with
+;;          that string and number one.
+
+(check-expect (count-word LOF1 "Hello") (cons (make-freq "Hello" 6) empty))
+(check-expect (count-word LOF2 "Well") (cons (make-freq "Hey" 10) (cons (make-freq "World" 10) (cons (make-freq "Well" 1) empty))))
+(check-expect (count-word LOF3 "Word") (cons (make-freq "Word" 1) empty))
+
+(define (count-word a-lof str) 
+  (cond
+    [(empty? a-lof) (cons (make-freq str 1) a-lof)]
+    [(cons? a-lof) (if (string=? (freq-str (first a-lof)) str)
+                       (cons (make-freq str (+ 1 (freq-num (first a-lof)))) (rest a-lof))
+                       (cons (first a-lof) (count-word (rest a-lof) str)))]
+    ))
+
+
+
+
+; 
+; TASK 4. 
+; Design a function count-all-words which takes a ListOfString and 
+; produces a ListOfFrequency with the appropriate frequencies counted 
+; from the entire list of strings.
+; 
+
+
+
+;; count-all-words : ListOfStrings -> ListOfFrequency
+;; produces a ListOfFrequency with the appropriate frequencies counted
+;;          from the entire list of strings.
+
+(check-expect (count-all-words (list "a" "a" "a" "a")) (cons (make-freq "a" 4) empty))
+(check-expect (count-all-words (list "a" "b" "a" "b")) (list (make-freq "b" 2) (make-freq "a" 2)))
+(check-expect (count-all-words (list "a" "b" "c" "c" "c" "a" "b" "d" "b" "c" "c" "b" "b" "b"))
+              (list (make-freq "b" 6) (make-freq "c" 5) (make-freq "d" 1) (make-freq "a" 2)))
+
+(define (count-all-words a-los)
+  (cond
+    [(empty? a-los) empty]
+    [(cons? a-los) (count-word (count-all-words (rest a-los))
+                               (first a-los))]
+    ))
+
+
+
+
+
+
+
+
+
+; 
+; TASK 5.
+; Download the text of Macbeth: 
+;     http://www.gutenberg.org/cache/epub/2264/pg2264.txt
+; into the same folder as your file where you are completing this assignment.
+; 
+; Then use the 2htdp/batch-io library to create a list of words from the file.
+;   * Browse section 11.3 in the textbook: 
+;         http://www.ccs.neu.edu/home/matthias/HtDP2e/part_two.html#%28part._sec~3alis-lis%29
+;   for an overview of the functions provided by 2htdp/batch-io, especially
+;   figure 45: http://www.ccs.neu.edu/home/matthias/HtDP2e/part_two.html#%28counter._%28figure._fig~3aread%29%29
+;   You are probably interested in the read-words function.
+; 
+; Then compute the frequencies of all of the words in the file.
+; 
+
+
+
+(define MACWORDS (read-words "macbethtext.txt"))
+;(count-all-words MACWORDS)
+
+
+
+
+
+; 
+; TASK 6.
+; Design a function which consumes a ListOfFrequency and produces a 
+; ListOfFrequency that contains only the Frequencys from the original 
+; list where the number is more than 100. Use this to compute all 
+; the words used more than 100 times in Macbeth. Include this
+; list in your submission.
+; 
+
+
+;; words-over-100 : ListofFrequency -> ListofFrequency
+;; consumes a List of Frequency and produces a List of Frequency that contains
+;;          only the Frequencys from the original list where the number is more
+;;          than 100.
+
+(check-expect (words-over-100 empty) empty)
+(check-expect (words-over-100 (cons (make-freq "a" 99)
+                                    (cons (make-freq "b" 50)
+                                          (cons (make-freq "c" 5) empty)))) empty)
+(check-expect (words-over-100 (cons (make-freq "a" 100)
+                                    (cons (make-freq "b" 50)
+                                          (cons (make-freq "c" 5) empty))))
+              (cons (make-freq "a" 100) empty))
+(check-expect (words-over-100 (cons (make-freq "a" 100)
+                                    (cons (make-freq "b" 100)
+                                          (cons (make-freq "c" 5) empty))))
+              (cons (make-freq "a" 100) (cons (make-freq "b" 100) empty)))
+
+(define (words-over-100 a-lof)
+  (cond
+    [(empty? a-lof) empty]
+    [(cons? a-lof) (if (>= (freq-num (first a-lof)) 100)
+                       (cons (first a-lof) (words-over-100 (rest a-lof)))
+                       (words-over-100 (rest a-lof)))]))
+
+(words-over-100 (count-all-words MACWORDS))
+
