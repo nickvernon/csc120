@@ -1,0 +1,31 @@
+;; Orbelin Palacios & Nick Vernon
+
+
+;; flip-side : String -> String
+
+;; given a string, produce a string whose first half is 
+;; the string's second half and whose second half is the
+;; string's first half
+
+;(define (flip-side s) "")   ; stub
+
+(check-expect (flip-side "homework") "workhome")
+(check-expect (flip-side "orbelin") "elinorb")
+
+#; (define (flip-side s)     ; template
+     (... s ...))
+
+(define (flip-side s)
+  (if (= (remainder (string-length s) 2) 0)
+      (string-append (substring s (/ (string-length s) 2) (string-length s))
+       (substring s 0 (/ (string-length s) 2))
+               )
+      (string-append (substring s (floor (/ (string-length s) 2)) (string-length s))
+       (substring s 0 (floor (/ (string-length s) 2)))
+                     )))
+
+
+      (flip-side "nick")
+(flip-side "nickv")
+  
+ 
