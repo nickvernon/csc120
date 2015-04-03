@@ -1,0 +1,26 @@
+;; Nick Vernon & Orbelin Palacios
+;; Lab 2
+
+;; LEAP YEAR
+
+;; leap-year? : Number -> Boolean
+;; given a year, true if year is leap year
+
+;(define (leap-year? n) true) ; stub
+
+(check-expect (leap-year? 0) true)
+(check-expect (leap-year? 3) false)
+(check-expect (leap-year? 200) false)
+(check-expect (leap-year? 400) true)
+
+#;(define (leap-year? n) ; template
+  (... n ...))
+
+(define (leap-year? n)
+  (or (and (= (remainder n 4) 0) (= (remainder n 400) 0))
+      (and (= (remainder n 4) 0) (not (= (remainder n 100) 0)))))
+
+(leap-year? 500)
+(leap-year? 2015)
+(leap-year? 400)
+            
