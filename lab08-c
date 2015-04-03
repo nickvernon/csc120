@@ -1,0 +1,78 @@
+;; Orbelin Palacios & Nick Vernon
+;; LAB 8 - DESIGNING ABSTRACTIONS
+;; PART C - maybe (parametric data definition)
+
+;                                                           
+; Recall that a parametric data definition is one that 
+; contains a type variable, allowing it to abstract from
+; referring to a particular collection (or type) of data,
+; similarly to the way a function abstracts from a
+; particular data value.
+; 
+; To use a parametric data definition, we supply a 
+; concrete type of data in place of the type variables. This
+; is known as "instantiantion", and is similar, again, to
+; the way we supply values to a function by applying it.
+; 
+; For example, the abstracted `(Listof X)` data definition 
+; can be instantiated as follows:
+;  
+;  - (Listof Number)  -- representing a list of numbers
+;  - (Listof Image)   -- representing a list of images
+;  - etc.
+; 
+; 
+; 
+; Consider the following parametric data definition:
+; 
+
+
+
+; A (Maybe X) is one of:
+; – false
+; – X
+
+
+;                                                           
+; TASK 1.
+; 
+; Describe in plain English what each of the following 
+; instantiations of the Maybe data type represents:
+; 
+; 
+;  - (Maybe String)            -- is a string or false
+;  - (Maybe (Listof String))   -- is a list of strings or false
+;  - (Listof (Maybe String))   -- is a list of strings or false
+; 
+; 
+
+
+
+
+
+;                                                           
+; TASK 2.
+; 
+; Fill in a purpose statement for the following function and
+; then complete its definition.
+; 
+
+
+
+;; tail : String (Listof String) -> (Maybe (List-of String))
+;; produce a list of strings beginning at given string
+
+(check-expect (tail "a" empty) false)
+(check-expect (tail "a" (list "a" "b" "c")) (list "a" "b" "c"))
+(check-expect (tail "d" (list "b" "a" "d" "f")) (list "d" "f"))
+(check-expect (tail "a" (list "b" "c" "d")) false)
+
+(define (tail s los)
+  (cond
+    [(empty? los) false]
+    [(cons? los) (if (string=? s (first los))
+                    (cons s (rest los))
+                    (tail s (rest los)))]))
+
+
+

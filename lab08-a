@@ -1,0 +1,113 @@
+;; Nick Vernon & Orbelin Palacios
+;; LAB 8 - DESIGNING ABSTRACTIONS
+;; PART A - REDUCE
+
+(require 2htdp/image)
+
+; graphical constants:    
+(define MT (empty-scene 100 100))
+(define DOT (circle 3 "solid" "red"))
+
+
+;                                                           
+; TASK 1.
+; 
+; Design a function `reduce`, which is the abstraction
+; of the following two functions.
+; 
+
+
+
+;; sum : [List-of Number] -> Number
+;; compute the sum of the numbers on a-lon
+(check-expect (sum (list 4 3 2 0 7)) 16)
+
+(define (sum a-lon)
+  (reduce + 0 a-lon))
+
+
+;; product : [List-of Number] -> Number
+;; compute the product of the numbers on a-lon
+(check-expect (product (list 4 3 2 10 7)) 1680)
+
+(define (product a-lon)
+  (reduce * 1 a-lon))
+
+
+;; reduce : (Number -> Number) Number (Listof Numbers) -> Number
+;; given a list of numbers produce the solution based on
+;; given function with it's number
+
+(define (reduce x n a-lon)
+  (cond
+    [(empty? a-lon) n]
+    [(cons? a-lon)
+     (x (first a-lon)
+        (reduce x n (rest a-lon)))]))
+
+
+;                                                           
+; TASK 2.
+; 
+; Develop a general signature for `reduce` if you 
+; haven't already.
+; 
+
+
+
+
+
+
+;                                                           
+; TASK 3.
+; 
+; Use `reduce` to rewrite the following function as a
+; one-liner.
+
+
+;; image* : [List-of Posn] -> Image
+(check-expect (image* (list (make-posn 10 20) (make-posn 40 30)))
+              (place-image DOT 10 20 (place-image DOT 40 30 MT)))
+
+(define (image* a-lop)
+  (reduce place-dot MT a-lop))
+  
+ 
+;; place-dot : Posn Image -> Image
+(check-expect (place-dot (make-posn 10 20) MT) (place-image DOT 10 20 MT))
+
+(define (place-dot p img)
+  (place-image DOT
+               (posn-x p) (posn-y p)
+               img))
+
+
+;                                                           
+; TASK 4.
+; 
+; Can you generalize your signature for `reduce`?
+; Also develop a general purpose statement for the function.
+; 
+
+
+
+;; reduce : (X -> Y) Y (Listof X) -> Y
+;; given a list of X produce the solution based on
+;; given function with it's base Y
+
+
+
+;                                                           
+; ISL has a built-in version of your `reduce` function
+; named `foldr`. 
+; 
+; In some sense, foldr is almost the 'most abstract' 
+; list function you could define, because it basically 
+; captures the ... portions of the standard template for 
+; a list -- think about it. Many of the other functions, 
+; like map, filter, etc. can be written in terms of foldr.
+; 
+
+
+
+
