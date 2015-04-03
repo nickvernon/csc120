@@ -1,0 +1,98 @@
+;; Orbelin Palacios
+;; Nick Vernon
+
+(require 2htdp/image)
+(require 2htdp/universe)
+
+
+(define RADIUS 125)
+
+(define EMPTY-FRAME
+  (circle RADIUS "outline" "black"))
+
+(define BIG-HAND
+  (above
+   (isosceles-triangle 20 50 "solid" "lightblue")
+   (isosceles-triangle 100 350 "solid" "lightblue")))
+
+(define BIG-HAND-FRAME
+  (place-image/align BIG-HAND 
+                     RADIUS RADIUS "middle" "bottom"
+                     EMPTY-FRAME))
+
+(define BACKGROUND
+  .)
+
+;; seconds->angle : Number -> Number
+;; Determine the angle of rotation for the second hand given seconds
+
+(check-expect (seconds->angle 0) 0)
+(check-expect (seconds->angle 15) -90)
+(check-expect (seconds->angle 30) -180)
+(check-expect (seconds->angle 45) -270)
+(check-expect (seconds->angle 1) -6)
+(check-expect (seconds->angle 59) -354)
+
+; (define (seconds->angle s) 0)    ; stub
+; (define (seconds->angle s)       ; template
+;   (... s ...))
+
+(define (seconds->angle s)
+  (* -6 s))
+
+;; seconds-clock : Number -> Image
+;; produce a clock with the big hand showing the given seconds
+
+(check-expect (seconds-clock 0)
+              (overlay (rotate 0 BIG-HAND-FRAME) BACKGROUND))
+(check-expect (seconds-clock 15) 
+              (overlay (rotate -90 BIG-HAND-FRAME) BACKGROUND))
+(check-expect (seconds-clock 30)
+              (overlay (rotate -180 BIG-HAND-FRAME) BACKGROUND))
+(check-expect (seconds-clock 45)
+              (overlay (rotate -270 BIG-HAND-FRAME) BACKGROUND))
+
+
+; (define (seconds-clock b)                              ; stub
+;   (overlay (rotate 0 BIG-HAND-FRAME) BACKGROUND))
+
+; (define (seconds-clock b)                              ; template
+;   (... b ...))
+
+(define (seconds-clock b)
+  (overlay (rotate (seconds->angle b) BIG-HAND-FRAME) BACKGROUND))
+
+
+;; next-second : Number -> Number
+;; produce the second that comes after the given s
+
+(check-expect (next-second 0)   1)
+(check-expect (next-second 10) 11)
+(check-expect (next-second 30) 31)
+(check-expect (next-second 58) 59)
+(check-expect (next-second 59)  0)
+
+
+; (define (next-second s) 0)  ; stub
+; (define (next-second s)     ; template
+;     (... s ... ))
+
+(define (next-second s)
+  (if (= s 59)
+      0
+      (+ s 1)))
+
+; run-clock : Number -> Number
+; displays a moving seconds hand on a clock face starting from
+; the given seconds, and producing the seconds value when the 
+; animation is exited
+(define (run-clock start)
+  (big-bang start
+            (on-draw seconds-clock)
+            (on-tick next-second 1))) 
+
+
+
+
+
+
