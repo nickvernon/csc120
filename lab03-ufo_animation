@@ -1,0 +1,84 @@
+;; Nick Vernon & Orbelin Palacios
+;; Lab 3
+
+(require 2htdp/image)
+(require 2htdp/universe)
+
+;; produce an animation of a UFO moving across a scene
+
+(define UFO .)
+(define SPACE .)
+
+(define y 250)
+
+;; UFOPosition is a Number between [0 ... 500].
+;; interp. the x-coordinate of a UFO
+
+;; render-ufo : UFOPosition -> Image
+
+;; Data definitions:
+;; UFOX is a Number
+;; interp. the x postion of the UFO on the screen
+;(define U1 0)
+;(define U2 (/ (image-width SPACE) 2))
+;(define U3 (image-width SPACE))
+
+(define (render-ufo ux) 
+    (place-image UFO 
+                 ux 
+                 (+ (* (sin (/ (* ux (/ 180 pi)) 1500)) 10)(/ (image-height SPACE) 2))
+                 SPACE))
+  
+  #;(place-image UFO  ux  y
+            SPACE)
+
+(check-expect (render-ufo 50) (place-image UFO  50  (+ (* (sin (/ (* 50 (/ 180 pi)) 1500)) 10)(/ (image-height SPACE) 2))
+                 SPACE))
+
+;; update-ufo : UFOPosition -> UFOPosition
+;; interp. the next x position of the UFO on the screen
+
+(define (update-ufo ux)
+  (remainder (+ ux 3) 500))
+
+(check-expect (update-ufo 50) (+ 50 3))
+
+;; animate-ufo : UFOPosition -> UFOPosition
+;; start the world with (animate-ufo 0) 
+
+(define (animate-ufo ux)
+  (big-bang ux 
+            (on-draw render-ufo)
+            (on-tick update-ufo)))
+
+
+;(animate-ufo 0)
+
+
+
+;; ufo-react : UFOPosition KeyEvent -> UFOPosition
+;; given current x-coord and the key pressed, produce new x-coord (+3 or -3)
+
+; A KeyEvent is one of:
+;   - "left",
+;   - "right", or
+;   - some other string
+
+(define (ufo-react ux direction)
+  (cond
+    [(key=? direction "left") (- ux 3)]
+    [(key=? direction "right") (+ 3 ux)]
+    [(string? direction) (+ 0 ux)]))
+
+
+;; animate-ufo/key : UFOPosition -> UFOPosition
+;; produce an animation of a UFO moving left and right
+;; a scene in response to arrow key presses by the user
+;; start the world with (animate-ufo/key 250) 
+
+(define (animate-ufo/key ux)
+  (big-bang ux
+            (on-draw render-ufo)
+            (on-key ufo-react)))
+
+(animate-ufo/key 250)
