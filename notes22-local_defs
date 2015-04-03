@@ -1,0 +1,344 @@
+
+;                                                           
+; 
+; Lecture 22
+; Local Definitions; Using Abstractions
+; 
+
+
+
+;  
+; Today we are working with a new construct in our language- 
+; the first in a while - called "local".
+; 
+; Local definitions are useful/necessary in a few types of
+; scenarios.
+; 
+; Let's first consider this function:
+; (Try running it a bunch of times - it will eventually
+;  result in an error. Figure out why!)
+; 
+
+
+; random-choice : String String String -> String
+; produces one of the three given strings at random
+
+; example: (random-choice "rock" "paper" "scissors")
+; should produce one of those three strings
+
+(define (random-choice.bad a b c)
+  (cond [(= (random 3) 0) a]
+        [(= (random 3) 1) b]
+        [(= (random 3) 2) c]))
+
+;                                                           
+; Here's a fixed-up version that uses a local definition
+; to compute the random number *once* and bind it to a 
+; name:
+; 
+
+
+(define (random-choice a b c)
+  (local (; pick a random number - 0, 1, or 2
+          (define n (random 3))
+          )
+    (cond [(= n 0) a]
+          [(= n 1) b]
+          [(= n 2) c])))
+
+; 
+; The general syntax of the local construct is:
+; 
+;    (local [  ... <definitions> ...  ]
+;       <body>)
+; 
+; Within the body of the local the definitions exist. Outside 
+; the local they do not!
+;  
+; The definitions can also include functions. Recall our
+; abstracted sort-list function from the last lab...
+;  
+
+
+
+; sort-list : (X X -> Boolean)  [List-of X]  ->  [List-of X]
+; sorts the given list according to the given ordering function
+(check-expect (sort-list.v1 < (list 6 4 10 2 5 1 3)) 
+              (list 1 2 3 4 5 6 10))
+(check-expect (sort-list.v1 > (list 6 4 10 2 5 1 3)) 
+              (list 10 6 5 4 3 2 1))
+(check-expect (sort-list.v1 string<=? (list "dee" "bob" "eli" "abe" "liz"))
+              (list "abe" "bob" "dee" "eli" "liz"))
+
+(define (sort-list.v1 F a-lox)
+  (cond
+    [(empty? a-lox) empty]
+    [(cons? a-lox) 
+     (insert-x.v1 F (first a-lox)
+               (sort-list.v1 F (rest a-lox)))]))
+
+
+; insert-x : (X X -> Boolean) X [List-of X] -> [List-of X[
+; inserts x into its proper place according the ordering function
+;  in the given (already sorted) list
+; do I really need examples for this?...
+
+(define (insert-x.v1 F x a-lox)
+  (cond
+    [(empty? a-lox) (list x)]
+    [(cons? a-lox) 
+     (if (F x (first a-lox)) ; if x "<" the first thing on the list
+        (cons x a-lox)       ; then just tack x on front of the whole list
+        (cons (first a-lox)  ; otherwise...
+              (insert-x.v1 F x (rest a-lox))))]))
+
+
+;                                                           
+; As a first improvement - since insert-x is unlikely to 
+; be used by any function other than sort-list, we can 
+; encapsulate it inside sort-list itself, hiding it from
+; the rest of the world...
+; 
+
+
+
+; sort-list : (X X -> Boolean)  [List-of X]  ->  [List-of X]
+; sorts the given list according to the given ordering function
+(check-expect (sort-list.v2 < (list 6 4 10 2 5 1 3)) 
+              (list 1 2 3 4 5 6 10))
+(check-expect (sort-list.v2 > (list 6 4 10 2 5 1 3)) 
+              (list 10 6 5 4 3 2 1))
+(check-expect (sort-list.v2 string<=? (list "dee" "bob" "eli" "abe" "liz"))
+              (list "abe" "bob" "dee" "eli" "liz"))
+
+(define (sort-list.v2 F a-lox)
+  (local [
+          ; insert-x : (X X -> Boolean) X [List-of X] -> [List-of X[
+          ; inserts x into its proper place according the ordering function
+          ;  in the given (already sorted) list
+          (define (insert-x.v2 F x a-lox)
+            (cond
+              [(empty? a-lox) (list x)]
+              [(cons? a-lox) 
+               (if (F x (first a-lox)) ; if x "<" the first thing on the list
+                   (cons x a-lox)       ; then just tack x on front of the whole list
+                   (cons (first a-lox)  ; otherwise...
+                         (insert-x.v2 F x (rest a-lox))))]))
+          ]
+    (cond
+      [(empty? a-lox) empty]
+      [(cons? a-lox) 
+       (insert-x.v2 F (first a-lox)
+                    (sort-list.v2 F (rest a-lox)))])))
+
+
+
+;                                                           
+; Now, notice that the F parameter to sort-list is always
+; the same, and just gets passed along to insert-x unchanged
+; through all recursive calls to insert-x. Since this is the
+; case, and since insert-x has been moved inside the SCOPE
+; of the F parameter of sort-list anyway, we can refer to the
+; "outer" F from the body of insert-x directly...
+; 
+
+
+
+; sort-list : (X X -> Boolean)  [List-of X]  ->  [List-of X]
+; sorts the given list according to the given ordering function
+(check-expect (sort-list < (list 6 4 10 2 5 1 3)) 
+              (list 1 2 3 4 5 6 10))
+(check-expect (sort-list > (list 6 4 10 2 5 1 3)) 
+              (list 10 6 5 4 3 2 1))
+(check-expect (sort-list string<=? (list "dee" "bob" "eli" "abe" "liz"))
+              (list "abe" "bob" "dee" "eli" "liz"))
+
+(define (sort-list F a-lox)
+  (local [
+          ; insert-x : (X X -> Boolean) X [List-of X] -> [List-of X[
+          ; inserts x into its proper place according the ordering function
+          ;  in the given (already sorted) list
+          (define (insert-x x a-lox)
+            (cond
+              [(empty? a-lox) (list x)]
+              [(cons? a-lox) 
+               (if (F x (first a-lox)) ; if x "<" the first thing on the list
+                   (cons x a-lox)       ; then just tack x on front of the whole list
+                   (cons (first a-lox)  ; otherwise...
+                         (insert-x x (rest a-lox))))]))
+          ]
+    (cond
+      [(empty? a-lox) empty]
+      [(cons? a-lox) 
+       (insert-x (first a-lox)
+                    (sort-list F (rest a-lox)))])))
+
+;                                                           
+; This version of the definition is significant and a
+; useful technique. The term used to refer to a situation
+; such as this where the insert-x function accesses a 
+; variable (F) that is defined in an outer scope is a 
+; CLOSURE - http://en.wikipedia.org/wiki/Closure_(computer_science)
+; 
+
+
+
+;;==========================================================
+;;==========================================================
+;;==========================================================
+
+;                                                           
+; Another situation where a local definition comes in handy...
+; 
+
+
+;; A [NEList-of X] is one of:
+;;   - (cons X empty)
+;;   - (cons X [NEList-of X])
+;; interp. a *non-empty* list of X's
+
+
+;; max-num : [NEList-of Number] -> Number
+;; produces the largest number in the given non-empty list
+(check-expect (max-num.v1 (cons 4 empty)) 4)
+(check-expect (max-num.v1 (list 7 3 2 10 5)) 10)
+(check-expect (max-num.v1 (list 1 7 3 2 10 5)) 10)
+(check-expect (max-num.v1 (list 11 7 3 2 10 5)) 11)
+
+(define (max-num.v1 a-nelon)
+  (cond
+    [(empty? (rest a-nelon)) (first a-nelon)]
+    [(cons? (rest a-nelon))
+     (if (> (first a-nelon) (max-num.v1 (rest a-nelon)))
+         (first a-nelon)
+         (max-num.v1 (rest a-nelon)))]))
+
+;; TRY THIS ON A LIST OF 25 NUMBERS
+
+;; Problem: each call to max-num produces 2 more, potentially
+;; Solution: use a local definition to avoid recomputation
+
+;; max-num : [NEList-of Number] -> Number
+;; produces the largest number in the given non-empty list
+(check-expect (max-num (cons 4 empty)) 4)
+
+(check-expect (max-num (list 7 3 2 10 5)) 10)
+
+(check-expect (max-num (list 1 7 3 2 10 5)) 10)
+(check-expect (max-num (list 11 7 3 2 10 5)) 11)
+
+(define (max-num a-nelon)
+  (cond
+    [(empty? (rest a-nelon)) (first a-nelon)]
+    [(cons? (rest a-nelon))
+     (local [
+             (define max-of-rest (max-num (rest a-nelon)))
+             ]
+     (if (> (first a-nelon) max-of-rest)
+         (first a-nelon)
+         max-of-rest))]))
+
+
+;                                                           
+; This second definition of max-num is more complicated
+; than the first, but it is worth it, because the performance
+; gain is exponential. 
+; 
+
+
+
+
+;                                                           
+; Note: Don't do this - the local has been moved outside
+; the proper case of the conditional. This will end up
+; calling max-num recursively *every* time, even before
+; checking if the rest of the list is empty.
+; 
+; (define (max-num a-nelon)
+;   (local [(define max-of-rest (max-num (rest a-nelon)))]
+;     (cond
+;       [(empty? (rest a-nelon)) (first a-nelon)]
+;       [(cons? (rest a-nelon))
+;        (if (> (first a-nelon) max-of-rest)
+;            (first a-nelon)
+;            max-of-rest)])))
+; 
+
+
+;;==========================================================
+;;==========================================================
+;;==========================================================
+
+
+;                                                           
+; SUMMARY
+; 
+; There are three principal ways to use local. They are,
+; in order of simplest to most complex:
+;  
+;    giving names to intermediate values
+;       > as in "random-choice"
+;    avoiding recomputation of values
+;       > as in "max-nums"
+;    encapsulation (grouping)
+;       > as in "sort-list"
+; 
+
+
+
+;;==========================================================
+;;==========================================================
+;;==========================================================
+
+
+;                                                           
+; SOME MORE EXERCISES
+; 
+
+
+
+(define-struct cd (title artist price copies category))
+;; a CD is a (make-cd string string number number string)
+
+(define CDs (list (make-cd "greatest hits" "abba" 12.95 42 "rock")
+                  (make-cd "beach boys live" "beach boys" 10.00 120 "rock")
+                  (make-cd "yanni at the acropolis" "yanni" 5.00 0 "new age")
+                  (make-cd "marriage of figaro" "mozart" 20.00 50 "classical")))
+
+
+;  TODO: Fill in the function below using the *map* and *filter* abstract 
+;  functions. 
+
+
+;; titles-in-stock:  [List-of CD] -> [List-of String]
+;; consumes a [List-of CD] and produces the *titles* only
+;; of all those cds with at least 1 copy in stock
+;(check-expect (titles-in-stock CDs) 
+;              (list "greatest hits" "beach boys live" "marriage of figaro"))
+;(define (titles-in-stock a-locd)
+
+
+;  TODO: Fill in the function below using the *map* and *filter* abstract 
+;  functions. (Hint: Your helper function will need to be in a local
+;                    definition.)
+
+;; titles-by:  string [List-of CD] -> [List-of String]
+;; consumes an artist name and inventory and produces a list of titles of CDs by that artist
+;(check-expect (titles-by "mozart" CDs) (list "marriage of figaro"))
+;(define (titles-by name a-locd)
+;   ...
+
+
+;                                                           
+; Here is a generalization of a function we've seen 
+; previously...
+; 
+
+
+;; any-divisible : Nat [List-of Nat] -> Boolean
+;; determines if any of the numbers in the given list
+;; are divisible by the given number
+
+
+
+
