@@ -1,0 +1,213 @@
+;; Nick Vernon
+;; IN-CLASS EXERCISES (1/21/2015)
+
+
+(require 2htdp/image)
+
+;                                                                     
+; TASK:
+; 
+; Design a function that generates a summoning charm. For example: 
+; 
+;    (summon "Firebolt") should produce "accio Firebolt"
+;    (summon "portkey")  should produce "accio portkey"
+;    (summon "broom")    should produce "accio broom"
+;    
+; (See http://harrypotter.wikia.com/wiki/Summoning_Charm for 
+;  background on summoning charms.)
+; 
+; Remember, when we say DESIGN, we mean follow the recipe.
+; 
+; Follow the HtDF recipe and leave behind commented out versions of
+; the stub and template. 
+; 
+; (12m)
+; 
+
+
+;; summon : String -> String ; signature
+;; adds "accio" to the beginning of the given string (s) ; purpose
+
+;(define (summon s) "") ; stub 
+
+(check-expect (summon "Firebolt") "accio Firebolt") ; define examples
+(check-expect (summon "portkey") "accio portkey")
+
+;(define (summon s) ; template
+;  (... s ...))
+
+(define (summon s)
+  (string-append "accio " s))
+
+; test
+
+(summon "harry")
+(summon "ron")
+(summon "hagrid")
+
+;                                                                     
+; TASK:
+;  
+; You are working on designing a function and have completed your 
+; signature and purpose. 
+; 
+; Write three stubs with different bodies that are consistent with 
+; the signature and purpose below.
+; Put the three stubs in a comment box.
+; 
+; 
+; ;; pluralize : String -> String
+; ;; pluralizes str by appending "s" to the end 
+; 
+; (10m)
+; 
+
+
+;  ; (define (pluralize s) "s")
+;  ; (define (pluarlize s) "")
+;  ; (define (pluarlize s) "r")
+
+
+
+
+;                                                                     
+; TASK:
+; 
+; There may be more than one problem with this function design. 
+; Uncomment the function design below, and make the minimal changes 
+; required to resolve the error that occurs when you run it.
+; 
+; (7m)
+; 
+
+
+; ;; double : Number -> Number ; signature
+; ;; doubles n                 ; purpose
+; 
+; ; (define (double n) 0)      ; stub
+; 
+; (check-expect (double 0) 0)  ; define example
+; (check-expect (double 4) 8)
+; (check-expect (double 3.3) (* 2 3.3))
+; 
+; ; (define (double n)         ; template
+; ;   (... n ... ))
+; 
+; (define (double n)
+;   (* 2 n))
+
+
+
+
+;                                                                     
+; TASK:
+; 
+; DESIGN a function that consumes a string and determines whether 
+; its length is less than 5.  Follow the HtDF recipe and leave 
+; behind commented out versions of the stub and template.
+; 
+; (12m)
+; 
+
+
+;; slength : String -> Boolean ; signature
+;; given a string-length, returns true for < 5 and false for > 5
+
+;(define (slength s) true)
+
+(check-expect (slength? "Firebolt") false)
+(check-expect (slength? "Ron") true)
+
+;(define (slength? s)
+;  (... s ...))
+
+(define (slength? s)
+  (if (< (string-length s) 5)
+      true
+      false))
+    
+(slength? "Hogwarts")
+(slength? "Broom")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; EXTRA EXERCISES ****** IF YOU FINISH ALL THE ABOVE AND THERE IS
+;;                        STILL TIME LEFT
+
+;                                                                     
+; TASK:
+; 
+; Use the How to Design Functions (HtDF) recipe to design a function 
+; that consumes an image, and appears to put a box around it. Note 
+; that you can do this by creating an "outline" rectangle that is
+; bigger than the image, and then using overlay to put it on top 
+; of the image. For example:
+; 
+; (boxify (ellipse 60 30 "solid" "red")) should produce .
+; 
+; Remember, when we say DESIGN, we mean follow the recipe.
+; 
+; Leave behind commented out versions of the stub and template.
+; 
+
+
+;; boxify : Image -> Image
+;; given an image, put a box around it
+
+;(define (boxify an-img) (rectangle 20 20 "solid" "blue")) ; stub
+
+(check-expect (boxify (rectangle 20 20 "solid" "blue")) 
+              (overlay (rectangle 30 30 "outline" "black") 
+                       (rectangle 20 20 "solid" "blue")))
+(check-expect (boxify (rectangle 40 40 "solid" "green")) 
+              (overlay (rectangle 50 50 "outline" "black") 
+                       (rectangle 40 40 "solid" "green")))
+
+;(define (boxify an-img)
+;  (... an-img ...))
+
+(define (boxify an-img)
+  (overlay (rectangle (+ (image-width img) 10) (+ (image-heigth img) 10) "outline" "black")
+           (rectangle (image-width img) (image-width img) "solid" "blue")))
+
+
+;                                                                     
+; TASK:
+; 
+; In interactive games it is often useful to be able to determine 
+; the distance between two points on the screen. We can describe 
+; those points using Cartesian coordinates as four numbers: x1, y1 
+; and x2, y2. 
+; 
+; The formula for the distance between those points is:
+; .
+; Use the How to Design Functions (HtDF) recipe to design a function
+; called 'distance' that consumes four numbers representing two 
+; points and produces the distance between the two points.
+; 
+; Use (distance 3 0 0 4), which should produce 5 as your first 
+; example/test. Once your function works with that test, 
+; try (distance 1 0 0 1) which should produce (sqrt 2). Read 
+; the error message carefully and use the help desk to figure 
+; out how to use "check-within" for this case.
+; 
+; Remember, when we say DESIGN, we mean follow the recipe.
+; 
+; Leave behind commented out versions of the stub and template.
+; 
+; NOTE:
+; 
+; The signature for such a function is:
+; 
+; ;; Number Number Number Number -> Number
+; 
+; The template for such a function is:
+; 
+; ; (define (distance x1 y1 x2 y2)
+; ;   (... x1 y1 x2 y2))
+; 
+
+
+
