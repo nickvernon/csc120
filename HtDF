@@ -1,0 +1,95 @@
+;; Nick Vernon
+;; HtDF
+;; 1. Write out signature, purpose and stub
+;; 2. Define examples, wrap each in check-expect
+;; 3. Template and inventory
+;; 4. Code the function body
+;; 5. Test and debug until correct
+
+;  TASK:
+;  The gravity of the moon is less than that of Earth, so
+;  objects on the moon weigh 1/6 their weight on Earth.
+;  Design a function that determines an object's weight on
+;  the moon, given its weight on Earth.
+
+
+;; wgt-on-moon : Number -> Number ; signature
+;; given an object's weight on earth, produces its weight on moon ;purpose
+
+; (define (wgt-on-moon earth-wgt) 0) ; stub
+
+
+(check-expect (wgt-on-moon 120) 20)  ; define examples
+(check-expect (wgt-on-moon 300) (* 300 1/6))
+
+; (define (wgt-on-moon earth-wgt)    ; template
+;   (... earth-wgt ...))
+
+(define (wgt-on-moon earth-wgt)     
+  (* earth-wgt 1/6))
+
+;  TASK:
+;  DESIGN a function called yell that consumes a string like
+;  "hello" and produces "hello!".
+
+
+;; yell : String -> String
+;; adds "!" to the end of the given string (s)
+
+; (define (yell s) "")  ; stub
+
+(check-expect (yell "hello") "hello!")
+(check-expect (yell "bye") "bye!")
+
+; (define (yell s)   ; template
+;    (... yell ...))
+
+(define (yell s)
+  (string-append s "!"))
+
+;  TASK:
+;  DESIGN a function called area that consumes the length of one
+;  side of a square and produces the area of the square.
+
+
+;; area : Number -> Number
+;; produce area of square with the given side length
+
+; (define (area a-sq) 2) ; stub
+
+(check-expect (area 2) 4)
+(check-expect (area 4) (* 4 4))
+
+; (define (area a-sq)   ; template
+;    (... a-sq ...))
+
+(define (area a-sq)
+  (* a-sq a-sq))
+
+;  TASK:
+;  DESIGN a function that consumes an image and determines whether
+;  the image is tall.
+
+
+(require 2htdp/image)
+
+;; tall? : Image -> Boolean
+;; produce true if the given image is tall (height > width)
+
+;(define (tall? an-img) false) ; stub
+
+(check-expect (tall? (rectangle 20 40 "solid" "green")) true)
+(check-expect (tall? (rectangle 40 20 "solid" "red")) false)
+(check-expect (tall? (rectangle 40 40 "solid" "yellow")) false)
+
+;(define (tall? an-img)       ; template
+;  (... tall? ...)
+
+(define (tall? an-img)
+  (if (> (image-height an-img) (image-width an-img))
+    true
+    false))
+
+;; (define (tall? an-img)
+;;   (> (image-height an-img) (image-width an-img))) ; SIMPLIFIED
+
