@@ -1,0 +1,355 @@
+
+;                                                           
+;  Lecture 7
+;  Designing Worlds
+
+
+(require 2htdp/image)
+(require 2htdp/universe)
+
+;                                                            
+; WORLD programs are interactive, graphical programs. 
+; 
+;  - The textbook software provides us a mechanism called
+;    a user interface FRAMEWORK, in the form of a "teachpack"
+;    that allows us to combine separately-developed and 
+;    tested individual functions to produce interactive 
+;    functionality.
+;    
+;  - Worlds are built by developing simple (or complex)
+;    functions and using the 2htdp/universe teachpack.
+;    
+;  - World programs can also become part of a "universe" -
+;    a collection of worlds that can exchange messages 
+;    -- e.g. networked game
+;       - we might do this for this course
+;       
+;       
+;  
+;  
+
+
+
+
+;                                                            
+; Example: Fire-plane game
+; 
+; .
+; 
+; 
+; DESIGNING A WORLD PROGRAM
+; 
+; 1. MODEL/DATA: What information captures the state of 
+;    the "world" (at least the portion that you are 
+;    interested in and that change) ?
+;    
+; 2. How do you represent the state as data?
+;      ( ... plane-location  ...
+;        ... fire-sizes ...
+;        ... fire-locations ... )
+;      
+; 3. VIEW: How do you display/draw the current state of 
+;    the "world"?    (function: world-render)
+;     (world-render ...) ==>  .
+;    
+; 4. Interactivity: How does the state change
+;    in response to
+;      - time (clock ticks)   (tick-function : )
+;        .
+;        
+;      - mouse clicks         (mouse-function : )
+;        .
+;      
+;      - key presses          (key-function : )
+;        .
+;    
+;  5. Action! Write a function that uses 'big-bang' to 
+;     combine the functions you've written above, along
+;     with the initial state of the world, to start the
+;     program.
+; 
+;   (big-bang  INITIAL-WORLD        ;  :  W   <--- data type
+;              (to-draw <draw-func> )
+;              (on-tick <tick-func> )
+;              (on-mouse <mouse-func> )
+;              (on-key  <key-func> ))
+; 
+;   ; draw-func  : W -> Image
+;   ; tick-func  : W -> W
+;   ; mouse-func : W Number Number MouseEvent -> W
+;   ; key-func   : W KeyEvent -> W
+; 
+;   ( *** replace W with whatever type of data you have
+;         determined as necessary to represent the state
+;         of your world *** )  
+
+
+
+;                                                           
+; EXAMPLE: Traffic Light
+; 
+; 1. We want to model the transitions of the light between
+;    red/yellow/green.
+;    
+; 2. Represent the WORLD-STATE using our TrafficLight data
+;    definition:
+;   
+
+
+
+; TrafficLight is one of:                ; types comment
+;  - "red"                               ;
+;  - "yellow"                            ;
+;  - "green"                             ;
+; interp. the color of a traffic light   ; interpretation
+
+; (examples redundant for enumeration)
+
+(define (traffic-light-func a-tl)         ; template
+  (cond 
+    [(string=? a-tl "red") (...)]
+    [(string=? a-tl "yellow") (...)]
+    [(string=? a-tl "green") (...)]))
+
+
+;                                                           
+; 3. Develop a function to render an image of the current
+;    state of the light:
+;    
+
+
+(define BULB-RADIUS 30)
+(define OFF-BULB (circle BULB-RADIUS "outline" "black"))
+
+; make-traffic-light : TrafficLight -> Image
+; produce the current state of the traffic light as a image
+(check-expect (make-traffic-light "red")
+              (overlay
+               (above (circle 30 "solid" "red")
+                      (circle 30 "outline" "black")
+                      (circle 30 "outline" "black"))
+               (rectangle 60 180 "outline" "black")))
+
+(define (make-traffic-light a-tl)
+  (overlay
+   (cond 
+     [(string=? a-tl "red") (above (circle BULB-RADIUS "solid" "red") OFF-BULB OFF-BULB)]
+     [(string=? a-tl "yellow") (above OFF-BULB (circle BULB-RADIUS "solid" "yellow") OFF-BULB)]
+     [(string=? a-tl "green") (above OFF-BULB OFF-BULB (circle BULB-RADIUS "solid" "green"))])
+   (rectangle 60 180 "outline" "black")))
+
+
+;                                                           
+; 4. Our animation only responds to changes in time. We need a
+;    function that tells how the state of the world changes
+;    from one tick to the next:
+;    
+
+
+; next-color : TrafficLight -> TrafficLight
+; produce the next state of a traffic light after given state
+(check-expect (next-color "red")    "green")
+(check-expect (next-color "yellow") "red")
+(check-expect (next-color "green")  "yellow")
+
+(define (next-color a-tl)
+  (cond
+    [(string=? a-tl "red") "green"]
+    [(string=? a-tl "yellow") "red"]
+    [(string=? a-tl "green") "yellow"]))
+
+
+;                                                           
+; 5. Write a main function for our program that puts the
+;    pieces together:
+
+
+; traffic-light-simulation : TrafficLight -> TrafficLight
+; simulate a traffic light that changes with each tick
+
+(define (traffic-light-simulation initial-state)
+  (big-bang initial-state 
+            (to-draw make-traffic-light) 
+            (on-tick next-color 1)    ; ticks every 1 seconds (default is 1/28 sec.)
+            ;;(state true)
+            ))
+
+;                                                           
+; TO RUN:
+;    > (traffic-light-simulation "red")
+; 
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                                                           
+; .
+; 
+; EXAMPLE: Water Drop World
+;  - Simple animation of a falling water droplet.
+;  - Drops a little lower with each clock "tick"
+;  - Repositions the drop on a mouse click
+;  - Moves it left/right if arrow keys pressed
+; 
+
+
+
+;                                                           
+; Water Drop World: State
+; 
+; - For this simple "world", what changes over time, or 
+;   in response to user events?
+;   
+; - Determine  what information we need to represent as
+;   far as the *state* of the world
+;   
+;   - The only thing that changes is the location of the
+;     water drop: an (x, y) coordinate
+;   
+; - How do we represent this information as data?
+; 
+;   - So far the types of data we have worked with are: 
+;     Number, Boolean, String, Image
+;     
+;   - We could use one of these, but there is a more 
+;     natural data representation...
+
+
+
+;                                                           
+; POSNs
+; 
+; "posn"s are a kind of data that represent a position
+; (x, y) on a plane.
+;    ( * posn is a compound type of data: we will learn
+;        more about compound data next week )
+;    
+;  - To create a POSN, use the (make-posn  X  Y) function
+;    e.g.
+;        (make-posn 3 4)
+;        (make-posn 101 42)
+;        
+;  - If you have a posn P, you can determine its x and y 
+;    values using the functions: 
+;       - (posn-x P)
+;       - (posn-y P) 
+;    E.g.:
+;        (posn-x (make-posn 101 42))  ==>  101
+;        (posn-y (make-posn 101 42))  == >  42
+;        
+
+
+;                                                           
+; Prelude to templates for compound data:
+; 
+; In functions that process posn's, we might think about
+; writing the template just as for atomic types of data:
+; 
+; (define (posn-func a-posn)
+;    (... a-posn ...))
+; 
+; But in fact, since a-posn is a piece of compound data, 
+; made up of two individual pieces of data (the x and y
+; components), which we can extract with the posn-x and
+; posn-y operators, we can add our knowledge of that to 
+; the template:
+; 
+; (define (posn-func a-posn)
+;   (... (posn-x a-posn) ...
+;    ... (posn-y a-posn) ...))
+; 
+; 
+
+
+
+
+;                                                           
+; DESIGNING WATER DROP WORLD
+; 
+; -  We have selected a posn as our data representation 
+;    of the state of the world
+;    
+; - Now, we need to develop functions to:
+; 
+;   - Render an image, given the current posn of the drop
+;   - Produce the next posn of the drop after one clock "tick"
+;   - Produce a (new) posn in response to a mouse click
+;   - Produce a posn in response to a key press
+;   
+
+
+
+;                                                           
+; Replace W with 'posn' in the following:
+; 
+;   (big-bang  INITIAL-WORLD        ;  :  W   <--- data type
+;              (on-draw <draw-func> )
+;              (on-tick <tick-func> )
+;              (on-mouse <mouse-func> )
+;              (on-key  <key-func> ))
+; 
+;   ; draw-func  : W -> Image
+;   ; tick-func  : W -> W
+;   ; mouse-func : W Number Number MouseEvent -> W
+;   ; key-func   : W KeyEvent -> W
+; 
+;   ( *** replace W with whatever type of data you have
+;         determined as necessary to represent the state
+;         of your world *** )  
+; 
+; Each of these functions is developed separately following 
+; the Design Recipe, including full sets of tests.
+; 
+; Start with:
+; 
+
+
+
+(define DROP .)
+(define SCENE (empty-scene 300 300))
+
+; place-drop : Posn -> Image
+; place the water droplet at the given position in a scene
+
+; fall-down : Posn -> Posn
+; produce a posn that is moved down by 3 units
+
+; mouse-click : Posn Number Number MouseEvent -> Posn
+; react to a mouse click by placing the posn at that point
+
+; move-left-right : Posn KeyEvent -> Posn
+; move posn left or right by 3 pixels with the left/right arrows pressed
+
+
+;                                                           
+; PUTTING IT ALL TOGETHER
+; 
+; The big-bang form puts all the pieces together into an
+; interactive, graphical program
+; 
+
+
+
+; ==========================================================
+; water-drop : number number -> posn
+; runs an animation of a falling water drop
+
+#;
+(define (water-drop x y)
+  (big-bang (make-posn x y)
+            (on-draw place-drop)
+            (on-tick fall-down)
+            (on-mouse mouse-click)
+            (on-key move-left-right)
+            ))
+
+;                                                           
+; TO RUN
+; 
+; > (water-drop 150 0)
+; 
+; 
+
+
