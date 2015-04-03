@@ -1,0 +1,123 @@
+;; Orbelin Palacios & Nick Vernon
+;; LAB 8 - DESIGNING ABSTRACTIONS
+;; PART B - Sort 
+
+(require 2htdp/image)
+
+(define BLANK (square 0 "solid" "white"))
+
+(define I1 (rectangle 10 20 "solid" "blue"))   ; area: 200
+(define I2 (rectangle 20 30 "solid" "red"))    ; area: 600
+(define I3 (rectangle 30 40 "solid" "green"))  ; area: 1200
+
+; 
+; Here is the sort> function from last week lectures...        
+; 
+
+;; sort> : List-of-numbers -> List-of-numbers
+;; produces a copy of the given list of numbers sorted in descending order
+
+(check-expect (sort> empty) empty)
+(check-expect (sort> (list 5 4 -2))   (list 5 4 -2))
+(check-expect (sort> (list -2 4 5))   (list 5 4 -2))
+(check-expect (sort> (list 4 -2 5))   (list 5 4 -2))
+(check-expect (sort> (list 3 4 -2 5)) (list 5 4 3 -2))
+(check-expect (sort> (list 7 3 4 -2 5)) (list 7 5 4 3 -2))
+(check-expect (sort> (list 1 7 3 4 -2 5)) (list 7 5 4 3 1 -2))
+
+(define (sort> a-lon)
+  (cond [(empty? a-lon) empty]
+        [(cons? a-lon) (insert> (first a-lon) (sort> (rest a-lon)))]))
+
+
+
+;; insert> : Number List-of-numbers -> List-of-numbers
+;; produces a list of numbers with the given number in its proper
+;;  position in the given list of *sorted* numbers
+
+(check-expect (insert> 6 empty)    (cons 6 empty))
+(check-expect (insert> 6 (list 7 3 2))  (list 7 6 3 2))
+(check-expect (insert> 6 (list 8 7 3 2))  (list 8 7 6 3 2))
+(check-expect (insert> 10 (list 8 7 3 2))  (list 10 8 7 3 2))
+(check-expect (insert> 10 (list 10 8 7 3 2))  (list 10 10 8 7 3 2))
+
+(define (insert> n a-lon)
+  (cond [(empty? a-lon) (cons n empty)]
+        [(cons? a-lon) (if (>= n (first a-lon))
+                           (cons n a-lon)
+                           (cons (first a-lon) (insert> n (rest a-lon))))]))
+
+
+
+
+; 
+; TASK 1. 
+; Find your "sort-images/area>" function (and any required helper
+; functions) from the Class 17 exercises and paste it/them below.   
+; Also include your "sort-strings" function if you completed that.
+; 
+
+
+;; sort-images/area> : ListofImages -> ListofImages
+;; consumes a list of images and produces a new list of images in decreasing order
+
+(check-expect (sort-images/area> (list I1 I2 I3)) (list I3 I2 I1))
+(check-expect (sort-images/area> (list I1 I2 (square 100 "solid" "black"))) (list (square 100 "solid" "black") I2 I1))
+
+(define (sort-images/area> a-loi) 
+  (sort-list insert-image> a-loi))
+
+
+;; insert-image> : Image ListofImages -> ListofImages
+;; produces a list of images with the given image in its proper position
+;;          in the given list of *sorted* images
+
+(check-expect (insert-image> I1 (list I3 I2)) (list I3 I2 I1))
+(check-expect (insert-image> I2 (list I3 I1)) (list I3 I2 I1))
+(check-expect (insert-image> I3 (list I2 I1)) (list I3 I2 I1))
+
+(define (insert-image> img a-loi)
+  (cond
+    [(empty? a-loi) (cons img empty)]
+    [(cons? a-loi) (if (image-area-greater? img (first a-loi))
+                       (cons img a-loi)
+                       (cons (first a-loi) (insert-image> img (rest a-loi))))
+                   ]))
+
+;; image-area-greater? : Image Image -> Boolean
+;; produces true if the area of the first image is more than the second
+
+(check-expect (image-area-greater? I1 I2) false)
+(check-expect (image-area-greater? I2 I3) false)
+(check-expect (image-area-greater? I3 I1) true)
+(check-expect (image-area-greater? I3 I3) true)
+
+(define (image-area-greater? img1 img2)
+  (>= (find-area img1) (find-area img2)))
+
+;; find-area: Image -> Number
+;; given an image, determine that images area
+   
+(check-expect (find-area I1) 200)
+(check-expect (find-area I2) 600)
+(check-expect (find-area I3) 1200)
+(check-expect (find-area (rectangle 10 60 "solid" "blue")) 600)
+
+(define (find-area an-img)
+  (* (image-width an-img) (image-height an-img)))
+
+
+
+; 
+; TASK 2. 
+; Abstraction over the sorting functions above to define "sort-list." 
+; You may need to abstract over the helper functions as well.
+; 
+
+
+(define (sort-list x a-loi)
+  (cond
+    [(empty? a-loi) empty]
+    [(cons? a-loi) (x (first a-loi) (sort-list x (rest a-loi)))]
+    ))
+
