@@ -1,0 +1,282 @@
+;; Nick Vernon
+;; IN-CLASS EXERCISES (2/18/2015) -
+;; LIST OF STRINGS
+
+
+;                                                          
+; This file contains several exercises involving lists
+; of strings. Below you will find a data definition for
+; List-of-strings as well as a function - count-items - 
+; to get you started.
+;                                         
+
+
+;==========================================================
+;==========================================================
+;==========================================================
+;                                                          
+;   ;;;;;           ;              ;;;;;            ;      
+;   ;    ;          ;              ;    ;          ;       
+;   ;     ;   ;;;  ;;;  ;;;        ;     ;   ;;;  ;;;  ;;  
+;   ;     ;  ;   ;  ;  ;   ;       ;     ;  ;   ;  ;  ;  ; 
+;   ;     ;      ;  ;      ;       ;     ;  ;   ;  ;  ;    
+;   ;     ;   ;;;;  ;   ;;;;       ;     ;  ;;;;;  ;   ;;  
+;   ;     ;  ;   ;  ;  ;   ;       ;     ;  ;      ;     ; 
+;   ;    ;   ;  ;;  ;  ;  ;;       ;    ;   ;   ;  ;  ;  ; 
+;   ;;;;;     ;; ;   ;  ;; ;       ;;;;;     ;;;   ;   ;;  
+;                                                          
+;                                                          
+                                                  
+
+;; A List-of-strings is either:
+;;  - empty, 
+;;  - (cons String List-of-strings)
+;; interp. represents a list of words, like a shopping list
+
+(define LIST1 (cons "milk" (cons "eggs" empty)))
+(define LIST2 (cons "bread" LIST1))
+(define LIST3 (cons "cheese" (cons "eggs" (cons "yogurt" empty))))
+
+#;   ; template
+(define (los-func a-los)
+  (cond
+    [(empty? a-los) (...)]
+    [(cons? a-los) (... (first a-los)
+                        (los-func (rest a-los)) ...)]))
+
+
+
+;==========================================================
+;==========================================================
+;==========================================================
+;                                                       
+;   ;;;;;                      ;  ;                     
+;   ;                          ;                        
+;   ;      ;   ;  ; ;;    ;;  ;;; ;   ;;;   ; ;;    ;;  
+;   ;      ;   ;  ;;  ;  ;  ;  ;  ;  ;   ;  ;;  ;  ;  ; 
+;   ;;;;   ;   ;  ;   ;  ;     ;  ;  ;   ;  ;   ;  ;    
+;   ;      ;   ;  ;   ;  ;     ;  ;  ;   ;  ;   ;   ;;  
+;   ;      ;   ;  ;   ;  ;     ;  ;  ;   ;  ;   ;     ; 
+;   ;      ;  ;;  ;   ;  ;  ;  ;  ;  ;   ;  ;   ;  ;  ; 
+;   ;       ;; ;  ;   ;   ;;    ; ;   ;;;   ;   ;   ;;  
+;                                                       
+;                                                       
+
+
+;; count-items : List-of-strings -> Number
+;; produce the number of strings in the given list
+
+(check-expect (count-items empty)
+              0)
+(check-expect (count-items (cons "flour" (cons "sugar" empty)))
+              2)
+(check-expect (count-items LIST3) 3)
+(check-expect (count-items (cons "pasta" LIST3))  (+ 1 3))
+
+(define (count-items a-los)
+  (cond
+    [(empty? a-los) 0]
+    [(cons? a-los) (+ 1 (count-items (rest a-los)))]))
+
+;                                                          
+; TASK 1.
+; 
+; Complete the function below. Uncomment the check-expects
+; to get started. Then replace the stub with the template
+; from above and use the concrete examples to help you
+; work out the body of the function.
+; 
+
+
+;; got-milk? : List-of-strings -> Boolean
+;; produces true if the given list contains the string "milk"
+
+(check-expect (got-milk? empty) 
+              false)
+(check-expect (got-milk? (cons "flour" (cons "sugar" empty)))
+              false)
+(check-expect (got-milk? (cons "milk" (cons "flour" (cons "sugar" empty))))
+              true)
+(check-expect (got-milk? (cons "eggs" (cons "milk" (cons "flour" (cons "sugar" empty)))))
+              true)
+
+(define (got-milk? a-los)
+  (cond
+    [(empty? a-los) false]
+    [(cons? a-los) (or (string=? "milk" (first a-los))
+                       (got-milk? (rest a-los)))]))
+
+;                                                          
+; TASK 2.
+; 
+; Complete the function below.
+; 
+
+
+;; go-bad : List-of-strings -> List-of-strings
+;; produces a list like the given list but with every 
+;; occurrence of "milk" replaced with "yogurt"
+
+(check-expect (go-bad empty) 
+              empty)
+(check-expect (go-bad (cons "flour" (cons "sugar" empty)))
+              (cons "flour" (cons "sugar" empty)))
+(check-expect (go-bad (cons "milk" (cons "flour" (cons "sugar" empty))))
+              (cons "yogurt" (cons "flour" (cons "sugar" empty))))
+(check-expect (go-bad (cons "eggs" (cons "milk" (cons "flour" (cons "sugar" empty)))))
+              (cons "eggs" (cons "yogurt" (cons "flour" (cons "sugar" empty)))))
+(check-expect (go-bad (cons "milk" (cons "flour" (cons "milk" empty))))
+              (cons "yogurt" (cons "flour" (cons "yogurt" empty))))
+
+(define (go-bad a-los)  
+  (cond
+    [(empty? a-los) empty]
+    [(cons? a-los) (if (string=? "milk" (first a-los))
+                        (cons "yogurt" (go-bad (rest a-los)))              ; RECURSIVE
+                         (cons (first a-los) (go-bad (rest a-los))))]))
+
+;                                                          
+; TASK 3.
+; 
+; Write a function `got-word?` that consumes a list of 
+; words (strings) and a single word and produces true 
+; if the given word occurs at least once in the list.
+; 
+; Remember to work out examples before attempting to 
+; fill in the function body. Consider the example 
+; of an empty list. Also, as demonstrated in the lecture
+; videos, pick an example of a list with a few items 
+; in it, then one or two examples that add a single 
+; additional word to the front of that list.
+; 
+
+
+;; got-word? : List-of-strings String -> Boolean
+;; produces true if the given word occurs at least once in the given list
+
+(check-expect (got-word? empty "flour") 
+              false)
+(check-expect (got-word? (cons "flour" (cons "sugar" empty)) "flour")
+              true)
+(check-expect (got-word? (cons "milk" (cons "flour" (cons "sugar" empty))) "yogurt")
+              false)
+(check-expect (got-word? (cons "eggs" (cons "milk" (cons "flour" (cons "sugar" empty)))) "sugar")
+              true)
+
+(define (got-word? a-los word)
+  (cond
+    [(empty? a-los) false]
+    [(cons? a-los) (if (string=? word (first a-los))
+                       true
+                       (got-word? (rest a-los) word))]))      ; RECURSIVE
+
+;                                                          
+; TASK 4.
+; 
+; Develop a function `replace-word` that consumes a list 
+; of words (strings) and two strings and produces a list 
+; like the given list, but with all occurrences of the
+; first word replaced by the second.
+; 
+
+
+;; replace-word : List-of-strings String String -> List-of-strings
+;; produces a list with occurences of first string replaced with the second string
+
+(check-expect (replace-word empty "flour" "milk")
+              empty)
+(check-expect (replace-word (cons "flour" (cons "sugar" empty)) "flour" "milk")
+              (cons "milk" (cons "sugar" empty)))
+(check-expect (replace-word (cons "flour" (cons "sugar" (cons "milk" empty))) "flour" "milk")
+              (cons "milk" (cons "sugar" (cons "milk" empty))))
+
+
+(define (replace-word a-los word1 word2)    
+  (cond
+    [(empty? a-los) empty]
+    [(cons? a-los) (if (string=? word1 (first a-los)) 
+                        (cons word2 (replace-word (rest a-los) word1 word2))              ; RECURSIVE
+                         (cons (first a-los) (replace-word (rest a-los) word1 word2)))])) ; RECURSIVE
+
+;                                                          
+; THOUGHT QUESTIONS.
+; 
+; What relationship is there between `got-word?` and
+; `replace-word` and the two functions preceding them -
+; `got-milk?` and `go-bad`, respectively? 
+; 
+; If you had defined `got-word?` and `replace-word` to
+; begin with, how might you have defined the other two
+; functions differently (not based on the template) ?
+; 
+
+;For the go-bad function, I would have referenced replace-word, but instead of word1 and word2, I would have made these
+;milk and yogurt. If neither words were milk or yogurt, the program would not have run.
+;For the got-milk? function, I would have referenced got-word?.
+
+;                                                          
+; TASK 5.
+; 
+; Write a function called `count-occurrences` that 
+; consumes a list of words and a word and counts the 
+; number of occurrences of the given word in the list.
+; 
+
+
+;; count-occurences : List-of-strings String -> Number
+;; produces number of occurences of the given word in the given list
+
+(check-expect (count-occurences empty "flour") 
+              0)
+(check-expect (count-occurences (cons "flour" (cons "sugar" empty)) "flour")
+              1)
+(check-expect (count-occurences (cons "milk" (cons "flour" (cons "sugar" empty))) "yogurt")
+              0)
+(check-expect (count-occurences (cons "sugar" (cons "milk" (cons "flour" (cons "sugar" empty)))) "sugar")
+              2)
+
+;(check-expect (count-occurences LIST56 "sugar") 10)
+;(check-expect (count-occurences (cons "sugar" LIST56) "sugar") (+ 1 (count-occurences LIST56 "sugar") ))
+;(check-expect (count-occurences (cons "milk" LIST56) "sugar") (count-occurences LIST56 "sugar") )
+
+
+(define (count-occurences a-los word)
+  (cond
+    [(empty? a-los) 0]
+    [(cons? a-los) (if (string=? word (first a-los))
+                       (+ 1 (count-occurences (rest a-los) word))
+                       (count-occurences (rest a-los) word))]))      ; RECURSIVE
+
+;                                                          
+; TASK 6.
+; 
+; Write a function `any-duplicates?` that consumes a list 
+; of words and determines if there are any words that 
+; occur more than once in the list. 
+; 
+; (Hint: consider using a function that you've 
+;        already written.)
+; 
+
+
+;; any-duplicates? : List-of-strings -> Boolean
+;; produces true if the given list has string occurs more than once
+
+(check-expect (any-duplicates? empty) 
+              false)
+(check-expect (any-duplicates? (cons "flour" (cons "sugar" empty)))
+              false)
+(check-expect (any-duplicates? (cons "milk" (cons "flour" (cons "flour" empty))))
+              true)
+(check-expect (any-duplicates? (cons "eggs" (cons "milk" (cons "flour" (cons "sugar" empty)))))
+              false)
+;(check-expect (any-duplicates? (cons "sugar" (cons "sugar" LIST56)))
+;              true)
+;(check-expect (any-duplicates? (cons "sugar" LIST56)))
+;              false)
+
+(define (any-duplicates? a-los)
+  (cond
+    [(empty? a-los) false]
+    [(cons? a-los) (or (< 1 (count-occurences a-los (first a-los)))
+                       (any-duplicates? (rest a-los)))]))   
