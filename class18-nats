@@ -1,0 +1,185 @@
+;; Nick Vernon
+;; IN-CLASS EXERCISES (2/27/2015) -
+;; NATURAL NUMBERS
+
+(require 2htdp/image)
+
+
+;; A Nat (short for 'natural number') is one of:
+;;  - 0
+;;  - (add1 Nat)
+;; interp. a natural number is either zero or one larger
+;;         than another natural number
+
+; EXAMPLES
+(define zero 0)
+(define one (add1 0))
+(define four (add1 (add1 (add1 (add1 0)))))
+; note:  4   is just a shortcut for 
+;            writing (add1 (add1 (add1 (add1 0)))), just like
+;      (list ...) is a shortcut for (cons .. (cons .. empty))
+
+
+
+; 
+; TASK 1.
+; 
+; Write out the template for Nat(ural numbers) based on the 
+; types comment above. Do this without looking at the lecture
+; notes or video. 
+; 
+; Remember, the relevant predicates are:  zero?  positive?
+; And the "selector" for an add1 is:    sub1
+; 
+
+
+#;  ; template
+(define (nat-func n)   
+  (cond
+    [(zero? n) (...)]
+    [(positive? n)
+     (... (nat-func (sub1 n)) ...)]))
+
+
+
+
+
+; 
+; TASK 2.
+; 
+; Develop a function, "col" that produces an image with n copies of a
+; given image in a vertical column. If n is 0, then (empty-scene 0 0)
+; should be produced.
+; 
+
+
+(define C (circle 10 "solid" "blue"))
+
+
+;; col : Nat Image -> Image
+;; produces an image with n copies of img in a vertical column
+
+(check-expect (col 0 C) (empty-scene 0 0))
+(check-expect (col 2 C) (above C C))
+(check-expect (col 4 C) (above C (above C (above C C))))
+
+(define (col n img)
+  (cond
+    [(zero? n) (empty-scene 0 0)]
+    [(positive? n)
+     (... (nat-func (sub1 n)) ...)]))
+
+
+
+
+
+; 
+; TASK 3.
+; 
+; Develop a function, "row" that produces an image with n copies of a
+; given image in a horizontal row. If n is 0, then (empty-scene 0 0)
+; should be produced.
+; 
+
+
+;; row : Nat Image -> Image
+;; produces an image with n copies of img in a horizontal row
+
+(check-expect (row 0 C) (empty-scene 0 0))
+(check-expect (row 2 C) (beside C C))
+(check-expect (col 4 C) (beside C (beside C (beside C C))))
+
+(define (row n img)
+  (cond
+    [(zero? n) (empty-scene 0 0)]
+    [(positive? n)
+     (... (nat-func (sub1 n)) ...)]))
+
+
+
+
+
+; 
+; TASK 4.
+; 
+; Create a checkboard of any size using the image below and your    
+; "col" and "row" functions.
+; 
+
+
+(define CHECKER-PIECE 
+  (above (beside (rectangle 10 10 "solid" "black")
+                 (rectangle 10 10 "solid" "red"))
+         (beside (rectangle 10 10 "solid" "red")
+                 (rectangle 10 10 "solid" "black"))))
+
+;; checker : Nat String String -> Image
+;; makes a checker board of n size with given color
+
+(check-expect (checker 
+
+
+
+
+
+
+
+; 
+; TASK 5.
+; 
+; Develop the function "nat-odd?", which takes a Nat and tells whether or 
+; not it's an odd number.
+; 
+; Your function should follow directly from the template. 
+; Your code will be based on the fact that a non-zero natural 
+; number is odd if and only if its predecessor isn't.
+; 
+; For this problem, do not use the built-in arithmetic functions even?,
+; odd?, remainder, modulo, nor round, ceiling, +, -, ...
+; 
+
+
+
+
+
+
+
+
+
+
+
+
+
+; 
+; TASK 6. (OPTIONAL)
+; 
+; Develop the function "is-not-divisible-by<=n". It consumes a natural 
+; number [>= 1], n, and a natural number m, with n < m. If m is not 
+; divisible by any number between 1 (exclusive) and n (inclusive), the 
+; function produces true. Otherwise, its output is false.
+; 
+; For this function, replace the (zero? n) condition in your template
+; with (= n 1), since the smallest number this function is supposed
+; to handle is 1.
+; 
+; Note:  (is-not-divisible-by<=n 1 ...) is always true because there
+;        are no numbers in the range  1 < n <= 1 for  ... to be 
+;        divided by.
+; 
+; Examples:
+; (is-not-divisible-by<=i 5 35) should be false,
+;                               because (remainder 35 5) = 0.
+; (is-not-divisible-by<=i 4 35) should be true
+; 
+; 
+; 
+; When you're done, use is-not-divisible-by<=n to define "prime?", 
+; which consumes a natural number and determines whether or not it 
+; is prime. 
+; 
+
+
+
+
+
+
