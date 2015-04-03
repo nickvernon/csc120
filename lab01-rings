@@ -1,0 +1,87 @@
+
+;; Nick Vernon
+;; Lab 1 - Exercises with rings
+
+(require 2htdp/image)
+
+;                                                                     
+; TASKS:
+; 
+; 1. Uncomment the lines below and then "Run" this file to see the 
+;    image produced. 
+; 
+; 2. Look up the 'overlay' operator using the Help Desk (DrRacket's, 
+;    not Berry's). Under the "Help" menu, select "Help Desk". This
+;    should open a web browser with a text field at the top to use
+;    for searching. Search for "overlay". Choose the result that is
+;    provided from "2htdp/image".
+;    
+;    You can also search function/operator names directly by 
+;    right-clicking on the name and choose the "Search in Help
+;    Desk for ..." option.
+;    
+; 3. Try making a few more rings of different sizes and thicknesses.
+;    What happens if you try to use a negative number instead of
+;    positive numbers? (Try it and see.)
+;    
+; 4. The Stepper is a DrRacket tool that shows every step a program 
+;    takes (that is, the sequence of simplifications that takes place).
+;    Activate the Stepper with the button labeled "Step" with a picture
+;    of a foot, to the left of the Run button. Trying pressing the 
+;    "Step" button now. This should bring up a separate window which 
+;    lets you see how DrRacket is evaluating your program. Step through
+;    the expression. Try to predict what the next step will be 
+;    each time.
+;    
+; 5. Errors: Expect to make many syntax errors (spelling, punctuation) 
+;    in your programs as you are learning. To see what happens if 
+;    DrRacket can't understand your program, introduce various syntax 
+;    errors into your program (remove a paren, put in too many parens, 
+;    misspell a word, leave out one of the arguments to circle, etc) 
+;    and study the error messages when you click the "Run" button.
+;    
+
+
+(overlay
+  (circle 5 "solid" "white")
+  (circle 10 "solid" "red"))
+
+(overlay
+ (circle 20 "solid" "white")
+ (circle 40 "solid" "blue"))
+ 
+
+;                                                                     
+; IF YOU'RE WORKING WITH A PARTNER, SWITCH ROLES NOW!
+; 
+
+
+
+;                                                                     
+; TASK:
+; 
+; Create an expression(s) that produces the following image: 
+; 
+; .
+; 
+; The inner radius of the larger ring is 10 and its 
+; outer radius is 20. Hint: Use the 'above' operator.
+; 
+; Define names for intermediate pieces of the picture if possible.
+; Do you end up with repeated code? (That's good - by next week,
+; we will have learned a way to eliminate this sort of 
+; redundancy in code.)
+; 
+
+
+(above
+ (overlay
+ (circle 5 "solid" "white")
+ (circle 10 "solid" "red"))
+ (overlay 
+  (circle 10 "solid" "white")
+  (circle 20 "solid" "red")))
+ 
+
+ 
+ 
