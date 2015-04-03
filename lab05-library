@@ -1,0 +1,252 @@
+;; Orbelin Palacios & Nick Vernon
+;; Library Records
+;; Developing functions using mixed data and nested structures
+
+
+#|----------------------------------------------------------
+BACKGROUND INFORMATION
+
+A library needs to keep track of their inventory. The library 
+carries two kinds of media:
+
+  - books, which have a title, author, and year of publication
+
+  - videos, which have a title, director, year of release, and 
+    length in minutes
+----------------------------------------------------------|#
+
+#|----------------------------------------------------------
+TASK 1.
+
+Design a data definition and provide an interpretation for 
+library records. Support both types of media above. Give 
+several examples of media records. Here are two to get 
+you started (your structure definitions should be 
+consistent with these examples):
+
+  (make-book "The Mythical Man-Month" "Fred Brooks" 1975)
+  (make-video "The Mythical Man-Month Movie"
+              "Ron Howard" 2011 95)
+
+You should end up with THREE data definitions: two 
+with structure definitions (for Book and Video); and then
+one itemization (mixed data) definition for Media whose
+types comment is:
+
+  ;; A Media is either:
+  ;;   - a Book, or
+  ;;   - a Video
+  ;; interp.  ...
+
+Make sure you apply the reference rule appropriate in
+the template for Media.
+----------------------------------------------------------|#
+
+(define-struct book (title author year))
+; A Book is (make-book String String Number)
+; interp. a book with given title, author, and year of publication
+
+; examples
+(define book1 (make-book "The Mythical Man-Month" "Fred Brooks" 1975))
+(define book2 (make-book "Nick Vernon, an Autobiography" "Nick Vernon" 2015))
+
+#;  ; templates
+(define (book-func a-book)
+  (... (book-title a-book)    ; String
+       (book-author a-book)   ; String
+       (book-year a-book)     ; Number
+       ...))
+
+
+
+(define-struct video (title director year duration))
+; A Video is (make-video String String Number Number)
+;interp. a video with given title, director, year of release, and duration in minutes
+
+; examples
+(define video1 (make-video "The Mythical Man-Month Movie" "Ron Howard" 2011 95))
+(define video2 (make-video "Jameel Johnson - The Documentary" "Orbelin Palacios" 2015 120))
+
+#;  ; template
+(define (video-func a-video)
+  (... (video-title a-video)     ; String
+       (video-director a-video)  ; String
+       (video-year a-video)      ; Number
+       (video-duration a-video)  ; Number
+       ...))
+
+
+
+;; A Media is either:
+;;   - a Book, or
+;;   - a Video
+;; interp.  represents a media in inventory
+
+#;  ; template
+(define (media-func a-media)
+  (cond
+    [(book? a-media)(... (book-func a-book)...)]
+    [(video? a-media)(... (video-func a-video)...)]))
+
+#|----------------------------------------------------------
+TASK 2.
+
+Design a function `item-title` that, given a library media
+item, returns the title.
+----------------------------------------------------------|#
+
+;; item-title : Media -> String
+;; given a media, returns the title
+
+(check-expect (item-title book1) "The Mythical Man-Month")
+(check-expect (item-title book2) "Nick Vernon, an Autobiography")
+(check-expect (item-title video1) "The Mythical Man-Month Movie")
+(check-expect (item-title video2) "Jameel Johnson - The Documentary")
+
+(define (item-title a-media)
+  (cond
+    [(book? a-media)(book-title a-media)]
+    [(video? a-media)(video-title a-media)]))
+
+
+#|----------------------------------------------------------
+TASK 3.
+
+The library keeps item records in a computer (using DrRacket), 
+but they also maintain a card catalogue. Here are sample card 
+catalogue entries for a book and a movie:
+ 
+   Fred Brooks: "The Mythical Man-Month" (1975).
+
+   "The Mythical Man-Month Movie" (Dir. Ron Howard), 
+   95 minutes (2011).
+
+Design a function `catalogue-entry` that, given a library 
+media item, returns the text of the card catalog entry 
+in the format above.
+ 
+(Hint: To make a string with the double quotation mark "
+ in it, writing """ won’t work. You need to escape the 
+ double quote with a backslash, like "\"". The backslash 
+ tells DrRacket that the next double quote is part of the 
+ string rather than the end of it.)
+----------------------------------------------------------|#
+
+;; catalogue-entry : Media -> String
+;; given a media, returns the text of the card catalog entry in the format above
+
+(check-expect (catalogue-entry book1) "Fred Brooks: \"The Mythical Man-Month\" (1975).")
+(check-expect (catalogue-entry video1) "\"The Mythical Man-Month Movie\" (Dir. Ron Howard), 95 minutes (2011).")
+
+(define (catalogue-entry a-media)
+  (cond
+    [(book? a-media)(string-append(book-author a-media) ": \"" (book-title a-media) "\" (" (number->string(book-year a-media)) ").")]
+    [(video? a-media)(string-append "\"" (video-title a-media) "\" (Dir. "(video-director a-media) "), " (number->string(video-duration a-media)) " minutes (" (number->string(video-year a-media)) ").")]))
+  
+
+
+#|----------------------------------------------------------
+
+The aforementioned library also needs to keep track of which 
+books and films are checked out. In particular, they need 
+check-out records that associate with an item (represented 
+as in Task 1) the name of the patron who checked it out 
+and the number of days until it’s due.
+(Use negative numbers for overdue items.)
+----------------------------------------------------------|#
+
+
+
+
+#|----------------------------------------------------------
+TASK 4.
+
+Design a complete data definition for a checkout record.
+Here's an example of data:
+
+(make-checkout (make-book "The Mythical Man-Month" ... ...)
+               "Nadeem Hamid" 12)
+
+----------------------------------------------------------|#
+
+(define-struct checkout (media name days))
+; A Checkout is (make-checkout Media "String" Number)
+; interp. a checkout record with given Media, name of person checking it out,
+; and the number of days til due (negative numbers for overdue items)
+
+; examples
+(define checkout1 (make-checkout (make-book "The Mythical Man-Month" "Fred Brooks" 1975) "Nadeem Hamid" 12))
+(define checkout2 (make-checkout video2 "Orbelin Palacios" -4))
+
+#;  ; template
+(define (checkout-func a-checkout)
+  (... (media-func (checkout-media a-checkout))
+       (checkout-name a-checkout)
+       (checkout-days a-checkout)
+       ...))
+
+
+#|----------------------------------------------------------
+TASK 5.
+
+Design a function `do-checkout` that, given a library item and 
+the name of the person checking it out, returns the check-out 
+record for that item. 
+   (Books are checked out for 14 days and videos for 7 days.)
+----------------------------------------------------------|#
+
+; do-checkout : Media String -> Checkout
+; given a library item and name of the person checking it out, returns
+; the check-out record for that item
+
+(check-expect (do-checkout book1 "John Doe") (make-checkout (make-book "The Mythical Man-Month" "Fred Brooks" 1975) "John Doe" 14))
+(check-expect (do-checkout video1 "Beyonce") (make-checkout video1 "Beyonce" 7))
+                           
+
+(define (do-checkout a-media name)
+  (cond
+    [(book? a-media)(make-checkout a-media name 14)]
+    [(video? a-media)(make-checkout a-media name 7)]))
+
+#|----------------------------------------------------------
+TASK 6.
+
+Design a function `next-day` for the library to use at 
+midnight every day to update the remaining days in a 
+checkout record, by returning the same record but with one 
+fewer day remaining.
+----------------------------------------------------------|#
+
+; next-day : Checkout -> Checkout
+; given a check-out record for an item, returns a new check-out record for that item with one fewer day remaining
+
+(check-expect (next-day checkout1) (make-checkout (make-book "The Mythical Man-Month" "Fred Brooks" 1975) "Nadeem Hamid" 11))
+(check-expect (next-day checkout2) (make-checkout video2 "Orbelin Palacios" -5))
+(check-expect (next-day (make-checkout (make-book "New Book" "New Author" 2015) "New Member" 1)) (make-checkout (make-book "New Book" "New Author" 2015) "New Member" 0))
+
+(define (next-day a-checkout) 
+  (make-checkout (checkout-media a-checkout) (checkout-name a-checkout) (- (checkout-days a-checkout) 1)))
+  
+
+
+#|----------------------------------------------------------
+TASK 7.
+
+Design a predicate function `item-overdue?` that determines 
+whether the given checked-out item is overdue.
+----------------------------------------------------------|#
+
+
+; item-overdue? : Checkout -> Boolean
+; given a checkout record, produces true if the item is overdue and produces false if the item is not overdue
+
+(check-expect (item-overdue? (make-checkout (make-book "New Book" "New Author" 2015) "New Member" 0)) false)
+(check-expect (item-overdue? (make-checkout (make-book "The Mythical Man-Month" "Fred Brooks" 1975) "Nadeem Hamid" 11)) false)
+(check-expect (item-overdue? (make-checkout video2 "Orbelin Palacios" -5)) true)
+
+(define (item-overdue? a-checkout)
+  (< (checkout-days a-checkout) 0))
+
+
+
+
